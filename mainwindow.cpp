@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	, m_hWnd(nullptr)
 	, m_hChildWnd(nullptr)
 	, m_stopFlag(false)
+	, m_wndWidth(890)
+	, m_wndHeight(588)
 	, m_picCompareStrategy(new ZZPicCompareStrategy)
 {
 	ui->setupUi(this);
@@ -37,15 +39,18 @@ void MainWindow::PostMsgThread()
 // 	{
 		//获取最新的游戏窗口大小，通过比例来进行鼠标点击，可以保证窗口任意大小都能点击正确
 		UpdateGameWindowSize();
+		int iCurCount = ui->list_tip->count();
+		static int iLastCount = iCurCount;
 		//检测提示列表大小，超过一定值清空
-		if (ui->list_tip->count() > 500)
+		if (iCurCount > 500)
 		{
 			ui->list_tip->clear();
 		}
-		else
+		else if (iLastCount != iCurCount)
 		{
 			ui->list_tip->scrollToBottom();
 		}
+		iLastCount = iCurCount;
 
 		bool bAllFinishedFlag = true;
 		int index = -1;
@@ -66,11 +71,11 @@ void MainWindow::PostMsgThread()
 			bAllFinishedFlag = false;
 
 			//判断延迟
-			if (GetTickCount() - input.startTime < input.delay)
+			if (GetTickCount() - input.startTime < (DWORD)input.delay)
 				break;
 
 			//查询图片是否超时
-			if (input.findPicOvertime != -1 && InputType::Pic == input.type && (GetTickCount() - input.startTime > (input.findPicOvertime + input.delay)))
+			if (input.findPicOvertime != -1 && InputType::Pic == input.type && (GetTickCount() - input.startTime > (DWORD)(input.findPicOvertime + input.delay)))
 			{
 				input.bFindPicOvertimeFlag = true;
 				//判断超时指令跳转
@@ -483,6 +488,9 @@ void MainWindow::OnBtnOpenFileDialog_PicPath()
 
 void MainWindow::OnBtnSaveClick()
 {
+	m_wndWidth = ui->edt_wndWidth->text().toInt();
+	m_wndHeight = ui->edt_wndHeight->text().toInt();
+
 	//按照二进制存储
 	FILE *pFile = nullptr;
 	std::string strFilePath = ui->edt_saveName->text().toLocal8Bit().toStdString();
@@ -497,21 +505,25 @@ void MainWindow::OnBtnSaveClick()
 		return;
 
 	//先写入两个窗口名(长度+str)
-	int nameLen = ui->edt_wndName->text().toLocal8Bit().toStdString().length() + 1;
+	int nameLen = (int)ui->edt_wndName->text().toLocal8Bit().toStdString().length() + 1;
 	fwrite(&nameLen, sizeof(int), 1, pFile);
 	fwrite(ui->edt_wndName->text().toLocal8Bit().toStdString().c_str(), 1, nameLen, pFile);
 
-	nameLen = ui->edt_wndName2->text().toLocal8Bit().toStdString().length() + 1;
+	nameLen = (int)ui->edt_wndName2->text().toLocal8Bit().toStdString().length() + 1;
 	fwrite(&nameLen, sizeof(int), 1, pFile);
 	fwrite(ui->edt_wndName2->text().toLocal8Bit().toStdString().c_str(), 1, nameLen, pFile);
 
 	//然后存入操作数组的大小以及数据
-	int size = m_inputVec.size();
+	int size = (int)m_inputVec.size();
 	fwrite(&size, sizeof(int), 1, pFile);
 	for (auto &input : m_inputVec)
 	{
 		fwrite(&input, sizeof(InputData), 1, pFile);
 	}
+
+	//最后写入窗口大小，因为这是后加的结构，为了不影响以前的脚本数据
+	fwrite(&m_wndWidth, sizeof(int), 1, pFile);
+	fwrite(&m_wndHeight, sizeof(int), 1, pFile);
 
 	fclose(pFile);
 	ui->list_tip->addItem(QString::fromLocal8Bit("保存文件成功"));
@@ -570,6 +582,12 @@ void MainWindow::LoadInputModuleFile(const char *file)
 		m_inputVec.push_back(input);
 	}
 
+	//最后读取窗口大小，因为是后添加的结构
+	fread(&m_wndWidth, sizeof(int), 1, pFile);
+	fread(&m_wndHeight, sizeof(int), 1, pFile);
+	ui->edt_wndWidth->setText(std::to_string(m_wndWidth).c_str());
+	ui->edt_wndHeight->setText(std::to_string(m_wndHeight).c_str());
+
 	fclose(pFile);
 
 	//更新保存文件显示的名称，否则容易保存覆盖错误，因为现在有模块跳转功能
@@ -602,7 +620,7 @@ void MainWindow::ResetAllInputFinishFlag()
 
 void MainWindow::JumpInput(int index)
 {
-	int size = m_inputVec.size();
+	int size = (int)m_inputVec.size();
 	for (int i = 0; i < size; ++i)
 	{
 		if (i < index)
@@ -673,10 +691,10 @@ void MainWindow::HandleKeyboardInput(InputData &input)
 
 void MainWindow::HandleGameImgCompare(InputData &input)
 {
-	auto rate = m_picCompareStrategy->HandlePicCompare(input, m_hWnd, m_gameWndSize);
+	m_picCompareStrategy->HandlePicCompare(input, m_hWnd, m_gameWndSize);
 }
 
-void MainWindow::InitGameWindow(const char *name /*= ""*/)
+void MainWindow::InitGameWindow()
 {
 	m_hWnd = nullptr;
 	m_hChildWnd = nullptr;
@@ -695,10 +713,13 @@ void MainWindow::InitGameWindow(const char *name /*= ""*/)
 	else
 	{
 		RECT rt;
-		GetWindowRect((HWND)winId(), &rt);
+		GetWindowRect(m_hWnd, &rt);
 
 		//这里的大小设置不要再改动了，如果只是鼠标点击倒是没有关系，主要涉及到图片对比，虽然比例一样，但是图片太小了拉伸以后始终会失真，因为原对比图片的大小是从890 588的分辨率上截取的
-		::SetWindowPos(m_hWnd, HWND_BOTTOM, rt.left, rt.top, 890, 588, SWP_NOMOVE | SWP_NOACTIVATE);
+		if ((rt.right - rt.left) != m_wndHeight || (rt.bottom - rt.top) != m_wndHeight)
+		{
+			::SetWindowPos(m_hWnd, HWND_BOTTOM, rt.left, rt.top, m_wndWidth, m_wndHeight, SWP_NOMOVE | SWP_NOACTIVATE);
+		}
 
 		if (m_gameWndChildName.toLocal8Bit().toStdString().compare("") != 0)
 		{

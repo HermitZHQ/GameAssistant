@@ -90,6 +90,10 @@ public:
     QLabel *label_24;
     QLineEdit *edt_comment;
     QPushButton *btn_updateAllInput;
+    QLabel *label_25;
+    QLabel *label_26;
+    QLineEdit *edt_wndWidth;
+    QLineEdit *edt_wndHeight;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -113,13 +117,13 @@ public:
         label->setGeometry(QRect(20, 10, 72, 21));
         edt_wndName = new QLineEdit(centralWidget);
         edt_wndName->setObjectName(QString::fromUtf8("edt_wndName"));
-        edt_wndName->setGeometry(QRect(90, 10, 321, 21));
+        edt_wndName->setGeometry(QRect(90, 10, 211, 21));
         label_2 = new QLabel(centralWidget);
         label_2->setObjectName(QString::fromUtf8("label_2"));
         label_2->setGeometry(QRect(10, 40, 81, 21));
         edt_wndName2 = new QLineEdit(centralWidget);
         edt_wndName2->setObjectName(QString::fromUtf8("edt_wndName2"));
-        edt_wndName2->setGeometry(QRect(90, 40, 321, 21));
+        edt_wndName2->setGeometry(QRect(90, 40, 211, 21));
         cb_inputType = new QComboBox(centralWidget);
         cb_inputType->addItem(QString());
         cb_inputType->addItem(QString());
@@ -296,10 +300,22 @@ public:
         label_24->setGeometry(QRect(20, 70, 61, 21));
         edt_comment = new QLineEdit(centralWidget);
         edt_comment->setObjectName(QString::fromUtf8("edt_comment"));
-        edt_comment->setGeometry(QRect(90, 70, 321, 21));
+        edt_comment->setGeometry(QRect(90, 70, 331, 21));
         btn_updateAllInput = new QPushButton(centralWidget);
         btn_updateAllInput->setObjectName(QString::fromUtf8("btn_updateAllInput"));
         btn_updateAllInput->setGeometry(QRect(700, 570, 101, 28));
+        label_25 = new QLabel(centralWidget);
+        label_25->setObjectName(QString::fromUtf8("label_25"));
+        label_25->setGeometry(QRect(310, 10, 51, 21));
+        label_26 = new QLabel(centralWidget);
+        label_26->setObjectName(QString::fromUtf8("label_26"));
+        label_26->setGeometry(QRect(310, 40, 51, 21));
+        edt_wndWidth = new QLineEdit(centralWidget);
+        edt_wndWidth->setObjectName(QString::fromUtf8("edt_wndWidth"));
+        edt_wndWidth->setGeometry(QRect(360, 10, 61, 21));
+        edt_wndHeight = new QLineEdit(centralWidget);
+        edt_wndHeight->setObjectName(QString::fromUtf8("edt_wndHeight"));
+        edt_wndHeight->setGeometry(QRect(360, 40, 61, 21));
         MainWindow->setCentralWidget(centralWidget);
 
         retranslateUi(MainWindow);
@@ -401,6 +417,10 @@ public:
         label_24->setText(QApplication::translate("MainWindow", "\346\223\215\344\275\234\346\263\250\351\207\212", nullptr));
         edt_comment->setText(QString());
         btn_updateAllInput->setText(QApplication::translate("MainWindow", "\346\233\264\346\226\260\346\211\200\346\234\211\345\221\275\344\273\244", nullptr));
+        label_25->setText(QApplication::translate("MainWindow", "\347\252\227\345\217\243\345\256\275", nullptr));
+        label_26->setText(QApplication::translate("MainWindow", "\347\252\227\345\217\243\351\253\230", nullptr));
+        edt_wndWidth->setText(QApplication::translate("MainWindow", "890", nullptr));
+        edt_wndHeight->setText(QApplication::translate("MainWindow", "588", nullptr));
     } // retranslateUi
 
 };

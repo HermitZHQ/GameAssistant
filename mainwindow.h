@@ -61,7 +61,7 @@ private slots:
 	void HandleKeyboardInput(InputData &input);
 	void HandleGameImgCompare(InputData &input);
 
-	void InitGameWindow(const char *name = "");
+	void InitGameWindow();
 	void UpdateGameWindowSize();
 
 private:
@@ -73,6 +73,8 @@ private:
 	CSize						m_gameWndSize;
 	QString						m_gameWndParentName;
 	QString						m_gameWndChildName;
+	int							m_wndWidth;
+	int							m_wndHeight;
 	PicCompareStrategy			*m_picCompareStrategy;
 	QTimer						m_timer;
 };

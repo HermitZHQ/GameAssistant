@@ -29,5 +29,5 @@ static std::string Left2Precision(double d)
 	int part1 = iTmp / 100;
 	int part2 = iTmp % 100;
 	int part3 = iTmp / 10;
-	return std::string(std::to_string(part1)).append(".").append((0 == part3 ? "" : "0")).append(std::to_string(part2));
+	return std::string(std::to_string(part1)).append(".").append((0 == part3 ? "0" : "")).append(std::to_string(part2));
 }

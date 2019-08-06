@@ -84,7 +84,7 @@ double OpencvMgr::CompareImgs()
 
 	auto rate = (double)matched1.size() / ((kpts1.size() + kpts2.size()) / 2.0);
 
-	double inlier_ratio = inliers1.size() / (double)matched1.size();
+// 	double inlier_ratio = inliers1.size() / (double)matched1.size();
 // 	cout << "A-KAZE Matching Results" << endl;
 // 	cout << "*******************************" << endl;
 // 	cout << "# Min Dist:				\t" << minDist << endl;
