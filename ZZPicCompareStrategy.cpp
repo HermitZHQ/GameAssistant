@@ -96,8 +96,10 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 
 
 	//-----------------------compare func
-	float fBaseScaleFactor = 1.2f;
+	float fBaseScaleFactor = 2.0f;
 	double rOffsetRate = 0, gOffsetRate = 0, bOffsetRate = 0;
+	int kpSize1 = 0, kpSize2 = 0;
+
 	auto compareFunc = [&](Mat srcImg, Mat cmpImg)->double {
 		Mat img1_rgb = imread(input.picPath);
 		Mat img1 = imread(input.picPath, IMREAD_GRAYSCALE);
@@ -130,7 +132,7 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 		gOffsetRate = std::abs((1.0 - gRate));
 		bOffsetRate = std::abs((1.0 - bRate));
 
-		const double cmpOffsetRate = 0.2;
+		const double cmpOffsetRate = 0.3;
 		if (rOffsetRate > cmpOffsetRate || gOffsetRate > cmpOffsetRate || bOffsetRate > cmpOffsetRate)
 		{
 // 			m_ui->list_tip->addItem(std::string("rgb over offset:").append(input.picPath).c_str());
@@ -181,9 +183,15 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 
 		if (kpts1.size() < 2 || kpts2.size() < 2)
 		{
+			std::string strPicName = input.picPath;
+			auto pos = strPicName.find_last_of( "/" );
+			if ( pos != std::string::npos )
+			{
+				strPicName = strPicName.substr( pos );
+			}
 // 			cv::imwrite("C:\\Users\\cdzha\\Desktop\\curImg_size0.png", img2);
 #ifdef _DEBUG
-			m_ui->list_tip->addItem("key point too low...");
+			m_ui->list_tip->addItem(std::string("key point too low[").append(std::to_string(kpts1.size())).append("|").append( std::to_string( kpts2.size() ) ).append("]-").append( strPicName ).c_str());
 #endif // _DEBUG
 			return 0.0;
 		}
@@ -215,6 +223,8 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 		}
 // #endif // _DEBUG
 
+		kpSize1 = (int)kpts1.size();
+		kpSize2 = (int)kpts2.size();
 		return rate;
 	};
 
@@ -238,7 +248,7 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 		input.bFindPicFlag = true;
 		//对比成功后点击图片的中心点
 		(input.bCmpPicCheckFlag) ? MouseClick(gameWnd, x + (x2 - x) / 2.0, y + (y2 - y) / 2.0) : (0);
-		m_ui->list_tip->addItem(QTime::currentTime().toString().toStdString().append(":cmp[").append(Left2Precision(rate)).append("|").append(std::to_string(GetTickCount() - dwTime)).append("]-").append(input.picPath).append("_").append(Left2Precision(rOffsetRate)).append("_").append(Left2Precision(gOffsetRate)).append("_").append(Left2Precision(bOffsetRate)).c_str());
+		m_ui->list_tip->addItem(QTime::currentTime().toString().toStdString().append(":cmp[").append(Left2Precision(rate)).append("|").append(std::to_string(GetTickCount() - dwTime)).append("|").append( std::to_string( kpSize1 ) ).append("-").append( std::to_string( kpSize2 ) ).append("]-").append(input.picPath).append("_").append(Left2Precision(rOffsetRate)).append("_").append(Left2Precision(gOffsetRate)).append("_").append(Left2Precision(bOffsetRate)).c_str());
 	}
 
 	dwTime = GetTickCount() - dwTime;
