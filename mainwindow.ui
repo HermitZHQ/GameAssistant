@@ -1,0 +1,1166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>933</width>
+    <height>605</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QPushButton" name="btn_start">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>570</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>开始发送</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_stop">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>570</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>停止发送</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="list_tip">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>400</y>
+      <width>431</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <property name="autoScroll">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>72</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>窗口名称</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_wndName">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>10</y>
+      <width>321</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>子窗口名称</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_wndName2">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>40</y>
+      <width>321</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cb_inputType">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>91</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>鼠标输入</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>键盘输入</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>图片识别</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>110</y>
+      <width>72</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>输入类型</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>110</y>
+      <width>72</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>操作类型</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cb_opType">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>140</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>点击</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>按住</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>移动</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>释放</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>110</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>虚拟按键值</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_vk">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>140</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>G</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_addInput">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>360</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>添加输入</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_delLastInput">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>360</y>
+      <width>111</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>删除上一个输入</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_delAllInput">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>360</y>
+      <width>101</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>删除所有输入</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>110</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>延迟（毫秒）</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_delay">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>140</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>100</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>170</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>鼠标X</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_x">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>200</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>170</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>鼠标Y</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_y">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>200</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>170</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>鼠标X_2</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>170</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>鼠标Y_2</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_x2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>200</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_y2">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>200</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>230</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>重复次数</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_repeat">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>260</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_save">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>570</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>保存配置</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_saveName">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>320</y>
+      <width>261</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_load">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>570</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>加载配置</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_12">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>290</y>
+      <width>241</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>文件位置：默认保存在D:/QtSave下</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="list_inputVec">
+    <property name="geometry">
+     <rect>
+      <x>580</x>
+      <y>40</y>
+      <width>341</width>
+      <height>521</height>
+     </rect>
+    </property>
+    <property name="autoScroll">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_13">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>10</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>命令列表</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_delSelectInput">
+    <property name="geometry">
+     <rect>
+      <x>820</x>
+      <y>570</y>
+      <width>101</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>删除选中命令</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_updateSelectInpu">
+    <property name="geometry">
+     <rect>
+      <x>580</x>
+      <y>570</y>
+      <width>101</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>更新选中命令</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_14">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>230</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>图片路径</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_picPath">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>260</y>
+      <width>261</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_15">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>150</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>当前对比相似度</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_rate">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>180</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_16">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>30</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>当前指令</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_cmpPic">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>60</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_17">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>290</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>图片超时</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_findPicOvertime">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>320</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>-1</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_18">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>210</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>对比成功跳转</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_succeedJump">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>240</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>-1</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_19">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>270</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>对比超时跳转</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_overtimeJump">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>300</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>-1</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_20">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>90</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>对比耗时(缩放)</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_costTime">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>120</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_21">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>490</y>
+      <width>31</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>索引</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_insertIndex">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>490</y>
+      <width>61</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_insertInput">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>530</y>
+      <width>71</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>插入输入</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_delAllInput_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>360</y>
+      <width>71</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>清空提示</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_22">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>330</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>对比成功模块</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_overtimeJumpModule">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>420</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string extracomment="需设置对应的成功跳转值为65535"/>
+    </property>
+    <property name="text">
+     <string>./QtSave/</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_23">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>390</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>对比超时模块</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_succeedJumpModule">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>360</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string extracomment="需设置对应的成功跳转值为65535"/>
+    </property>
+    <property name="text">
+     <string>./QtSave/</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chk_cmpPicClick">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>460</y>
+      <width>111</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>对比后点击</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_openFileDialog">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>320</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>...</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_openFileDialog_picPath">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>260</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>...</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_24">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>70</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>操作注释</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_comment">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>70</y>
+      <width>321</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_updateAllInput">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>570</y>
+      <width>101</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>更新所有命令</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>btn_start</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnStartClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>350</x>
+     <y>540</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>285</x>
+     <y>325</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_stop</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnStopClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>240</x>
+     <y>540</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>415</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_addInput</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnAddInput()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>350</x>
+     <y>230</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>195</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_delLastInput</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnDelLastInput()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>280</x>
+     <y>330</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>188</x>
+     <y>195</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_delAllInput</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnDelAllInput()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>200</x>
+     <y>330</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>62</x>
+     <y>195</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_save</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnSaveClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>147</x>
+     <y>540</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>231</x>
+     <y>510</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_load</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnLoadClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>540</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>65</x>
+     <y>522</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_delSelectInput</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnDelSelectInputClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>779</x>
+     <y>505</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>788</x>
+     <y>510</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>list_inputVec</sender>
+   <signal>clicked(QModelIndex)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnInputListClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>766</x>
+     <y>141</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>853</x>
+     <y>19</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_updateSelectInpu</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnUpdateSelectInputClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>622</x>
+     <y>499</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>563</x>
+     <y>496</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_insertInput</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnInsertInputClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>495</x>
+     <y>451</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>502</x>
+     <y>472</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_delAllInput_2</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnClearTipInfo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>50</x>
+     <y>341</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>111</x>
+     <y>311</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>list_inputVec</sender>
+   <signal>itemSelectionChanged()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnInputListClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>632</x>
+     <y>72</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>628</x>
+     <y>24</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_openFileDialog</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnOpenFileDialog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>400</x>
+     <y>310</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>403</x>
+     <y>276</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_openFileDialog_picPath</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnOpenFileDialog_PicPath()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>390</x>
+     <y>252</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>394</x>
+     <y>227</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_updateAllInput</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnUpdateAllInput()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>717</x>
+     <y>581</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>686</x>
+     <y>565</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>OnBtnStartClick()</slot>
+  <slot>OnBtnStopClick()</slot>
+  <slot>OnBtnAddInput()</slot>
+  <slot>OnBtnDelLastInput()</slot>
+  <slot>OnBtnDelAllInput()</slot>
+  <slot>OnBtnSaveClick()</slot>
+  <slot>OnBtnLoadClick()</slot>
+  <slot>OnBtnDelSelectInputClick()</slot>
+  <slot>OnBtnInputListClick()</slot>
+  <slot>OnBtnUpdateSelectInputClick()</slot>
+  <slot>OnBtnInsertInputClick()</slot>
+  <slot>OnBtnClearTipInfo()</slot>
+  <slot>OnBtnOpenFileDialog()</slot>
+  <slot>OnBtnOpenFileDialog_PicPath()</slot>
+  <slot>OnBtnUpdateAllInput()</slot>
+ </slots>
+</ui>
