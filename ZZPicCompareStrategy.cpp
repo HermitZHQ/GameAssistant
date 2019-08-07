@@ -240,7 +240,7 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 	double rate = compareFunc(img, partialImg);
 	m_ui->edt_rate->setText(Left2Precision(rate).c_str());
 
-	if (rate > input.cmpPicRate && rate <= 1.0)
+	if (rate > input.cmpPicRate)
 	{
 // 		std::string strTmp = std::string("C:\\Users\\cdzha\\Desktop\\res_[").append(std::to_string(x)).append("_").append(std::to_string(y)).append("]_").append(std::to_string(rate)).append(".png");
 // 		imwrite(strTmp.c_str(), partialImg);

@@ -4,6 +4,7 @@
 #include <tchar.h>
 #include "QThread"
 #include "QFileDialog"
+#include "QtWidgets/QMessageBox"
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -498,6 +499,21 @@ void MainWindow::OnBtnSaveClick()
 	if (std::string::npos == pos)
 	{
 		strFilePath = DEFAULT_PATH + strFilePath;
+	}
+
+	QFileInfo file( strFilePath.c_str() );
+	if ( file.exists() && file.isFile() )
+	{
+		QMessageBox msgBox;
+		msgBox.setText( QString::fromLocal8Bit( "文件已存在，是否覆盖?" ) );
+		msgBox.setStandardButtons( QMessageBox::Save | QMessageBox::Cancel );
+		msgBox.setDefaultButton( QMessageBox::Save );
+		int ret = msgBox.exec();
+		if ( QMessageBox::Cancel == ret )
+		{
+			ui->list_tip->addItem( QString::fromLocal8Bit( "已取消保存" ) );
+			return;
+		}
 	}
 
 	fopen_s(&pFile, strFilePath.c_str(), "wb");
