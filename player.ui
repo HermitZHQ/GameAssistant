@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PlayerUI</class>
+ <widget class="QWidget" name="PlayerUI">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>539</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>30</y>
+     <width>121</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>开始A4赏金挂机</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_2">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>80</y>
+     <width>93</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>PushButton</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>PlayerUI</receiver>
+   <slot>OnBtnA4Reward()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>44</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>272</x>
+     <y>46</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>OnBtnA4Reward()</slot>
+ </slots>
+</ui>

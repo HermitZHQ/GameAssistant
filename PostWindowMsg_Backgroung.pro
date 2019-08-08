@@ -32,7 +32,9 @@ HEADERS += \
         mainwindow.h
 
 FORMS += \
-        mainwindow.ui
+        bkg.ui \
+        mainwindow.ui \
+        player.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

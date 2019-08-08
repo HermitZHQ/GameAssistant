@@ -94,23 +94,28 @@ public:
     QLabel *label_26;
     QLineEdit *edt_wndWidth;
     QLineEdit *edt_wndHeight;
+    QLineEdit *edt_overwriteNum;
+    QLabel *label_27;
+    QLineEdit *edt_overwriteIndex;
+    QLabel *label_28;
+    QPushButton *btn_overwrite;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(933, 605);
+        MainWindow->resize(1039, 655);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         btn_start = new QPushButton(centralWidget);
         btn_start->setObjectName(QString::fromUtf8("btn_start"));
-        btn_start->setGeometry(QRect(350, 570, 93, 28));
+        btn_start->setGeometry(QRect(350, 620, 93, 28));
         btn_stop = new QPushButton(centralWidget);
         btn_stop->setObjectName(QString::fromUtf8("btn_stop"));
-        btn_stop->setGeometry(QRect(240, 570, 93, 28));
+        btn_stop->setGeometry(QRect(240, 620, 93, 28));
         list_tip = new QListWidget(centralWidget);
         list_tip->setObjectName(QString::fromUtf8("list_tip"));
-        list_tip->setGeometry(QRect(10, 400, 431, 161));
+        list_tip->setGeometry(QRect(10, 450, 431, 161));
         list_tip->setAutoScroll(true);
         label = new QLabel(centralWidget);
         label->setObjectName(QString::fromUtf8("label"));
@@ -151,13 +156,13 @@ public:
         edt_vk->setGeometry(QRect(240, 140, 71, 21));
         btn_addInput = new QPushButton(centralWidget);
         btn_addInput->setObjectName(QString::fromUtf8("btn_addInput"));
-        btn_addInput->setGeometry(QRect(350, 360, 93, 28));
+        btn_addInput->setGeometry(QRect(350, 410, 93, 28));
         btn_delLastInput = new QPushButton(centralWidget);
         btn_delLastInput->setObjectName(QString::fromUtf8("btn_delLastInput"));
-        btn_delLastInput->setGeometry(QRect(220, 360, 111, 28));
+        btn_delLastInput->setGeometry(QRect(220, 410, 111, 28));
         btn_delAllInput = new QPushButton(centralWidget);
         btn_delAllInput->setObjectName(QString::fromUtf8("btn_delAllInput"));
-        btn_delAllInput->setGeometry(QRect(100, 360, 101, 28));
+        btn_delAllInput->setGeometry(QRect(100, 410, 101, 28));
         label_6 = new QLabel(centralWidget);
         label_6->setObjectName(QString::fromUtf8("label_6"));
         label_6->setGeometry(QRect(340, 110, 91, 21));
@@ -196,29 +201,29 @@ public:
         edt_repeat->setGeometry(QRect(10, 260, 71, 21));
         btn_save = new QPushButton(centralWidget);
         btn_save->setObjectName(QString::fromUtf8("btn_save"));
-        btn_save->setGeometry(QRect(120, 570, 93, 28));
+        btn_save->setGeometry(QRect(120, 620, 93, 28));
         edt_saveName = new QLineEdit(centralWidget);
         edt_saveName->setObjectName(QString::fromUtf8("edt_saveName"));
         edt_saveName->setGeometry(QRect(110, 320, 261, 21));
         btn_load = new QPushButton(centralWidget);
         btn_load->setObjectName(QString::fromUtf8("btn_load"));
-        btn_load->setGeometry(QRect(10, 570, 93, 28));
+        btn_load->setGeometry(QRect(10, 620, 93, 28));
         label_12 = new QLabel(centralWidget);
         label_12->setObjectName(QString::fromUtf8("label_12"));
         label_12->setGeometry(QRect(110, 290, 241, 20));
         list_inputVec = new QListWidget(centralWidget);
         list_inputVec->setObjectName(QString::fromUtf8("list_inputVec"));
-        list_inputVec->setGeometry(QRect(580, 40, 341, 521));
+        list_inputVec->setGeometry(QRect(580, 40, 441, 571));
         list_inputVec->setAutoScroll(true);
         label_13 = new QLabel(centralWidget);
         label_13->setObjectName(QString::fromUtf8("label_13"));
-        label_13->setGeometry(QRect(700, 10, 61, 21));
+        label_13->setGeometry(QRect(760, 10, 61, 21));
         btn_delSelectInput = new QPushButton(centralWidget);
         btn_delSelectInput->setObjectName(QString::fromUtf8("btn_delSelectInput"));
-        btn_delSelectInput->setGeometry(QRect(820, 570, 101, 28));
+        btn_delSelectInput->setGeometry(QRect(820, 620, 101, 28));
         btn_updateSelectInpu = new QPushButton(centralWidget);
         btn_updateSelectInpu->setObjectName(QString::fromUtf8("btn_updateSelectInpu"));
-        btn_updateSelectInpu->setGeometry(QRect(580, 570, 101, 28));
+        btn_updateSelectInpu->setGeometry(QRect(580, 620, 101, 28));
         label_14 = new QLabel(centralWidget);
         label_14->setObjectName(QString::fromUtf8("label_14"));
         label_14->setGeometry(QRect(110, 230, 71, 21));
@@ -272,7 +277,7 @@ public:
         btn_insertInput->setGeometry(QRect(450, 530, 71, 28));
         btn_delAllInput_2 = new QPushButton(centralWidget);
         btn_delAllInput_2->setObjectName(QString::fromUtf8("btn_delAllInput_2"));
-        btn_delAllInput_2->setGeometry(QRect(10, 360, 71, 28));
+        btn_delAllInput_2->setGeometry(QRect(10, 410, 71, 28));
         label_22 = new QLabel(centralWidget);
         label_22->setObjectName(QString::fromUtf8("label_22"));
         label_22->setGeometry(QRect(450, 330, 111, 21));
@@ -303,7 +308,7 @@ public:
         edt_comment->setGeometry(QRect(90, 70, 331, 21));
         btn_updateAllInput = new QPushButton(centralWidget);
         btn_updateAllInput->setObjectName(QString::fromUtf8("btn_updateAllInput"));
-        btn_updateAllInput->setGeometry(QRect(700, 570, 101, 28));
+        btn_updateAllInput->setGeometry(QRect(700, 620, 101, 28));
         label_25 = new QLabel(centralWidget);
         label_25->setObjectName(QString::fromUtf8("label_25"));
         label_25->setGeometry(QRect(310, 10, 51, 21));
@@ -316,6 +321,21 @@ public:
         edt_wndHeight = new QLineEdit(centralWidget);
         edt_wndHeight->setObjectName(QString::fromUtf8("edt_wndHeight"));
         edt_wndHeight->setGeometry(QRect(360, 40, 61, 21));
+        edt_overwriteNum = new QLineEdit(centralWidget);
+        edt_overwriteNum->setObjectName(QString::fromUtf8("edt_overwriteNum"));
+        edt_overwriteNum->setGeometry(QRect(140, 380, 61, 21));
+        label_27 = new QLabel(centralWidget);
+        label_27->setObjectName(QString::fromUtf8("label_27"));
+        label_27->setGeometry(QRect(140, 350, 91, 21));
+        edt_overwriteIndex = new QLineEdit(centralWidget);
+        edt_overwriteIndex->setObjectName(QString::fromUtf8("edt_overwriteIndex"));
+        edt_overwriteIndex->setGeometry(QRect(240, 380, 91, 21));
+        label_28 = new QLabel(centralWidget);
+        label_28->setObjectName(QString::fromUtf8("label_28"));
+        label_28->setGeometry(QRect(240, 350, 91, 21));
+        btn_overwrite = new QPushButton(centralWidget);
+        btn_overwrite->setObjectName(QString::fromUtf8("btn_overwrite"));
+        btn_overwrite->setGeometry(QRect(340, 360, 71, 31));
         MainWindow->setCentralWidget(centralWidget);
 
         retranslateUi(MainWindow);
@@ -335,6 +355,8 @@ public:
         QObject::connect(btn_openFileDialog, SIGNAL(clicked()), MainWindow, SLOT(OnBtnOpenFileDialog()));
         QObject::connect(btn_openFileDialog_picPath, SIGNAL(clicked()), MainWindow, SLOT(OnBtnOpenFileDialog_PicPath()));
         QObject::connect(btn_updateAllInput, SIGNAL(clicked()), MainWindow, SLOT(OnBtnUpdateAllInput()));
+        QObject::connect(btn_overwrite, SIGNAL(clicked()), MainWindow, SLOT(OnBtnOverwrite()));
+        QObject::connect(list_inputVec, SIGNAL(doubleClicked(QModelIndex)), MainWindow, SLOT(OnBtnSetOverwriteTargetIndex()));
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -421,6 +443,11 @@ public:
         label_26->setText(QApplication::translate("MainWindow", "\347\252\227\345\217\243\351\253\230", nullptr));
         edt_wndWidth->setText(QApplication::translate("MainWindow", "890", nullptr));
         edt_wndHeight->setText(QApplication::translate("MainWindow", "588", nullptr));
+        edt_overwriteNum->setText(QApplication::translate("MainWindow", "2", nullptr));
+        label_27->setText(QApplication::translate("MainWindow", "\350\246\206\347\233\226\347\233\256\346\240\207\346\225\260\351\207\217", nullptr));
+        edt_overwriteIndex->setText(QString());
+        label_28->setText(QApplication::translate("MainWindow", "\350\246\206\347\233\226\347\233\256\346\240\207\347\264\242\345\274\225", nullptr));
+        btn_overwrite->setText(QApplication::translate("MainWindow", "\345\274\200\345\247\213\350\246\206\347\233\226", nullptr));
     } // retranslateUi
 
 };

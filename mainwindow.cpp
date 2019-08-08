@@ -8,21 +8,29 @@
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
-	ui(new Ui::MainWindow)
+	m_ui(new Ui::MainWindow)
 	, m_hWnd(nullptr)
 	, m_hChildWnd(nullptr)
 	, m_stopFlag(false)
 	, m_wndWidth(890)
 	, m_wndHeight(588)
 	, m_picCompareStrategy(new ZZPicCompareStrategy)
+	, m_playerUI(this)
 {
-	ui->setupUi(this);
-	m_picCompareStrategy->SetUi(ui);
+#ifdef DEV_VER
+	m_ui->setupUi(this);
+// 	m_bkgUI.setGeometry(geometry());
+	m_picCompareStrategy->SetUi(m_ui);
+#else
+	m_playerUI.setParent(this);
+	m_playerUI.show();
+	setGeometry(m_playerUI.geometry());
+#endif
 }
 
 MainWindow::~MainWindow()
 {
-	delete ui;
+	delete m_ui;
 }
 
 void MainWindow::PostMsgThread()
@@ -31,7 +39,7 @@ void MainWindow::PostMsgThread()
 	if (m_inputVec.size() == 0)
 	{
 		m_timer.stop();
-		ui->list_tip->addItem(QString::fromLocal8Bit("脚本中命令数为0，线程退出..."));
+		m_ui->list_tip->addItem(QString::fromLocal8Bit("脚本中命令数为0，线程退出..."));
 		return;
 	}
 
@@ -40,16 +48,16 @@ void MainWindow::PostMsgThread()
 // 	{
 		//获取最新的游戏窗口大小，通过比例来进行鼠标点击，可以保证窗口任意大小都能点击正确
 		UpdateGameWindowSize();
-		int iCurCount = ui->list_tip->count();
+		int iCurCount = m_ui->list_tip->count();
 		static int iLastCount = iCurCount;
 		//检测提示列表大小，超过一定值清空
 		if (iCurCount > 500)
 		{
-			ui->list_tip->clear();
+			m_ui->list_tip->clear();
 		}
 		else if (iLastCount != iCurCount)
 		{
-			ui->list_tip->scrollToBottom();
+			m_ui->list_tip->scrollToBottom();
 		}
 		iLastCount = iCurCount;
 
@@ -89,7 +97,7 @@ void MainWindow::PostMsgThread()
 				continue;
 			}
 
-			ui->edt_cmpPic->setText(QString::fromLocal8Bit("[").toStdString().append(std::to_string(index)).append("]").c_str());
+			m_ui->edt_cmpPic->setText(QString::fromLocal8Bit("[").toStdString().append(std::to_string(index)).append("]").c_str());
 
 			switch (input.type)
 			{
@@ -170,14 +178,14 @@ void MainWindow::OnBtnStartClick()
 	m_timer.setInterval(1);
 // 	m_timer.setSingleShot(true);
 	m_timer.start();
-	ui->list_tip->addItem(QString::fromLocal8Bit("开始脚本处理..."));
+	m_ui->list_tip->addItem(QString::fromLocal8Bit("开始脚本处理..."));
 }
 
 void MainWindow::OnBtnStopClick()
 {
 	m_stopFlag = true;
 	m_timer.stop();
-	ui->list_tip->addItem(QString::fromLocal8Bit("停止脚本处理..."));
+	m_ui->list_tip->addItem(QString::fromLocal8Bit("停止脚本处理..."));
 }
 
 void MainWindow::OnBtnAddInput()
@@ -185,7 +193,7 @@ void MainWindow::OnBtnAddInput()
 	//添加前先更新游戏窗口大小
 	UpdateGameWindowSize();
 
-	int repeatTime = ui->edt_repeat->text().toShort();
+	int repeatTime = m_ui->edt_repeat->text().toShort();
 
 	InputData input;
 	GetInputData(input);
@@ -195,7 +203,7 @@ void MainWindow::OnBtnAddInput()
 		m_inputVec.push_back(input);
 	}
 
-	ui->list_tip->addItem(QString::fromLocal8Bit(std::string("已添加").append(std::to_string(repeatTime)).append("条指令").c_str()));
+	m_ui->list_tip->addItem(QString::fromLocal8Bit(std::string("已添加").append(std::to_string(repeatTime)).append("条指令").c_str()));
 
 	RefreshInputVecUIList();
 }
@@ -203,36 +211,36 @@ void MainWindow::OnBtnAddInput()
 void MainWindow::GetInputData(InputData &input)
 {
 	//----comment
-	strcpy_s(input.comment, PATH_LEN, ui->edt_comment->text().toLocal8Bit().toStdString().c_str());
+	strcpy_s(input.comment, PATH_LEN, m_ui->edt_comment->text().toLocal8Bit().toStdString().c_str());
 	//----keyboard
-	input.type = (InputType)ui->cb_inputType->currentIndex();
-	input.opType = (OpType)ui->cb_opType->currentIndex();
-	input.delay = ui->edt_delay->text().toShort();
-	input.vk = ui->edt_vk->text().toLocal8Bit()[0];
+	input.type = (InputType)m_ui->cb_inputType->currentIndex();
+	input.opType = (OpType)m_ui->cb_opType->currentIndex();
+	input.delay = m_ui->edt_delay->text().toShort();
+	input.vk = m_ui->edt_vk->text().toLocal8Bit()[0];
 	//----mouse
 	if (InputType::Mouse == input.type || InputType::Pic == input.type)
 	{
-		input.x = ui->edt_x->text().toShort();
-		input.y = ui->edt_y->text().toShort();
+		input.x = m_ui->edt_x->text().toShort();
+		input.y = m_ui->edt_y->text().toShort();
 		input.xRate = (float)input.x / (float)m_gameWndSize.x;
 		input.yRate = (float)input.y / (float)m_gameWndSize.y;
 	}
 	//----pic
 	if (InputType::Pic == input.type)
 	{
-		input.bCmpPicCheckFlag = ui->chk_cmpPicClick->isChecked();
-		input.findPicOvertime = ui->edt_findPicOvertime->text().toShort();
-		input.findPicSucceedJumpIndex = ui->edt_succeedJump->text().toInt();
-		input.findPicOvertimeJumpIndex = ui->edt_overtimeJump->text().toInt();
-		input.cmpPicRate = ui->edt_rate->text().toFloat();
-		strcpy_s(input.findPicSucceedJumpModule, PATH_LEN, ui->edt_succeedJumpModule->text().toLocal8Bit().toStdString().c_str());
-		strcpy_s(input.findPicOvertimeJumpModule, PATH_LEN, ui->edt_overtimeJumpModule->text().toLocal8Bit().toStdString().c_str());
+		input.bCmpPicCheckFlag = m_ui->chk_cmpPicClick->isChecked();
+		input.findPicOvertime = m_ui->edt_findPicOvertime->text().toShort();
+		input.findPicSucceedJumpIndex = m_ui->edt_succeedJump->text().toInt();
+		input.findPicOvertimeJumpIndex = m_ui->edt_overtimeJump->text().toInt();
+		input.cmpPicRate = m_ui->edt_rate->text().toFloat();
+		strcpy_s(input.findPicSucceedJumpModule, PATH_LEN, m_ui->edt_succeedJumpModule->text().toLocal8Bit().toStdString().c_str());
+		strcpy_s(input.findPicOvertimeJumpModule, PATH_LEN, m_ui->edt_overtimeJumpModule->text().toLocal8Bit().toStdString().c_str());
 
-		input.x2 = ui->edt_x2->text().toShort();
-		input.y2 = ui->edt_y2->text().toShort();
+		input.x2 = m_ui->edt_x2->text().toShort();
+		input.y2 = m_ui->edt_y2->text().toShort();
 		input.xRate2 = (float)input.x2 / (float)m_gameWndSize.x;
 		input.yRate2 = (float)input.y2 / (float)m_gameWndSize.y;
-		strcpy_s(input.picPath, PATH_LEN, ui->edt_picPath->text().toLocal8Bit().toStdString().c_str());
+		strcpy_s(input.picPath, PATH_LEN, m_ui->edt_picPath->text().toLocal8Bit().toStdString().c_str());
 	}
 }
 
@@ -251,8 +259,8 @@ void MainWindow::OnBtnDelLastInput()
 
 	m_inputVec.pop_back();
 
-	ui->list_tip->addItem(QString::fromLocal8Bit("已删除上一条指令"));
-	ui->list_tip->addItem(QString::fromLocal8Bit(std::string("还剩下").append(std::to_string(m_inputVec.size())).append("条指令").c_str()));
+	m_ui->list_tip->addItem(QString::fromLocal8Bit("已删除上一条指令"));
+	m_ui->list_tip->addItem(QString::fromLocal8Bit(std::string("还剩下").append(std::to_string(m_inputVec.size())).append("条指令").c_str()));
 
 	RefreshInputVecUIList();
 }
@@ -260,7 +268,7 @@ void MainWindow::OnBtnDelLastInput()
 void MainWindow::OnBtnDelAllInput()
 {
 	m_inputVec.clear();
-	ui->list_tip->addItem(QString::fromLocal8Bit("已删除所有指令"));
+	m_ui->list_tip->addItem(QString::fromLocal8Bit("已删除所有指令"));
 
 	RefreshInputVecUIList();
 }
@@ -276,12 +284,12 @@ void MainWindow::OnBtnUpdateAllInput()
 	}
 
 	RefreshInputVecUIList();
-	ui->list_tip->addItem(QString::fromLocal8Bit("已更新所有指令"));
+	m_ui->list_tip->addItem(QString::fromLocal8Bit("已更新所有指令"));
 }
 
 void MainWindow::OnBtnDelSelectInputClick()
 {
-	auto index = ui->list_inputVec->currentIndex();
+	auto index = m_ui->list_inputVec->currentIndex();
 
 	auto it = m_inputVec.begin();
 	for (int i = 0; i < m_inputVec.size(); ++i, ++it)
@@ -298,7 +306,7 @@ void MainWindow::OnBtnDelSelectInputClick()
 
 void MainWindow::OnBtnInputListClick()
 {
-	auto index = ui->list_inputVec->currentIndex();
+	auto index = m_ui->list_inputVec->currentIndex();
 
 	auto it = m_inputVec.begin();
 	for (int i = 0; i < m_inputVec.size(); ++i, ++it)
@@ -307,25 +315,25 @@ void MainWindow::OnBtnInputListClick()
 			continue;
 
 		//把当前input的咨询显示到editbox中
-		ui->cb_inputType->setCurrentIndex(it->type);
-		ui->cb_opType->setCurrentIndex(it->opType);
-		ui->edt_vk->setText(std::string(1, it->vk).c_str());
-		ui->edt_delay->setText(std::to_string(it->delay).c_str());
-		ui->edt_comment->setText(QString::fromLocal8Bit(it->comment));
+		m_ui->cb_inputType->setCurrentIndex(it->type);
+		m_ui->cb_opType->setCurrentIndex(it->opType);
+		m_ui->edt_vk->setText(std::string(1, it->vk).c_str());
+		m_ui->edt_delay->setText(std::to_string(it->delay).c_str());
+		m_ui->edt_comment->setText(QString::fromLocal8Bit(it->comment));
 
-		ui->edt_x->setText(std::to_string(it->x).c_str());
-		ui->edt_y->setText(std::to_string(it->y).c_str());
-		ui->edt_x2->setText(std::to_string(it->x2).c_str());
-		ui->edt_y2->setText(std::to_string(it->y2).c_str());
+		m_ui->edt_x->setText(std::to_string(it->x).c_str());
+		m_ui->edt_y->setText(std::to_string(it->y).c_str());
+		m_ui->edt_x2->setText(std::to_string(it->x2).c_str());
+		m_ui->edt_y2->setText(std::to_string(it->y2).c_str());
 
-		ui->edt_rate->setText(std::to_string(it->cmpPicRate).c_str());
-		ui->edt_picPath->setText(it->picPath);
-		ui->edt_findPicOvertime->setText(std::to_string(it->findPicOvertime).c_str());
-		ui->edt_succeedJump->setText(std::to_string(it->findPicSucceedJumpIndex).c_str());
-		ui->edt_overtimeJump->setText(std::to_string(it->findPicOvertimeJumpIndex).c_str());
-		ui->edt_overtimeJumpModule->setText(it->findPicOvertimeJumpModule);
-		ui->edt_succeedJumpModule->setText(it->findPicSucceedJumpModule);
-		ui->chk_cmpPicClick->setChecked(it->bCmpPicCheckFlag);
+		m_ui->edt_rate->setText(std::to_string(it->cmpPicRate).c_str());
+		m_ui->edt_picPath->setText(it->picPath);
+		m_ui->edt_findPicOvertime->setText(std::to_string(it->findPicOvertime).c_str());
+		m_ui->edt_succeedJump->setText(std::to_string(it->findPicSucceedJumpIndex).c_str());
+		m_ui->edt_overtimeJump->setText(std::to_string(it->findPicOvertimeJumpIndex).c_str());
+		m_ui->edt_overtimeJumpModule->setText(it->findPicOvertimeJumpModule);
+		m_ui->edt_succeedJumpModule->setText(it->findPicSucceedJumpModule);
+		m_ui->chk_cmpPicClick->setChecked(it->bCmpPicCheckFlag);
 
 		break;
 	}
@@ -334,7 +342,7 @@ void MainWindow::OnBtnInputListClick()
 void MainWindow::OnBtnUpdateSelectInputClick()
 {
 	UpdateGameWindowSize();
-	auto index = ui->list_inputVec->currentIndex();
+	auto index = m_ui->list_inputVec->currentIndex();
 
 	auto it = m_inputVec.begin();
 	for (int i = 0; i < m_inputVec.size(); ++i, ++it)
@@ -352,7 +360,7 @@ void MainWindow::OnBtnUpdateSelectInputClick()
 
 void MainWindow::OnBtnInsertInputClick()
 {
-	int index = ui->edt_insertIndex->text().toInt();
+	int index = m_ui->edt_insertIndex->text().toInt();
 
 	auto size = m_inputVec.size();
 	auto it = m_inputVec.begin();
@@ -374,7 +382,7 @@ void MainWindow::OnBtnInsertInputClick()
 
 void MainWindow::RefreshInputVecUIList()
 {
-	ui->list_inputVec->clear();
+	m_ui->list_inputVec->clear();
 
 	int index = -1;
 	for (auto &input : m_inputVec)
@@ -460,13 +468,71 @@ void MainWindow::RefreshInputVecUIList()
 			strTmp += input.picPath;
 		}
 
-		ui->list_inputVec->addItem(QString::fromLocal8Bit(strTmp.c_str()));
+		m_ui->list_inputVec->addItem(QString::fromLocal8Bit(strTmp.c_str()));
 	}
 }
 
 void MainWindow::OnBtnClearTipInfo()
 {
-	ui->list_tip->clear();
+	m_ui->list_tip->clear();
+}
+
+void MainWindow::OnBtnOverwrite()
+{
+	auto index = m_ui->list_inputVec->currentIndex();
+	if (!index.isValid())
+	{
+		ShowMessageBox("没有选择有效的目标索引");
+		return;
+	}
+
+	int overwriteNum = m_ui->edt_overwriteNum->text().toInt();
+	int overwriteTargetIndex = m_ui->edt_overwriteIndex->text().toInt();
+	int overwriteSrcIndex = index.row();
+
+	auto size = m_inputVec.size();
+	if (overwriteTargetIndex + (overwriteNum - 1) > size - 1
+		|| overwriteTargetIndex < 0
+		|| overwriteTargetIndex == overwriteSrcIndex)
+	{
+		ShowMessageBox("复制目标的起始索引值无效");
+		return;
+	}
+
+	int alreadOverwriteNum = 0;
+	for (decltype(size) i = 0; i < size; ++i)
+	{
+		if (i < overwriteSrcIndex)
+		{
+			continue;
+		}
+
+		if (alreadOverwriteNum < overwriteNum)
+		{
+			m_inputVec[overwriteTargetIndex + alreadOverwriteNum] = m_inputVec[i];
+			++alreadOverwriteNum;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	RefreshInputVecUIList();
+}
+
+void MainWindow::OnBtnSetOverwriteTargetIndex()
+{
+	auto index = m_ui->list_inputVec->currentIndex();
+	m_ui->edt_overwriteIndex->setText(std::to_string(index.row()).c_str());
+}
+
+void MainWindow::ShowMessageBox(const char *content)
+{
+	QMessageBox mb;
+	mb.setText(QString::fromLocal8Bit(content));
+	mb.setDefaultButton(QMessageBox::Ok);
+	mb.exec();
 }
 
 void MainWindow::OnBtnOpenFileDialog()
@@ -484,17 +550,17 @@ void MainWindow::OnBtnOpenFileDialog()
 void MainWindow::OnBtnOpenFileDialog_PicPath()
 {
 	auto res = QFileDialog::getOpenFileName(this, "", DEFAULT_PATH);
-	ui->edt_picPath->setText(res);
+	m_ui->edt_picPath->setText(res);
 }
 
 void MainWindow::OnBtnSaveClick()
 {
-	m_wndWidth = ui->edt_wndWidth->text().toInt();
-	m_wndHeight = ui->edt_wndHeight->text().toInt();
+	m_wndWidth = m_ui->edt_wndWidth->text().toInt();
+	m_wndHeight = m_ui->edt_wndHeight->text().toInt();
 
 	//按照二进制存储
 	FILE *pFile = nullptr;
-	std::string strFilePath = ui->edt_saveName->text().toLocal8Bit().toStdString();
+	std::string strFilePath = m_ui->edt_saveName->text().toLocal8Bit().toStdString();
 	auto pos = strFilePath.find("/");
 	if (std::string::npos == pos)
 	{
@@ -511,7 +577,7 @@ void MainWindow::OnBtnSaveClick()
 		int ret = msgBox.exec();
 		if ( QMessageBox::Cancel == ret )
 		{
-			ui->list_tip->addItem( QString::fromLocal8Bit( "已取消保存" ) );
+			m_ui->list_tip->addItem( QString::fromLocal8Bit( "已取消保存" ) );
 			return;
 		}
 	}
@@ -521,13 +587,13 @@ void MainWindow::OnBtnSaveClick()
 		return;
 
 	//先写入两个窗口名(长度+str)
-	int nameLen = (int)ui->edt_wndName->text().toLocal8Bit().toStdString().length() + 1;
+	int nameLen = (int)m_ui->edt_wndName->text().toLocal8Bit().toStdString().length() + 1;
 	fwrite(&nameLen, sizeof(int), 1, pFile);
-	fwrite(ui->edt_wndName->text().toLocal8Bit().toStdString().c_str(), 1, nameLen, pFile);
+	fwrite(m_ui->edt_wndName->text().toLocal8Bit().toStdString().c_str(), 1, nameLen, pFile);
 
-	nameLen = (int)ui->edt_wndName2->text().toLocal8Bit().toStdString().length() + 1;
+	nameLen = (int)m_ui->edt_wndName2->text().toLocal8Bit().toStdString().length() + 1;
 	fwrite(&nameLen, sizeof(int), 1, pFile);
-	fwrite(ui->edt_wndName2->text().toLocal8Bit().toStdString().c_str(), 1, nameLen, pFile);
+	fwrite(m_ui->edt_wndName2->text().toLocal8Bit().toStdString().c_str(), 1, nameLen, pFile);
 
 	//然后存入操作数组的大小以及数据
 	int size = (int)m_inputVec.size();
@@ -542,12 +608,12 @@ void MainWindow::OnBtnSaveClick()
 	fwrite(&m_wndHeight, sizeof(int), 1, pFile);
 
 	fclose(pFile);
-	ui->list_tip->addItem(QString::fromLocal8Bit("保存文件成功"));
+	m_ui->list_tip->addItem(QString::fromLocal8Bit("保存文件成功"));
 }
 
 void MainWindow::OnBtnLoadClick()
 {
-	std::string strFilePath = ui->edt_saveName->text().toLocal8Bit().toStdString();
+	std::string strFilePath = m_ui->edt_saveName->text().toLocal8Bit().toStdString();
 	auto pos = strFilePath.find("/");
 	if (std::string::npos == pos)
 	{
@@ -568,7 +634,7 @@ void MainWindow::LoadInputModuleFile(const char *file)
 	if (nullptr == pFile)
 	{
 		RefreshInputVecUIList();
-		ui->list_tip->addItem(QString::fromLocal8Bit(std::string("读取输入模块[").append(strFilePath).append("]失败").c_str()));
+		m_ui->list_tip->addItem(QString::fromLocal8Bit(std::string("读取输入模块[").append(strFilePath).append("]失败").c_str()));
 		return;
 	}
 
@@ -577,14 +643,14 @@ void MainWindow::LoadInputModuleFile(const char *file)
 	fread(&nameLen, sizeof(int), 1, pFile);
 	char *pStr = new char[nameLen];
 	fread(pStr, 1, nameLen, pFile);
-	ui->edt_wndName->setText(QString::fromLocal8Bit(pStr));
+	m_ui->edt_wndName->setText(QString::fromLocal8Bit(pStr));
 	delete[]pStr;
 	pStr = nullptr;
 
 	fread(&nameLen, sizeof(int), 1, pFile);
 	pStr = new char[nameLen];
 	fread(pStr, 1, nameLen, pFile);
-	ui->edt_wndName2->setText(QString::fromLocal8Bit(pStr));
+	m_ui->edt_wndName2->setText(QString::fromLocal8Bit(pStr));
 	delete[]pStr;
 	pStr = nullptr;
 
@@ -601,8 +667,8 @@ void MainWindow::LoadInputModuleFile(const char *file)
 	//最后读取窗口大小，因为是后添加的结构
 	fread(&m_wndWidth, sizeof(int), 1, pFile);
 	fread(&m_wndHeight, sizeof(int), 1, pFile);
-	ui->edt_wndWidth->setText(std::to_string(m_wndWidth).c_str());
-	ui->edt_wndHeight->setText(std::to_string(m_wndHeight).c_str());
+	m_ui->edt_wndWidth->setText(std::to_string(m_wndWidth).c_str());
+	m_ui->edt_wndHeight->setText(std::to_string(m_wndHeight).c_str());
 
 	fclose(pFile);
 
@@ -613,8 +679,8 @@ void MainWindow::LoadInputModuleFile(const char *file)
 		strFilePath = strFilePath.substr(findPos + 1);
 	}
 
-	ui->edt_saveName->setText(strFilePath.c_str());
-	ui->list_tip->addItem(QString::fromLocal8Bit(std::string("读取模块[").append(strFilePath).append("]成功，共读取命令").append(std::to_string(size)).append("条").c_str()));
+	m_ui->edt_saveName->setText(strFilePath.c_str());
+	m_ui->list_tip->addItem(QString::fromLocal8Bit(std::string("读取模块[").append(strFilePath).append("]成功，共读取命令").append(std::to_string(size)).append("条").c_str()));
 
 	//加载完后重新初始化窗口，因为窗口可能已经变动
 	InitGameWindow();
@@ -682,7 +748,7 @@ void MainWindow::HandleMouseInput(InputData &input)
 	}
 		break;
 	default:
-		ui->list_tip->addItem(QString::fromLocal8Bit("错误：未处理的鼠标操作..."));
+		m_ui->list_tip->addItem(QString::fromLocal8Bit("错误：未处理的鼠标操作..."));
 		break;
 	}
 }
@@ -700,7 +766,7 @@ void MainWindow::HandleKeyboardInput(InputData &input)
 	case Press:
 	case Move:
 	default:
-		ui->list_tip->addItem(QString::fromLocal8Bit("错误：未处理的键盘操作..."));
+		m_ui->list_tip->addItem(QString::fromLocal8Bit("错误：未处理的键盘操作..."));
 		break;
 	}
 }
@@ -715,8 +781,8 @@ void MainWindow::InitGameWindow()
 	m_hWnd = nullptr;
 	m_hChildWnd = nullptr;
 
-	m_gameWndParentName = ui->edt_wndName->text();
-	m_gameWndChildName = ui->edt_wndName2->text();
+	m_gameWndParentName = m_ui->edt_wndName->text();
+	m_gameWndChildName = m_ui->edt_wndName2->text();
 
 // 	ui->list_tip->addItem(QString::fromLocal8Bit("开始初始化游戏窗口..."));
 // 	ui->list_tip->addItem(QString::fromLocal8Bit(std::string("窗口名称：").append(ui->edt_wndName->text().toLocal8Bit().toStdString()).c_str()));
@@ -724,7 +790,7 @@ void MainWindow::InitGameWindow()
 	m_hWnd = FindWindowA(nullptr, m_gameWndParentName.toLocal8Bit().toStdString().c_str());
 	if (nullptr == m_hWnd)
 	{
-		ui->list_tip->addItem(QString::fromLocal8Bit("查找窗口句柄失败，初始化游戏窗口失败"));
+		m_ui->list_tip->addItem(QString::fromLocal8Bit("查找窗口句柄失败，初始化游戏窗口失败"));
 	}
 	else
 	{
@@ -742,7 +808,7 @@ void MainWindow::InitGameWindow()
 			EnumChildWindows(m_hWnd, &MainWindow::EnumChildProc, (LPARAM)this);
 			if (nullptr == m_hChildWnd)
 			{
-				ui->list_tip->addItem(QString::fromLocal8Bit("查找子窗口失败"));
+				m_ui->list_tip->addItem(QString::fromLocal8Bit("查找子窗口失败"));
 				m_hWnd = nullptr;
 			}
 			else
@@ -754,7 +820,7 @@ void MainWindow::InitGameWindow()
 
 		if (nullptr != m_hWnd)
 		{
-			ui->list_tip->addItem(QString::fromLocal8Bit("初始化游戏窗口成功"));
+			m_ui->list_tip->addItem(QString::fromLocal8Bit("初始化游戏窗口成功"));
 		}
 	}
 }

@@ -11,7 +11,7 @@
 sprintf_s(cTmp, MAX_PATH, "[%s] cost:%d\n", title, dwTime2);\
 OutputDebugStringA(cTmp);\
 
-#define DEFAULT_PATH "./QtSave/"
+#define DEFAULT_PATH ("./QtSave/")
 
 struct CSize
 {

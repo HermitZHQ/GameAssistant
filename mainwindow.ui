@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>933</width>
-    <height>605</height>
+    <width>1039</width>
+    <height>655</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>350</x>
-      <y>570</y>
+      <y>620</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -31,7 +31,7 @@
     <property name="geometry">
      <rect>
       <x>240</x>
-      <y>570</y>
+      <y>620</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -44,7 +44,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>400</y>
+      <y>450</y>
       <width>431</width>
       <height>161</height>
      </rect>
@@ -216,7 +216,7 @@
     <property name="geometry">
      <rect>
       <x>350</x>
-      <y>360</y>
+      <y>410</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -229,7 +229,7 @@
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>360</y>
+      <y>410</y>
       <width>111</width>
       <height>28</height>
      </rect>
@@ -242,7 +242,7 @@
     <property name="geometry">
      <rect>
       <x>100</x>
-      <y>360</y>
+      <y>410</y>
       <width>101</width>
       <height>28</height>
      </rect>
@@ -411,7 +411,7 @@
     <property name="geometry">
      <rect>
       <x>120</x>
-      <y>570</y>
+      <y>620</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -437,7 +437,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>570</y>
+      <y>620</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -464,8 +464,8 @@
      <rect>
       <x>580</x>
       <y>40</y>
-      <width>341</width>
-      <height>521</height>
+      <width>441</width>
+      <height>571</height>
      </rect>
     </property>
     <property name="autoScroll">
@@ -475,7 +475,7 @@
    <widget class="QLabel" name="label_13">
     <property name="geometry">
      <rect>
-      <x>700</x>
+      <x>760</x>
       <y>10</y>
       <width>61</width>
       <height>21</height>
@@ -489,7 +489,7 @@
     <property name="geometry">
      <rect>
       <x>820</x>
-      <y>570</y>
+      <y>620</y>
       <width>101</width>
       <height>28</height>
      </rect>
@@ -502,7 +502,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>570</y>
+      <y>620</y>
       <width>101</width>
       <height>28</height>
      </rect>
@@ -736,7 +736,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>360</y>
+      <y>410</y>
       <width>71</width>
       <height>28</height>
      </rect>
@@ -875,7 +875,7 @@
     <property name="geometry">
      <rect>
       <x>700</x>
-      <y>570</y>
+      <y>620</y>
       <width>101</width>
       <height>28</height>
      </rect>
@@ -936,6 +936,71 @@
      <string>588</string>
     </property>
    </widget>
+   <widget class="QLineEdit" name="edt_overwriteNum">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>380</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>2</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_27">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>350</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>覆盖目标数量</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_overwriteIndex">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>380</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_28">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>350</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>覆盖目标索引</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_overwrite">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>360</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>开始覆盖</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
@@ -949,7 +1014,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>350</x>
-     <y>540</y>
+     <y>620</y>
     </hint>
     <hint type="destinationlabel">
      <x>285</x>
@@ -965,7 +1030,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>240</x>
-     <y>540</y>
+     <y>620</y>
     </hint>
     <hint type="destinationlabel">
      <x>298</x>
@@ -981,7 +1046,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>350</x>
-     <y>230</y>
+     <y>410</y>
     </hint>
     <hint type="destinationlabel">
      <x>298</x>
@@ -997,7 +1062,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>280</x>
-     <y>330</y>
+     <y>410</y>
     </hint>
     <hint type="destinationlabel">
      <x>188</x>
@@ -1013,7 +1078,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>200</x>
-     <y>330</y>
+     <y>410</y>
     </hint>
     <hint type="destinationlabel">
      <x>62</x>
@@ -1029,7 +1094,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>147</x>
-     <y>540</y>
+     <y>620</y>
     </hint>
     <hint type="destinationlabel">
      <x>231</x>
@@ -1045,7 +1110,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>40</x>
-     <y>540</y>
+     <y>620</y>
     </hint>
     <hint type="destinationlabel">
      <x>65</x>
@@ -1060,8 +1125,8 @@
    <slot>OnBtnDelSelectInputClick()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>779</x>
-     <y>505</y>
+     <x>820</x>
+     <y>620</y>
     </hint>
     <hint type="destinationlabel">
      <x>788</x>
@@ -1093,7 +1158,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>622</x>
-     <y>499</y>
+     <y>620</y>
     </hint>
     <hint type="destinationlabel">
      <x>563</x>
@@ -1125,7 +1190,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>50</x>
-     <y>341</y>
+     <y>410</y>
     </hint>
     <hint type="destinationlabel">
      <x>111</x>
@@ -1189,11 +1254,43 @@
    <hints>
     <hint type="sourcelabel">
      <x>717</x>
-     <y>581</y>
+     <y>631</y>
     </hint>
     <hint type="destinationlabel">
      <x>686</x>
      <y>565</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_overwrite</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnOverwrite()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>368</x>
+     <y>365</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>433</x>
+     <y>348</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>list_inputVec</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnSetOverwriteTargetIndex()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>711</x>
+     <y>72</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>698</x>
+     <y>24</y>
     </hint>
    </hints>
   </connection>
@@ -1214,5 +1311,7 @@
   <slot>OnBtnOpenFileDialog()</slot>
   <slot>OnBtnOpenFileDialog_PicPath()</slot>
   <slot>OnBtnUpdateAllInput()</slot>
+  <slot>OnBtnOverwrite()</slot>
+  <slot>OnBtnSetOverwriteTargetIndex()</slot>
  </slots>
 </ui>

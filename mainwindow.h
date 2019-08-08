@@ -8,6 +8,10 @@
 #include <vector>
 #include "PreDef.h"
 #include "Input.h"
+#include "PlayerUI.h"
+#include "BkgUI.h"
+
+#define DEV_VER
 
 namespace Ui {
 class MainWindow;
@@ -25,7 +29,7 @@ public:
 
 	static BOOL CALLBACK EnumChildProc(_In_ HWND hwnd,_In_ LPARAM lParam);
 
-private slots:
+public slots:
 	void PostMsgThread();
 
 	void OnBtnStartClick();
@@ -45,6 +49,10 @@ private slots:
 	void OnBtnInsertInputClick();
 	void RefreshInputVecUIList();
 	void OnBtnClearTipInfo();
+	void OnBtnOverwrite();
+	void OnBtnSetOverwriteTargetIndex();
+
+	void ShowMessageBox(const char *content);
 
 	void OnBtnOpenFileDialog();
 	void OnBtnOpenFileDialog_PicPath();
@@ -65,7 +73,10 @@ private slots:
 	void UpdateGameWindowSize();
 
 private:
-    Ui::MainWindow *ui;
+	Ui::MainWindow				*m_ui;
+	PlayerUI					m_playerUI;
+	BkgUI						m_bkgUI;
+
 	HWND						m_hWnd;
 	HWND						m_hChildWnd;
 	bool						m_stopFlag;
