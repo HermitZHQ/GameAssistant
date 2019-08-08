@@ -1001,6 +1001,19 @@
      <string>开始覆盖</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="btn_insertDrag">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>560</y>
+      <width>71</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>插入拖动</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
@@ -1294,6 +1307,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btn_insertDrag</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnInsertDrag()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>479</x>
+     <y>571</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>474</x>
+     <y>607</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>OnBtnStartClick()</slot>
@@ -1313,5 +1342,6 @@
   <slot>OnBtnUpdateAllInput()</slot>
   <slot>OnBtnOverwrite()</slot>
   <slot>OnBtnSetOverwriteTargetIndex()</slot>
+  <slot>OnBtnInsertDrag()</slot>
  </slots>
 </ui>

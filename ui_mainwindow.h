@@ -99,6 +99,7 @@ public:
     QLineEdit *edt_overwriteIndex;
     QLabel *label_28;
     QPushButton *btn_overwrite;
+    QPushButton *btn_insertDrag;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -336,6 +337,9 @@ public:
         btn_overwrite = new QPushButton(centralWidget);
         btn_overwrite->setObjectName(QString::fromUtf8("btn_overwrite"));
         btn_overwrite->setGeometry(QRect(340, 360, 71, 31));
+        btn_insertDrag = new QPushButton(centralWidget);
+        btn_insertDrag->setObjectName(QString::fromUtf8("btn_insertDrag"));
+        btn_insertDrag->setGeometry(QRect(450, 560, 71, 28));
         MainWindow->setCentralWidget(centralWidget);
 
         retranslateUi(MainWindow);
@@ -357,6 +361,7 @@ public:
         QObject::connect(btn_updateAllInput, SIGNAL(clicked()), MainWindow, SLOT(OnBtnUpdateAllInput()));
         QObject::connect(btn_overwrite, SIGNAL(clicked()), MainWindow, SLOT(OnBtnOverwrite()));
         QObject::connect(list_inputVec, SIGNAL(doubleClicked(QModelIndex)), MainWindow, SLOT(OnBtnSetOverwriteTargetIndex()));
+        QObject::connect(btn_insertDrag, SIGNAL(clicked()), MainWindow, SLOT(OnBtnInsertDrag()));
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -448,6 +453,7 @@ public:
         edt_overwriteIndex->setText(QString());
         label_28->setText(QApplication::translate("MainWindow", "\350\246\206\347\233\226\347\233\256\346\240\207\347\264\242\345\274\225", nullptr));
         btn_overwrite->setText(QApplication::translate("MainWindow", "\345\274\200\345\247\213\350\246\206\347\233\226", nullptr));
+        btn_insertDrag->setText(QApplication::translate("MainWindow", "\346\217\222\345\205\245\346\213\226\345\212\250", nullptr));
     } // retranslateUi
 
 };

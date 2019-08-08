@@ -47,6 +47,7 @@ public slots:
 	void OnBtnInputListClick();
 	void OnBtnUpdateSelectInputClick();
 	void OnBtnInsertInputClick();
+	void OnBtnInsertDrag();
 	void RefreshInputVecUIList();
 	void OnBtnClearTipInfo();
 	void OnBtnOverwrite();

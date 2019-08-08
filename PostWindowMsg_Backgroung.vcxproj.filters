@@ -42,7 +42,7 @@
       <UniqueIdentifier>{c3ad6cfe-8dee-4788-98e7-e3a09b064dd0}</UniqueIdentifier>
     </Filter>
     <Filter Include="UI">
-      <UniqueIdentifier>{4915d315-f53a-465c-bf96-b608a9193e5b}</UniqueIdentifier>
+      <UniqueIdentifier>{ef7e1aa8-1f17-4daa-8abe-7e462ec9e86c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -58,12 +58,23 @@
     <ClCompile Include="mainwindow.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerUI.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="BkgUI.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerUI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="mainwindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="BkgUI.h">
+      <Filter>UI</Filter>
+    </QtMoc>
+    <QtMoc Include="PlayerUI.h">
+      <Filter>UI</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
@@ -72,18 +83,15 @@
     <CustomBuild Include="release\moc_predefs.h.cbt">
       <Filter>Generated Files</Filter>
     </CustomBuild>
-    <ClInclude Include="ui_mainwindow.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="mainwindow.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include="player.ui">
+    <QtUic Include="bkg.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include="bkg.ui">
+    <QtUic Include="player.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
@@ -103,22 +111,14 @@
     <ClInclude Include="ZZPicCompareStrategy.h">
       <Filter>Stratege</Filter>
     </ClInclude>
+    <ClInclude Include="ui_mainwindow.h">
+      <Filter>UI</Filter>
+    </ClInclude>
     <ClInclude Include="ui_bkg.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="ui_player.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="mainwindow.h">
-      <Filter>UI</Filter>
-    </QtMoc>
-    <QtMoc Include="PlayerUI.h">
-      <Filter>UI</Filter>
-    </QtMoc>
-    <QtMoc Include="BkgUI.h">
-      <Filter>UI</Filter>
-    </QtMoc>
   </ItemGroup>
 </Project>

@@ -217,17 +217,19 @@ void MainWindow::GetInputData(InputData &input)
 	input.opType = (OpType)m_ui->cb_opType->currentIndex();
 	input.delay = m_ui->edt_delay->text().toShort();
 	input.vk = m_ui->edt_vk->text().toLocal8Bit()[0];
+
 	//----mouse
-	if (InputType::Mouse == input.type || InputType::Pic == input.type)
-	{
+// 	if (InputType::Mouse == input.type || InputType::Pic == input.type)
+// 	{
 		input.x = m_ui->edt_x->text().toShort();
 		input.y = m_ui->edt_y->text().toShort();
 		input.xRate = (float)input.x / (float)m_gameWndSize.x;
 		input.yRate = (float)input.y / (float)m_gameWndSize.y;
-	}
+// 	}
+
 	//----pic
-	if (InputType::Pic == input.type)
-	{
+// 	if (InputType::Pic == input.type)
+// 	{
 		input.bCmpPicCheckFlag = m_ui->chk_cmpPicClick->isChecked();
 		input.findPicOvertime = m_ui->edt_findPicOvertime->text().toShort();
 		input.findPicSucceedJumpIndex = m_ui->edt_succeedJump->text().toInt();
@@ -241,7 +243,7 @@ void MainWindow::GetInputData(InputData &input)
 		input.xRate2 = (float)input.x2 / (float)m_gameWndSize.x;
 		input.yRate2 = (float)input.y2 / (float)m_gameWndSize.y;
 		strcpy_s(input.picPath, PATH_LEN, m_ui->edt_picPath->text().toLocal8Bit().toStdString().c_str());
-	}
+// 	}
 }
 
 void MainWindow::UpdateInputData(InputData &input)
@@ -374,6 +376,56 @@ void MainWindow::OnBtnInsertInputClick()
 			m_inputVec.insert(it, input);
 
 			break;
+		}
+	}
+
+	RefreshInputVecUIList();
+}
+
+void MainWindow::OnBtnInsertDrag()
+{
+	int index = m_ui->edt_insertIndex->text().toInt();
+	int insertCount = 0;
+
+	while (insertCount < 3)
+	{
+		auto size = m_inputVec.size();
+		auto it = m_inputVec.begin();
+		for ( int i = 0; i < size; ++i, ++it )
+		{
+			if ( index == i )
+			{
+				InputData input;
+				GetInputData( input );
+				input.type = Mouse;
+
+				if ( 0 == insertCount )
+				{
+					input.opType = Press;
+				}
+				else if ( 1 == insertCount )
+				{
+					input.opType = Move;
+					input.x = input.x2;
+					input.y = input.y2;
+					input.xRate = input.xRate2;
+					input.yRate = input.yRate2;
+				}
+				else if ( 2 == insertCount )
+				{
+					input.opType = Release;
+					input.x = input.x2;
+					input.y = input.y2;
+					input.xRate = input.xRate2;
+					input.yRate = input.yRate2;
+				}
+	
+				m_inputVec.insert( it, input );
+	
+				++index;
+				++insertCount;
+				break;
+			}
 		}
 	}
 
