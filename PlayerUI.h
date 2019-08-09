@@ -14,6 +14,7 @@ public:
 	~PlayerUI();
 
 private slots:
+	void OnBtnStop();
 	void OnBtnA4Reward();
 
 private:

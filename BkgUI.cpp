@@ -8,4 +8,5 @@ BkgUI::BkgUI()
 
 BkgUI::~BkgUI()
 {
+	delete m_ui;
 }

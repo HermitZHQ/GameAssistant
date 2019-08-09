@@ -32,10 +32,11 @@ public:
         pushButton->setGeometry(QRect(120, 30, 121, 28));
         pushButton_2 = new QPushButton(PlayerUI);
         pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
-        pushButton_2->setGeometry(QRect(140, 80, 93, 28));
+        pushButton_2->setGeometry(QRect(290, 440, 93, 81));
 
         retranslateUi(PlayerUI);
         QObject::connect(pushButton, SIGNAL(clicked()), PlayerUI, SLOT(OnBtnA4Reward()));
+        QObject::connect(pushButton_2, SIGNAL(clicked()), PlayerUI, SLOT(OnBtnStop()));
 
         QMetaObject::connectSlotsByName(PlayerUI);
     } // setupUi
@@ -44,7 +45,7 @@ public:
     {
         PlayerUI->setWindowTitle(QApplication::translate("PlayerUI", "Form", nullptr));
         pushButton->setText(QApplication::translate("PlayerUI", "\345\274\200\345\247\213A4\350\265\217\351\207\221\346\214\202\346\234\272", nullptr));
-        pushButton_2->setText(QApplication::translate("PlayerUI", "PushButton", nullptr));
+        pushButton_2->setText(QApplication::translate("PlayerUI", "\345\201\234\346\255\242\350\204\232\346\234\254", nullptr));
     } // retranslateUi
 
 };

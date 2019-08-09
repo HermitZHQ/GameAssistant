@@ -12,11 +12,17 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 
 PlayerUI::~PlayerUI()
 {
+	delete m_ui;
+}
 
+void PlayerUI::OnBtnStop()
+{
+	m_mainWnd->OnBtnStopClick();
 }
 
 void PlayerUI::OnBtnA4Reward()
 {
+	m_mainWnd->OnBtnStopClick();
 	m_mainWnd->LoadInputModuleFile(std::string(DEFAULT_PATH).append("zz_battle_findIcon_a4_reward").c_str());
 	m_mainWnd->OnBtnStartClick();
 }

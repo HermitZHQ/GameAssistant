@@ -4,14 +4,12 @@
 #include <QMainWindow>
 #include "QTimer"
 #include <windows.h>
-#include <thread>
+// #include <thread>
 #include <vector>
 #include "PreDef.h"
 #include "Input.h"
 #include "PlayerUI.h"
 #include "BkgUI.h"
-
-#define DEV_VER
 
 namespace Ui {
 class MainWindow;
@@ -54,6 +52,7 @@ public slots:
 	void OnBtnSetOverwriteTargetIndex();
 
 	void ShowMessageBox(const char *content);
+	void AddTipInfo(const QString &str);
 
 	void OnBtnOpenFileDialog();
 	void OnBtnOpenFileDialog_PicPath();

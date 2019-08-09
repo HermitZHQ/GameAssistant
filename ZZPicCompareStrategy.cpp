@@ -136,7 +136,7 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 		if (rOffsetRate > cmpOffsetRate || gOffsetRate > cmpOffsetRate || bOffsetRate > cmpOffsetRate)
 		{
 // 			m_ui->list_tip->addItem(std::string("rgb over offset:").append(input.picPath).c_str());
-#ifdef _DEBUG
+#ifdef DEV_VER
 			char cTmp[MAX_PATH] = { 0 };
 			sprintf_s(cTmp, MAX_PATH, "rgb over offset:[%f|%f|%f]_%s\n", rOffsetRate, gOffsetRate, bOffsetRate, input.picPath);
 			OutputDebugStringA(cTmp);
@@ -190,7 +190,7 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 				strPicName = strPicName.substr( pos );
 			}
 // 			cv::imwrite("C:\\Users\\cdzha\\Desktop\\curImg_size0.png", img2);
-#ifdef _DEBUG
+#ifdef DEV_VER
 			m_ui->list_tip->addItem(std::string("key point too low[").append(std::to_string(kpts1.size())).append("|").append( std::to_string( kpts2.size() ) ).append("]-").append( strPicName ).c_str());
 #endif // _DEBUG
 			return 0.0;
@@ -216,12 +216,12 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 		vector<KeyPoint> inliers1, inliers2;
 
 		double rate = (double)matched1.size() / ((kpts1.size() + kpts2.size()) / 2.0);
-// #ifdef _DEBUG
+#ifdef DEV_VER
 		if (rate > 1.0)
 		{
 			m_ui->list_tip->addItem(std::string("s1:").append(std::to_string(kpts1.size())).append(" s2:").append(std::to_string(kpts2.size())).append(" m1:").append(std::to_string(matched1.size())).append(" m2:").append(std::to_string(matched2.size())).c_str());
 		}
-// #endif // _DEBUG
+#endif // _DEBUG
 
 		kpSize1 = (int)kpts1.size();
 		kpSize2 = (int)kpts2.size();
@@ -238,7 +238,9 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 	img(rt2).copyTo(partialImg);
 
 	double rate = compareFunc(img, partialImg);
-	m_ui->edt_rate->setText(Left2Precision(rate).c_str());
+	#ifdef DEV_VER
+m_ui->edt_rate->setText(Left2Precision(rate).c_str());
+#endif
 
 	if (rate > input.cmpPicRate)
 	{
@@ -248,10 +250,14 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 		input.bFindPicFlag = true;
 		//对比成功后点击图片的中心点
 		(input.bCmpPicCheckFlag) ? MouseClick(gameWnd, x + (x2 - x) / 2.0, y + (y2 - y) / 2.0) : (0);
+#ifdef DEV_VER
 		m_ui->list_tip->addItem(QTime::currentTime().toString().toStdString().append(":cmp[").append(Left2Precision(rate)).append("|").append(std::to_string(GetTickCount() - dwTime)).append("|").append( std::to_string( kpSize1 ) ).append("-").append( std::to_string( kpSize2 ) ).append("]-").append(input.picPath).append("_").append(Left2Precision(rOffsetRate)).append("_").append(Left2Precision(gOffsetRate)).append("_").append(Left2Precision(bOffsetRate)).c_str());
+#endif
 	}
 
 	dwTime = GetTickCount() - dwTime;
+#ifdef DEV_VER
 	m_ui->edt_costTime->setText(std::to_string(dwTime).append("|").append(Left2Precision(fBaseScaleFactor)).c_str());
+#endif
 	return rate;
 }
