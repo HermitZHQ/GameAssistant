@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <string>
 
-// #define DEV_VER
+#define DEV_VER
 
 #define TT_BEGIN char cTmp[MAX_PATH] = { 0 };\
 				DWORD dwTime2 = GetTickCount();

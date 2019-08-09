@@ -5,6 +5,8 @@
 #include "QThread"
 #include "QFileDialog"
 #include "QtWidgets/QMessageBox"
+#include "QDebug"
+#include <time.h>
 
 #import "./NtpTime.tlb"
 using namespace NtpTime;
@@ -19,13 +21,15 @@ MainWindow::MainWindow(QWidget *parent) :
 	, m_wndHeight(588)
 	, m_picCompareStrategy(new ZZPicCompareStrategy)
 	, m_playerUI(this)
+	, m_year(0)
 {
+	CoUninitialize();
 	auto res = CoInitialize(nullptr);
 	ITimeHelperPtr timeHelper(__uuidof(TimeHelper));
-	long year = 0, month, day, hour, minute, second;
-	auto t = timeHelper->getWebTime(&year, &month, &day, &hour, &minute, &second);
+	std::string strRes = timeHelper->getWebTime(&m_year, &m_month, &m_day, &m_hour, &m_minute, &m_second);
+	m_mac = timeHelper->getMac();
 
-	if (year == 666)
+	if (m_year == 666)
 	{
 		ShowMessageBox("请保持网络通畅，重启客户端");
 		destroy();
@@ -40,13 +44,19 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_bkgUI.setGeometry(geometry());
 	setWindowTitle("Develop-Ver 1.0.8");
 #else
+	m_bkgUI.setWindowTitle("Game-Assistant");
+	if (!CheckLisence())
+	{
+		ShowMessageBox("许可证已过期，请联系管理员购买新的许可证");
+		destroy();
+		return;
+	}
 	setGeometry(QRect(0, 0, 0, 0));
 	setParent(&m_bkgUI);
 	setVisible(false);
 	m_playerUI.setParent(&m_bkgUI);
 	m_playerUI.show();
 	m_bkgUI.setGeometry(m_playerUI.geometry());
-	m_bkgUI.setWindowTitle("Game-Assistant");
 #endif
 
 	m_bkgUI.show();
@@ -613,6 +623,7 @@ void MainWindow::OnBtnSetOverwriteTargetIndex()
 void MainWindow::ShowMessageBox(const char *content)
 {
 	QMessageBox mb;
+	mb.setWindowTitle("Info");
 	mb.setText(QString::fromLocal8Bit(content));
 	mb.setDefaultButton(QMessageBox::Ok);
 	mb.exec();
@@ -623,6 +634,139 @@ void MainWindow::AddTipInfo(const QString &str)
 #ifdef DEV_VER
 	m_ui->list_tip->addItem(str);
 #endif
+}
+
+void MainWindow::OnBtnLisence()
+{
+	int lisenceMonth = m_ui->edt_month->text().toShort();
+	if (lisenceMonth <= 0 || lisenceMonth > 12)
+	{
+		ShowMessageBox("Lisence月份无效");
+		return;
+	}
+
+	//按照二进制存储
+	FILE *pFile = nullptr;
+	std::string strFilePath = DEFAULT_PATH;
+	strFilePath.append("Lisence.nn");
+
+	QFileInfo file(strFilePath.c_str());
+	if (file.exists() && file.isFile())
+	{
+		QMessageBox msgBox;
+		msgBox.setText(QString::fromLocal8Bit("文件已存在，是否覆盖?"));
+		msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Save);
+		int ret = msgBox.exec();
+		if (QMessageBox::Cancel == ret)
+		{
+			AddTipInfo(QString::fromLocal8Bit("已取消保存"));
+			return;
+		}
+	}
+
+	fopen_s(&pFile, strFilePath.c_str(), "wb");
+	if (nullptr == pFile)
+		return;
+
+	srand(time(nullptr));
+	int iRand = 0;
+	//先写入20个int长度的随机值
+	for (int i = 0; i < 20; ++i)
+	{
+		iRand = rand();
+		fwrite(&iRand, sizeof(int), 1, pFile);
+	}
+
+	//中间写入日期内存，这里还是分别写入，我怕不同操作系统默认的结构体大小不同
+	QDateTime curDate = QDateTime::currentDateTime();
+	QDateTime endDate = curDate.addMonths(lisenceMonth);
+// 	QDateTime endDate = curDate;
+	int year, month, day, hour, minute, second;
+
+	//这里只用写入终止时间，因为要比较的当前时间是从网络获取
+	year = endDate.date().year();
+	month = endDate.date().month();
+	day = endDate.date().day();
+	hour = endDate.time().hour();
+	minute = endDate.time().minute();
+	second = endDate.time().second();
+	fwrite(&year, sizeof(int), 1, pFile);
+	fwrite(&hour, sizeof(int), 1, pFile);
+	fwrite(&month, sizeof(int), 1, pFile);
+	fwrite(&minute, sizeof(int), 1, pFile);
+	fwrite(&day, sizeof(int), 1, pFile);
+	fwrite(&second, sizeof(int), 1, pFile);
+
+	//最后再动态写入随机长度的int值，保证每次生成的lisence长度不一样，我这种小软件这种程度应该够了
+	int iRandCount = rand() % 100 + 50;
+	for (int i = 0; i < iRandCount; ++i)
+	{
+		iRand = rand();
+		fwrite(&iRand, sizeof(int), 1, pFile);
+	}
+
+	fclose(pFile);
+	AddTipInfo(QString::fromLocal8Bit("保存文件成功"));
+}
+
+void MainWindow::OnBtnLisenceInfo()
+{
+	std::string strFilePath = DEFAULT_PATH;
+	strFilePath.append("Lisence.nn");
+
+	//按照二进制读取
+	FILE *pFile = nullptr;
+	fopen_s(&pFile, strFilePath.c_str(), "rb");
+	if (nullptr == pFile)
+	{
+		AddTipInfo(QString::fromLocal8Bit(std::string("读取输入模块[").append(strFilePath).append("]失败").c_str()));
+		return;
+	}
+
+	//先取出20个int
+	int iTmp = 0;
+	for (int i = 0; i < 20; ++i)
+	{
+		fread(&iTmp, sizeof(int), 1, pFile);
+	}
+
+	//取出日期
+	int year, month, day, hour, minute, second;
+
+	fread(&year, sizeof(int), 1, pFile);
+	fread(&hour, sizeof(int), 1, pFile);
+	fread(&month, sizeof(int), 1, pFile);
+	fread(&minute, sizeof(int), 1, pFile);
+	fread(&day, sizeof(int), 1, pFile);
+	fread(&second, sizeof(int), 1, pFile);
+	m_endDate = QDateTime(QDate(year, month, day), QTime(hour, minute, second));
+
+	AddTipInfo(m_curDate.toString());
+	AddTipInfo(m_endDate.toString());
+
+	//最后的随机混乱值不用处理
+
+	fclose(pFile);
+}
+
+bool MainWindow::CheckLisence()
+{
+	OnBtnLisenceInfo();
+
+	//比较真实的网络时间
+	m_curDate = QDateTime(QDate(m_year, m_month, m_day), QTime(m_hour, m_minute, m_second));
+	qint64 leftSecond = m_curDate.secsTo(m_endDate);
+
+	if (leftSecond > 0)
+	{
+		ShowMessageBox(std::string("许可期限还剩：").append(std::to_string(m_curDate.daysTo(m_endDate))).append("天").c_str());
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void MainWindow::OnBtnOpenFileDialog()

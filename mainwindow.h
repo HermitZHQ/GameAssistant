@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "QTimer"
+#include "QDateTime"
 #include <windows.h>
 // #include <thread>
 #include <vector>
@@ -54,6 +55,11 @@ public slots:
 	void ShowMessageBox(const char *content);
 	void AddTipInfo(const QString &str);
 
+	//lisence
+	void OnBtnLisence();
+	void OnBtnLisenceInfo();
+	bool CheckLisence();
+
 	void OnBtnOpenFileDialog();
 	void OnBtnOpenFileDialog_PicPath();
 	void OnBtnSaveClick();
@@ -88,6 +94,16 @@ private:
 	int							m_wndHeight;
 	PicCompareStrategy			*m_picCompareStrategy;
 	QTimer						m_timer;
+
+	long						m_year;
+	long						m_month;
+	long						m_day;
+	long						m_hour;
+	long						m_minute;
+	long						m_second;
+	std::string					m_mac;
+	QDateTime					m_curDate;
+	QDateTime					m_endDate;
 };
 
 #endif // MAINWINDOW_H

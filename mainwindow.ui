@@ -1014,6 +1014,58 @@
      <string>插入拖动</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="btn_lisence">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>380</y>
+      <width>71</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>生成许可</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_month">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>350</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_29">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>350</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>个月</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_lisenceInfo">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>350</y>
+      <width>41</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>查看</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
@@ -1323,6 +1375,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btn_lisence</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnLisence()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>71</x>
+     <y>387</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>96</x>
+     <y>379</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_lisenceInfo</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnLisenceInfo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>111</x>
+     <y>358</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>83</x>
+     <y>346</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>OnBtnStartClick()</slot>
@@ -1343,5 +1427,7 @@
   <slot>OnBtnOverwrite()</slot>
   <slot>OnBtnSetOverwriteTargetIndex()</slot>
   <slot>OnBtnInsertDrag()</slot>
+  <slot>OnBtnLisence()</slot>
+  <slot>OnBtnLisenceInfo()</slot>
  </slots>
 </ui>

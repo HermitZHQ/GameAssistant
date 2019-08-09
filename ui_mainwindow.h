@@ -100,6 +100,10 @@ public:
     QLabel *label_28;
     QPushButton *btn_overwrite;
     QPushButton *btn_insertDrag;
+    QPushButton *btn_lisence;
+    QLineEdit *edt_month;
+    QLabel *label_29;
+    QPushButton *btn_lisenceInfo;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -340,6 +344,18 @@ public:
         btn_insertDrag = new QPushButton(centralWidget);
         btn_insertDrag->setObjectName(QString::fromUtf8("btn_insertDrag"));
         btn_insertDrag->setGeometry(QRect(450, 560, 71, 28));
+        btn_lisence = new QPushButton(centralWidget);
+        btn_lisence->setObjectName(QString::fromUtf8("btn_lisence"));
+        btn_lisence->setGeometry(QRect(10, 380, 71, 23));
+        edt_month = new QLineEdit(centralWidget);
+        edt_month->setObjectName(QString::fromUtf8("edt_month"));
+        edt_month->setGeometry(QRect(10, 350, 31, 21));
+        label_29 = new QLabel(centralWidget);
+        label_29->setObjectName(QString::fromUtf8("label_29"));
+        label_29->setGeometry(QRect(50, 350, 31, 21));
+        btn_lisenceInfo = new QPushButton(centralWidget);
+        btn_lisenceInfo->setObjectName(QString::fromUtf8("btn_lisenceInfo"));
+        btn_lisenceInfo->setGeometry(QRect(90, 350, 41, 51));
         MainWindow->setCentralWidget(centralWidget);
 
         retranslateUi(MainWindow);
@@ -362,6 +378,8 @@ public:
         QObject::connect(btn_overwrite, SIGNAL(clicked()), MainWindow, SLOT(OnBtnOverwrite()));
         QObject::connect(list_inputVec, SIGNAL(doubleClicked(QModelIndex)), MainWindow, SLOT(OnBtnSetOverwriteTargetIndex()));
         QObject::connect(btn_insertDrag, SIGNAL(clicked()), MainWindow, SLOT(OnBtnInsertDrag()));
+        QObject::connect(btn_lisence, SIGNAL(clicked()), MainWindow, SLOT(OnBtnLisence()));
+        QObject::connect(btn_lisenceInfo, SIGNAL(clicked()), MainWindow, SLOT(OnBtnLisenceInfo()));
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -454,6 +472,10 @@ public:
         label_28->setText(QApplication::translate("MainWindow", "\350\246\206\347\233\226\347\233\256\346\240\207\347\264\242\345\274\225", nullptr));
         btn_overwrite->setText(QApplication::translate("MainWindow", "\345\274\200\345\247\213\350\246\206\347\233\226", nullptr));
         btn_insertDrag->setText(QApplication::translate("MainWindow", "\346\217\222\345\205\245\346\213\226\345\212\250", nullptr));
+        btn_lisence->setText(QApplication::translate("MainWindow", "\347\224\237\346\210\220\350\256\270\345\217\257", nullptr));
+        edt_month->setText(QApplication::translate("MainWindow", "1", nullptr));
+        label_29->setText(QApplication::translate("MainWindow", "\344\270\252\346\234\210", nullptr));
+        btn_lisenceInfo->setText(QApplication::translate("MainWindow", "\346\237\245\347\234\213", nullptr));
     } // retranslateUi
 
 };
