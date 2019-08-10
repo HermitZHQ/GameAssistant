@@ -43,6 +43,7 @@ public slots:
 	void OnBtnDelAllInput();
 	void OnBtnUpdateAllInput();
 	void OnBtnDelSelectInputClick();
+	void OnBtnDel3Inputs();
 	void OnBtnInputListClick();
 	void OnBtnUpdateSelectInputClick();
 	void OnBtnInsertInputClick();
@@ -53,12 +54,13 @@ public slots:
 	void OnBtnSetOverwriteTargetIndex();
 
 	void ShowMessageBox(const char *content);
-	void AddTipInfo(const QString &str);
+	void AddTipInfo(const char *str, bool bConvertFlag = true);
 
 	//lisence
 	void OnBtnLisence();
-	void OnBtnLisenceInfo();
+	bool OnBtnLisenceInfo();
 	bool CheckLisence();
+	QString GetMAC();
 
 	void OnBtnOpenFileDialog();
 	void OnBtnOpenFileDialog_PicPath();
@@ -84,6 +86,7 @@ private:
 	BkgUI						m_bkgUI;
 
 	HWND						m_hWnd;
+	HWND						m_hParentWnd;
 	HWND						m_hChildWnd;
 	bool						m_stopFlag;
 	std::vector<InputData>		m_inputVec;
@@ -95,15 +98,18 @@ private:
 	PicCompareStrategy			*m_picCompareStrategy;
 	QTimer						m_timer;
 
+	QTimer						m_lisenceCheckTimer;
 	long						m_year;
 	long						m_month;
 	long						m_day;
 	long						m_hour;
 	long						m_minute;
 	long						m_second;
-	std::string					m_mac;
+	QString						m_macClient;
+	QString						m_macLisence;
 	QDateTime					m_curDate;
 	QDateTime					m_endDate;
+	LONGLONG					m_lisenceLeftSecond;
 };
 
 #endif // MAINWINDOW_H

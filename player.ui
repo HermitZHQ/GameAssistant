@@ -6,37 +6,141 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>539</height>
+    <width>405</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QPushButton" name="pushButton">
-   <property name="geometry">
-    <rect>
-     <x>120</x>
-     <y>30</y>
-     <width>121</width>
-     <height>28</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>开始A4赏金挂机</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="pushButton_2">
    <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>440</y>
-     <width>93</width>
-     <height>81</height>
+     <x>12</x>
+     <y>539</y>
+     <width>381</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="text">
     <string>停止脚本</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>30</y>
+     <width>315</width>
+     <height>331</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0">
+    <property name="spacing">
+     <number>2</number>
+    </property>
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>(1)用于复杂关卡，手动拉好路线后的托管</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btn_nextStep">
+      <property name="text">
+       <string>下一步和开战辅助</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>(2)进入A(1-4)战场后点击开始，目前只支持A4</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="cmb_reward">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QComboBox::AdjustToContents</enum>
+      </property>
+      <item>
+       <property name="text">
+        <string>A4</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton">
+      <property name="text">
+       <string>开始赏金挂机</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>(3)在主战场（可以看到A1-4）点击开始</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btn_daily">
+      <property name="text">
+       <string>开始日常挂机</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>(4)开始自动委托</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="cmb_delegate">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QComboBox::AdjustToContents</enum>
+      </property>
+      <item>
+       <property name="text">
+        <string>最慢</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btn_daily_2">
+      <property name="text">
+       <string>开始委托</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QListWidget" name="list_tip">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>400</y>
+     <width>381</width>
+     <height>131</height>
+    </rect>
    </property>
   </widget>
  </widget>
@@ -49,8 +153,8 @@
    <slot>OnBtnA4Reward()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>199</x>
-     <y>44</y>
+     <x>140</x>
+     <y>171</y>
     </hint>
     <hint type="destinationlabel">
      <x>272</x>
@@ -65,8 +169,8 @@
    <slot>OnBtnStop()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>342</x>
-     <y>462</y>
+     <x>64</x>
+     <y>551</y>
     </hint>
     <hint type="destinationlabel">
      <x>334</x>
@@ -74,9 +178,60 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btn_daily</sender>
+   <signal>clicked()</signal>
+   <receiver>PlayerUI</receiver>
+   <slot>OnBtnDaily()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>173</x>
+     <y>242</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>78</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_nextStep</sender>
+   <signal>clicked()</signal>
+   <receiver>PlayerUI</receiver>
+   <slot>OnBtnNextStep()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>156</x>
+     <y>64</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>14</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_daily_2</sender>
+   <signal>clicked()</signal>
+   <receiver>PlayerUI</receiver>
+   <slot>OnBtnDelegate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>229</x>
+     <y>338</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>262</x>
+     <y>367</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>OnBtnA4Reward()</slot>
   <slot>OnBtnStop()</slot>
+  <slot>OnBtnDaily()</slot>
+  <slot>OnBtnNextStep()</slot>
+  <slot>OnBtnDelegate()</slot>
  </slots>
 </ui>

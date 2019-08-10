@@ -7,27 +7,32 @@
 #include "QtWidgets/QMessageBox"
 #include "QDebug"
 #include <time.h>
+#include "ui_player.h"
 
 #import "./NtpTime.tlb"
 using namespace NtpTime;
+
+const unsigned int g_crypt = 0xe511f;
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	m_ui(new Ui::MainWindow)
 	, m_hWnd(nullptr)
 	, m_hChildWnd(nullptr)
+	, m_hParentWnd(nullptr)
 	, m_stopFlag(false)
 	, m_wndWidth(890)
 	, m_wndHeight(588)
 	, m_picCompareStrategy(new ZZPicCompareStrategy)
 	, m_playerUI(this)
 	, m_year(0)
+	, m_lisenceLeftSecond(0)
 {
 	CoUninitialize();
 	auto res = CoInitialize(nullptr);
 	ITimeHelperPtr timeHelper(__uuidof(TimeHelper));
 	std::string strRes = timeHelper->getWebTime(&m_year, &m_month, &m_day, &m_hour, &m_minute, &m_second);
-	m_mac = timeHelper->getMac();
+	m_macClient = timeHelper->getMac();
 
 	if (m_year == 666)
 	{
@@ -39,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #ifdef DEV_VER
 	m_ui->setupUi(this);
+	CheckLisence();
 	setParent(&m_bkgUI);
 	m_picCompareStrategy->SetUi(m_ui);
 	m_bkgUI.setGeometry(geometry());
@@ -47,7 +53,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_bkgUI.setWindowTitle("Game-Assistant");
 	if (!CheckLisence())
 	{
-		ShowMessageBox("许可证已过期，请联系管理员购买新的许可证");
 		destroy();
 		return;
 	}
@@ -76,15 +81,24 @@ void MainWindow::PostMsgThread()
 	if (m_inputVec.size() == 0)
 	{
 		m_timer.stop();
-		AddTipInfo(QString::fromLocal8Bit("脚本中命令数为0，线程退出..."));
+		AddTipInfo("脚本中命令数为0，线程退出...");
 		return;
 	}
 
 	//执行脚本时为顺序执行，每执行完一个finishflag就标识为true，都完成以后重置所有标识，进行反复循环
 // 	while (m_hWnd && !m_stopFlag)
 // 	{
-		//获取最新的游戏窗口大小，通过比例来进行鼠标点击，可以保证窗口任意大小都能点击正确
+
+	//获取最新的游戏窗口大小，通过比例来进行鼠标点击，可以保证窗口任意大小都能点击正确
 	UpdateGameWindowSize();
+	//强制更新窗口内容，即便窗口最小化
+// 	::SetActiveWindow(m_hWnd);
+// 	InvalidateRect(m_hWnd, nullptr, TRUE);
+// 	RedrawWindow(m_hWnd, nullptr, nullptr, RDW_INVALIDATE);
+// 	PostMessage(m_hWnd, WM_ACTIVATE, 0, 0);
+// 	PostMessage(m_hWnd, WM_ERASEBKGND, 0, 0);
+// 	PostMessage(m_hWnd, WM_PAINT, 0, 0);
+
 #ifdef DEV_VER
 	int iCurCount = m_ui->list_tip->count();
 	static int iLastCount = iCurCount;
@@ -219,14 +233,14 @@ void MainWindow::OnBtnStartClick()
 	m_timer.setInterval(1);
 	// 	m_timer.setSingleShot(true);
 	m_timer.start();
-	AddTipInfo(QString::fromLocal8Bit("开始脚本处理..."));
+	AddTipInfo("开始脚本处理...");
 }
 
 void MainWindow::OnBtnStopClick()
 {
 	m_stopFlag = true;
 	m_timer.stop();
-	AddTipInfo(QString::fromLocal8Bit("停止脚本处理..."));
+	AddTipInfo("停止脚本处理...");
 }
 
 void MainWindow::OnBtnAddInput()
@@ -244,7 +258,7 @@ void MainWindow::OnBtnAddInput()
 		m_inputVec.push_back(input);
 	}
 
-	AddTipInfo(QString::fromLocal8Bit(std::string("已添加").append(std::to_string(repeatTime)).append("条指令").c_str()));
+	AddTipInfo(std::string("已添加").append(std::to_string(repeatTime)).append("条指令").c_str());
 
 	RefreshInputVecUIList();
 }
@@ -302,8 +316,8 @@ void MainWindow::OnBtnDelLastInput()
 
 	m_inputVec.pop_back();
 
-	AddTipInfo(QString::fromLocal8Bit("已删除上一条指令"));
-	AddTipInfo(QString::fromLocal8Bit(std::string("还剩下").append(std::to_string(m_inputVec.size())).append("条指令").c_str()));
+	AddTipInfo("已删除上一条指令");
+	AddTipInfo(std::string("还剩下").append(std::to_string(m_inputVec.size())).append("条指令").c_str());
 
 	RefreshInputVecUIList();
 }
@@ -311,7 +325,7 @@ void MainWindow::OnBtnDelLastInput()
 void MainWindow::OnBtnDelAllInput()
 {
 	m_inputVec.clear();
-	AddTipInfo(QString::fromLocal8Bit("已删除所有指令"));
+	AddTipInfo("已删除所有指令");
 
 	RefreshInputVecUIList();
 }
@@ -327,7 +341,7 @@ void MainWindow::OnBtnUpdateAllInput()
 	}
 
 	RefreshInputVecUIList();
-	AddTipInfo(QString::fromLocal8Bit("已更新所有指令"));
+	AddTipInfo("已更新所有指令");
 }
 
 void MainWindow::OnBtnDelSelectInputClick()
@@ -342,6 +356,31 @@ void MainWindow::OnBtnDelSelectInputClick()
 
 		m_inputVec.erase(it);
 		break;
+	}
+
+	RefreshInputVecUIList();
+}
+
+void MainWindow::OnBtnDel3Inputs()
+{
+	auto index = m_ui->list_inputVec->currentIndex();
+	if (index.row() + 2 > m_inputVec.size() - 1)
+	{
+		ShowMessageBox("无法连续删除3条指令");
+		return;
+	}
+
+	for (int j = 0; j < 3; ++j)
+	{
+		auto it = m_inputVec.begin();
+		for (int i = 0; i < m_inputVec.size(); ++i, ++it)
+		{
+			if (i != index.row())
+				continue;
+	
+			m_inputVec.erase(it);
+			break;
+		}
 	}
 
 	RefreshInputVecUIList();
@@ -629,19 +668,29 @@ void MainWindow::ShowMessageBox(const char *content)
 	mb.exec();
 }
 
-void MainWindow::AddTipInfo(const QString &str)
+void MainWindow::AddTipInfo(const char *str, bool bConvertFlag)
 {
 #ifdef DEV_VER
-	m_ui->list_tip->addItem(str);
+	m_ui->list_tip->addItem((bConvertFlag ? (QString::fromLocal8Bit(str)): (str)));
+	m_ui->list_tip->scrollToBottom();
+#else
+	m_playerUI.GetUI()->list_tip->addItem((bConvertFlag ? (QString::fromLocal8Bit(str)) : (str)));
+	m_playerUI.GetUI()->list_tip->scrollToBottom();
 #endif
 }
 
 void MainWindow::OnBtnLisence()
 {
 	int lisenceMonth = m_ui->edt_month->text().toShort();
-	if (lisenceMonth <= 0 || lisenceMonth > 12)
+	if (lisenceMonth < 0 || lisenceMonth > 12)
 	{
 		ShowMessageBox("Lisence月份无效");
+		return;
+	}
+
+	QString strMac = GetMAC();
+	if (strMac.compare("") == 0)
+	{
 		return;
 	}
 
@@ -660,7 +709,7 @@ void MainWindow::OnBtnLisence()
 		int ret = msgBox.exec();
 		if (QMessageBox::Cancel == ret)
 		{
-			AddTipInfo(QString::fromLocal8Bit("已取消保存"));
+			AddTipInfo("已取消保存");
 			return;
 		}
 	}
@@ -680,23 +729,40 @@ void MainWindow::OnBtnLisence()
 
 	//中间写入日期内存，这里还是分别写入，我怕不同操作系统默认的结构体大小不同
 	QDateTime curDate = QDateTime::currentDateTime();
-	QDateTime endDate = curDate.addMonths(lisenceMonth);
+	QDateTime endDate;
+	if (0 != lisenceMonth)
+	{
+		endDate = curDate.addMonths(lisenceMonth);
+	} 
+	else
+	{
+		endDate = curDate.addSecs(300);
+	}
 // 	QDateTime endDate = curDate;
 	int year, month, day, hour, minute, second;
 
 	//这里只用写入终止时间，因为要比较的当前时间是从网络获取
-	year = endDate.date().year();
-	month = endDate.date().month();
-	day = endDate.date().day();
-	hour = endDate.time().hour();
-	minute = endDate.time().minute();
-	second = endDate.time().second();
+	year = endDate.date().year() ^ g_crypt;
+	month = endDate.date().month() ^ g_crypt;
+	day = endDate.date().day() ^ g_crypt;
+	hour = endDate.time().hour() ^ g_crypt;
+	minute = endDate.time().minute() ^ g_crypt;
+	second = endDate.time().second() ^ g_crypt;
 	fwrite(&year, sizeof(int), 1, pFile);
 	fwrite(&hour, sizeof(int), 1, pFile);
 	fwrite(&month, sizeof(int), 1, pFile);
 	fwrite(&minute, sizeof(int), 1, pFile);
 	fwrite(&day, sizeof(int), 1, pFile);
 	fwrite(&second, sizeof(int), 1, pFile);
+
+	//写入mac地址
+	char cTmp[13] = { 0 };
+	strcpy_s(cTmp, 13, strMac.toStdString().c_str());
+	for (int i = 0; i < 12; ++i)
+	{
+		cTmp[i] ^= g_crypt;
+	}
+	fwrite(cTmp, 1, 13, pFile);
 
 	//最后再动态写入随机长度的int值，保证每次生成的lisence长度不一样，我这种小软件这种程度应该够了
 	int iRandCount = rand() % 100 + 50;
@@ -707,10 +773,10 @@ void MainWindow::OnBtnLisence()
 	}
 
 	fclose(pFile);
-	AddTipInfo(QString::fromLocal8Bit("保存文件成功"));
+	AddTipInfo("保存文件成功");
 }
 
-void MainWindow::OnBtnLisenceInfo()
+bool MainWindow::OnBtnLisenceInfo()
 {
 	std::string strFilePath = DEFAULT_PATH;
 	strFilePath.append("Lisence.nn");
@@ -720,8 +786,8 @@ void MainWindow::OnBtnLisenceInfo()
 	fopen_s(&pFile, strFilePath.c_str(), "rb");
 	if (nullptr == pFile)
 	{
-		AddTipInfo(QString::fromLocal8Bit(std::string("读取输入模块[").append(strFilePath).append("]失败").c_str()));
-		return;
+		AddTipInfo(std::string("读取输入模块[").append(strFilePath).append("]失败").c_str());
+		return false;
 	}
 
 	//先取出20个int
@@ -740,33 +806,101 @@ void MainWindow::OnBtnLisenceInfo()
 	fread(&minute, sizeof(int), 1, pFile);
 	fread(&day, sizeof(int), 1, pFile);
 	fread(&second, sizeof(int), 1, pFile);
+	year ^= g_crypt;
+	hour ^= g_crypt;
+	month ^= g_crypt;
+	minute ^= g_crypt;
+	day ^= g_crypt;
+	second ^= g_crypt;
 	m_endDate = QDateTime(QDate(year, month, day), QTime(hour, minute, second));
 
-	AddTipInfo(m_curDate.toString());
-	AddTipInfo(m_endDate.toString());
+	//取出mac地址
+	char cTmp[13] = { 0 };
+	fread(cTmp, 1, 13, pFile);
+	for (int i = 0; i < 12; ++i)
+	{
+		cTmp[i] ^= g_crypt;
+	}
+	m_macLisence = cTmp;
+
+#ifdef DEV_VER
+	AddTipInfo(cTmp);
+	AddTipInfo(m_endDate.toString().toStdString().c_str(), false);
+#endif
 
 	//最后的随机混乱值不用处理
 
 	fclose(pFile);
+
+	return true;
 }
 
 bool MainWindow::CheckLisence()
 {
-	OnBtnLisenceInfo();
+	auto bRes = OnBtnLisenceInfo();
+	if (!bRes)
+	{
+		ShowMessageBox("许可证文件丢失或破损");
+		return false;
+	}
+
+	//比较mac地址
+	m_macClient = m_macClient.toLower();
+	m_macLisence = m_macLisence.toLower();
+	if (0 != m_macClient.compare(m_macLisence))
+	{
+		ShowMessageBox("许可证无效");
+		return false;
+	}
 
 	//比较真实的网络时间
 	m_curDate = QDateTime(QDate(m_year, m_month, m_day), QTime(m_hour, m_minute, m_second));
-	qint64 leftSecond = m_curDate.secsTo(m_endDate);
+	m_lisenceLeftSecond = m_curDate.secsTo(m_endDate);
 
-	if (leftSecond > 0)
+	if (m_lisenceLeftSecond > 0)
 	{
-		ShowMessageBox(std::string("许可期限还剩：").append(std::to_string(m_curDate.daysTo(m_endDate))).append("天").c_str());
+		auto leftDay = m_curDate.daysTo(m_endDate);
+		if (leftDay > 1)
+		{
+			ShowMessageBox(std::string("许可期限还剩：").append(std::to_string(leftDay)).append("天").c_str());
+		} 
+		else
+		{
+			ShowMessageBox(std::string("许可期限还剩：").append(std::to_string(m_lisenceLeftSecond / 3600)).append("小时:").append(std::to_string(m_lisenceLeftSecond / 60)).append("分").c_str());
+		}
+
+		m_lisenceCheckTimer.connect(&m_lisenceCheckTimer, &QTimer::timeout, [&]() {
+			m_lisenceLeftSecond -= 10;
+			if (m_lisenceLeftSecond <= 0)
+			{
+				ShowMessageBox("许可证已过期");
+				m_lisenceCheckTimer.stop();
+				destroy();
+				::terminate();
+			}
+		});
+		m_lisenceCheckTimer.setInterval(10000);
+		m_lisenceCheckTimer.start();
+
 		return true;
 	}
 	else
 	{
+		ShowMessageBox("许可证已过期，请联系管理员购买新的许可证");
 		return false;
 	}
+}
+
+QString MainWindow::GetMAC()
+{
+	QString strMac = m_ui->edt_mac->text();
+	if (strMac.length() != 12)
+	{
+		ShowMessageBox("MAC地址无效");
+		return "";
+	}
+
+	return strMac;
 }
 
 void MainWindow::OnBtnOpenFileDialog()
@@ -811,7 +945,7 @@ void MainWindow::OnBtnSaveClick()
 		int ret = msgBox.exec();
 		if (QMessageBox::Cancel == ret)
 		{
-			AddTipInfo(QString::fromLocal8Bit("已取消保存"));
+			AddTipInfo("已取消保存");
 			return;
 		}
 	}
@@ -842,7 +976,7 @@ void MainWindow::OnBtnSaveClick()
 	fwrite(&m_wndHeight, sizeof(int), 1, pFile);
 
 	fclose(pFile);
-	AddTipInfo(QString::fromLocal8Bit("保存文件成功"));
+	AddTipInfo("保存文件成功");
 }
 
 void MainWindow::OnBtnLoadClick()
@@ -868,7 +1002,7 @@ void MainWindow::LoadInputModuleFile(const char *file)
 	if (nullptr == pFile)
 	{
 		RefreshInputVecUIList();
-		AddTipInfo(QString::fromLocal8Bit(std::string("读取输入模块[").append(strFilePath).append("]失败").c_str()));
+		AddTipInfo(std::string("读取输入模块[").append(strFilePath).append("]失败").c_str());
 		return;
 	}
 
@@ -923,7 +1057,7 @@ void MainWindow::LoadInputModuleFile(const char *file)
 
 #ifdef DEV_VER
 	m_ui->edt_saveName->setText(strFilePath.c_str());
-	AddTipInfo(QString::fromLocal8Bit(std::string("读取模块[").append(strFilePath).append("]成功，共读取命令").append(std::to_string(size)).append("条").c_str()));
+	AddTipInfo(std::string("读取模块[").append(strFilePath).append("]成功，共读取命令").append(std::to_string(size)).append("条").c_str());
 #endif
 
 	//加载完后重新初始化窗口，因为窗口可能已经变动
@@ -994,7 +1128,7 @@ void MainWindow::HandleMouseInput(InputData &input)
 	}
 	break;
 	default:
-		AddTipInfo(QString::fromLocal8Bit("错误：未处理的鼠标操作..."));
+		AddTipInfo("错误：未处理的鼠标操作...");
 		break;
 	}
 }
@@ -1012,7 +1146,7 @@ void MainWindow::HandleKeyboardInput(InputData &input)
 	case Press:
 	case Move:
 	default:
-		AddTipInfo(QString::fromLocal8Bit("错误：未处理的键盘操作..."));
+		AddTipInfo("错误：未处理的键盘操作...");
 		break;
 	}
 }
@@ -1026,6 +1160,7 @@ void MainWindow::InitGameWindow()
 {
 	m_hWnd = nullptr;
 	m_hChildWnd = nullptr;
+	m_hParentWnd = nullptr;
 
 	// 	m_gameWndParentName = m_ui->edt_wndName->text();
 	// 	m_gameWndChildName = m_ui->edt_wndName2->text();
@@ -1034,9 +1169,10 @@ void MainWindow::InitGameWindow()
 		// 	ui->list_tip->addItem(QString::fromLocal8Bit(std::string("窗口名称：").append(ui->edt_wndName->text().toLocal8Bit().toStdString()).c_str()));
 
 	m_hWnd = FindWindowA(nullptr, m_gameWndParentName.toLocal8Bit().toStdString().c_str());
+	m_hParentWnd = m_hWnd;
 	if (nullptr == m_hWnd)
 	{
-		AddTipInfo(QString::fromLocal8Bit("查找窗口句柄失败，初始化游戏窗口失败"));
+		AddTipInfo("查找窗口句柄失败，初始化游戏窗口失败");
 	}
 	else
 	{
@@ -1054,7 +1190,7 @@ void MainWindow::InitGameWindow()
 			EnumChildWindows(m_hWnd, &MainWindow::EnumChildProc, (LPARAM)this);
 			if (nullptr == m_hChildWnd)
 			{
-				AddTipInfo(QString::fromLocal8Bit("查找子窗口失败"));
+				AddTipInfo("查找子窗口失败");
 				m_hWnd = nullptr;
 			}
 			else
@@ -1066,7 +1202,7 @@ void MainWindow::InitGameWindow()
 
 		if (nullptr != m_hWnd)
 		{
-			AddTipInfo(QString::fromLocal8Bit("初始化游戏窗口成功"));
+			AddTipInfo("初始化游戏窗口成功");
 		}
 	}
 }
