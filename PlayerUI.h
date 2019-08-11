@@ -53,7 +53,7 @@ private slots:
 	void OnBtnDelegate();
 	void OnBtnDev();
 	void OnBtnRecruit();
-	void OnBtnSepcific();
+	void OnBtnSpecific();
 
 private:
 	Ui::PlayerUI									*m_ui;

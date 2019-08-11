@@ -41,7 +41,7 @@ void PlayerUI::StopScritp()
 void PlayerUI::StartScript()
 {
 	m_mainWnd->OnBtnStartClick();
-}
+} 
 
 void PlayerUI::OnBtnStop()
 {
@@ -57,7 +57,7 @@ void PlayerUI::OnBtnA4Reward()
 	{
 	case A4:
 	{
-		m_mainWnd->LoadInputModuleFile(std::string(DEFAULT_PATH).append("zz_battle_findIcon_a4_reward").c_str());
+		m_mainWnd->LoadScriptModuleFile(std::string(DEFAULT_PATH).append("zz_battle_findIcon_a4_reward").c_str());
 	}
 		break;
 	default:
@@ -70,14 +70,14 @@ void PlayerUI::OnBtnA4Reward()
 void PlayerUI::OnBtnDaily()
 {
 	StopScritp();
-	m_mainWnd->LoadInputModuleFile(std::string(DEFAULT_PATH).append("zz_battle_findIcon_daily").c_str());
+	m_mainWnd->LoadScriptModuleFile(std::string(DEFAULT_PATH).append("zz_battle_findIcon_daily").c_str());
 	StartScript();
 }
 
 void PlayerUI::OnBtnNextStep()
 {
 	StopScritp();
-	m_mainWnd->LoadInputModuleFile(std::string(DEFAULT_PATH).append("g").c_str());
+	m_mainWnd->LoadScriptModuleFile(std::string(DEFAULT_PATH).append("g").c_str());
 	StartScript();
 }
 
@@ -89,7 +89,7 @@ void PlayerUI::OnBtnDelegate()
 	auto it = m_specificDelegateScriptMap.find((ZZ_Delegate)index);
 	if (it != m_specificDelegateScriptMap.end())
 	{
-		m_mainWnd->LoadInputModuleFile(it->second.toStdString().c_str());
+		m_mainWnd->LoadScriptModuleFile(it->second.toStdString().c_str());
 		StartScript();
 	}
 }
@@ -102,7 +102,7 @@ void PlayerUI::OnBtnDev()
 	auto it = m_specificDevScriptMap.find((ZZ_Dev)index);
 	if (it != m_specificDevScriptMap.end())
 	{
-		m_mainWnd->LoadInputModuleFile(it->second.toStdString().c_str());
+		m_mainWnd->LoadScriptModuleFile(it->second.toStdString().c_str());
 		StartScript();
 	}
 }
@@ -110,11 +110,11 @@ void PlayerUI::OnBtnDev()
 void PlayerUI::OnBtnRecruit()
 {
 	StopScritp();
-	m_mainWnd->LoadInputModuleFile(std::string(DEFAULT_PATH).append("recruit").c_str());
+	m_mainWnd->LoadScriptModuleFile(std::string(DEFAULT_PATH).append("recruit").c_str());
 	StartScript();
 }
 
-void PlayerUI::OnBtnSepcific()
+void PlayerUI::OnBtnSpecific()
 {
 	StopScritp();
 
@@ -122,7 +122,7 @@ void PlayerUI::OnBtnSepcific()
 	auto it = m_specificLevelScriptMap.find((ZZ_Specific)index);
 	if (it != m_specificLevelScriptMap.end())
 	{
-		m_mainWnd->LoadInputModuleFile(it->second.toStdString().c_str());
+		m_mainWnd->LoadScriptModuleFile(it->second.toStdString().c_str());
 		StartScript();
 	}
 }

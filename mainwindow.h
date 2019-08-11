@@ -137,12 +137,22 @@ public slots:
 	void OnBtnInsertInputClick();
 	void OnBtnInsertDrag();
 	void RefreshInputVecUIList();
+	void RefreshInputModuleVecUIList();
 	void OnBtnClearTipInfo();
 	void OnBtnOverwrite();
+	void OnBtnOverwriteDelay();
 	void OnBtnSetOverwriteTargetIndex();
 
 	void ShowMessageBox(const char *content);
 	void AddTipInfo(const char *str, bool bConvertFlag = true);
+
+	//list module
+	void OnBtnShowHide();
+	void OnBtnGetModule();
+	void OnBtnInsertModule();
+	void OnBtnSaveModule();
+	void OnBtnLoadModule();
+	void OnBtnDelSelectModuleInput();
 
 	//lisence
 	void OnBtnLisence();
@@ -154,7 +164,8 @@ public slots:
 	void OnBtnOpenFileDialog_PicPath();
 	void OnBtnSaveClick();
 	void OnBtnLoadClick();
-	void LoadInputModuleFile(const char *file);
+	void LoadScriptModuleFile(const char *file);
+	void LoadModuleFile(const char *file);
 
 	//重置所有命令的标识
 	void ResetAllInputFinishFlag();
@@ -182,6 +193,7 @@ private:
 
 	bool						m_stopFlag;
 	std::vector<InputData>		m_inputVec;
+	std::vector<InputData>		m_inputModuleVec;
 	CSize						m_gameWndSize;
 	int							m_wndWidth;
 	int							m_wndHeight;
@@ -201,6 +213,9 @@ private:
 	QDateTime					m_curDate;
 	QDateTime					m_endDate;
 	LONGLONG					m_lisenceLeftSecond;
+
+	//list module
+	bool						m_bShowHideFlag;
 };
 
 #endif // MAINWINDOW_H

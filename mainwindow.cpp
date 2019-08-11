@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	, m_playerUI(this)
 	, m_year(0)
 	, m_lisenceLeftSecond(0)
+	, m_bShowHideFlag(true)
 	, m_simWndType(None)
 	, m_simWndInfoMap({
 		{Thunder, SimWndInfo(QString::fromLocal8Bit("雷电模拟器"))},
@@ -170,7 +171,7 @@ void MainWindow::PostMsgThread()
 			if (-1 != input.findPicOvertimeJumpIndex)
 			{
 				(0xffff != input.findPicOvertimeJumpIndex) ? JumpInput(input.findPicOvertimeJumpIndex) :
-					(LoadInputModuleFile(input.findPicOvertimeJumpModule));
+					(LoadScriptModuleFile(input.findPicOvertimeJumpModule));
 				break;
 			}
 			continue;
@@ -210,7 +211,7 @@ void MainWindow::PostMsgThread()
 		else if (InputType::Pic == input.type && input.bFindPicFlag && -1 != input.findPicSucceedJumpIndex)
 		{
 			(0xffff != input.findPicSucceedJumpIndex) ? JumpInput(input.findPicSucceedJumpIndex) :
-				LoadInputModuleFile(input.findPicSucceedJumpModule);
+				LoadScriptModuleFile(input.findPicSucceedJumpModule);
 			break;
 		}
 
@@ -430,6 +431,7 @@ void MainWindow::OnBtnDel3Inputs()
 void MainWindow::OnBtnInputListClick()
 {
 	auto index = m_ui->list_inputVec->currentIndex();
+	m_ui->edt_indexStart->setText(std::string(std::to_string(index.row())).c_str());
 
 	auto it = m_inputVec.begin();
 	for (int i = 0; i < m_inputVec.size(); ++i, ++it)
@@ -519,6 +521,7 @@ void MainWindow::OnBtnInsertDrag()
 				InputData input;
 				GetInputData(input);
 				input.type = Mouse;
+				input.delay = 250;//默认插入250延迟
 
 				if (0 == insertCount)
 				{
@@ -657,6 +660,101 @@ void MainWindow::RefreshInputVecUIList()
 	}
 }
 
+void MainWindow::RefreshInputModuleVecUIList()
+{
+	m_ui->list_inputModule->clear();
+
+	int index = -1;
+	for (auto &input : m_inputModuleVec)
+	{
+		++index;
+		std::string strTmp;
+		strTmp = "<";
+		strTmp += std::to_string(index);
+		strTmp += ">";
+		strTmp += "(";
+		strTmp += input.comment;
+		strTmp += ")";
+		strTmp += " 类型:";
+		switch (input.type)
+		{
+		case Mouse:
+			strTmp += "鼠标";
+			break;
+		case Keyboard:
+			strTmp += "键盘";
+			break;
+		case Pic:
+			strTmp += "图片";
+			break;
+		case StopScript:
+			strTmp += "停止";
+			break;
+		default:
+			strTmp += "未知";
+			break;
+		}
+
+		if (InputType::Pic != input.type && InputType::StopScript != input.type)
+		{
+			strTmp += " 方式:";
+			switch (input.opType)
+			{
+			case Click:
+				strTmp += "点击";
+				break;
+			case Press:
+				strTmp += "按住";
+				break;
+			case Move:
+				strTmp += "移动";
+				break;
+			case Release:
+				strTmp += "释放";
+				break;
+			}
+
+			strTmp += " 延迟:";
+			strTmp += std::to_string(input.delay);
+		}
+
+		if (InputType::Keyboard == input.type && InputType::StopScript != input.type)
+		{
+			strTmp += " 键值:";
+			strTmp += input.vk;
+		}
+
+		if ((InputType::Mouse == input.type || InputType::Pic == input.type) && InputType::StopScript != input.type)
+		{
+			strTmp += " [x:";
+			strTmp += std::to_string(input.x);
+			strTmp += " y:";
+			strTmp += std::to_string(input.y);
+			strTmp += "] xRate:";
+			strTmp += Left2Precision(input.xRate);
+			strTmp += " yRate:";
+			strTmp += Left2Precision(input.yRate);
+		}
+
+		if (InputType::Pic == input.type && InputType::StopScript != input.type)
+		{
+			strTmp += " [x2:";
+			strTmp += std::to_string(input.x2);
+			strTmp += " y2:";
+			strTmp += std::to_string(input.y2);
+			strTmp += "] xRate2:";
+			strTmp += Left2Precision(input.xRate2);
+			strTmp += " yRate2:";
+			strTmp += Left2Precision(input.yRate2);
+
+			strTmp += " 路径:";
+			strTmp += input.picPath;
+		}
+
+		m_ui->list_inputModule->addItem(QString::fromLocal8Bit(strTmp.c_str()));
+	}
+}
+
 void MainWindow::OnBtnClearTipInfo()
 {
 	m_ui->list_tip->clear();
@@ -706,10 +804,47 @@ void MainWindow::OnBtnOverwrite()
 	RefreshInputVecUIList();
 }
 
+void MainWindow::OnBtnOverwriteDelay()
+{
+	auto index = m_ui->list_inputVec->currentIndex();
+	if (!index.isValid())
+	{
+		ShowMessageBox("没有选择有效的目标索引");
+		return;
+	}
+
+	int overwriteNum = m_ui->edt_overwriteNum->text().toInt();
+	int overwriteTargetIndex = m_ui->edt_overwriteIndex->text().toInt();
+	int overwriteSrcIndex = index.row();
+
+	auto size = m_inputVec.size();
+	if (overwriteTargetIndex + (overwriteNum - 1) > size - 1
+		|| overwriteTargetIndex < 0
+		|| overwriteTargetIndex == overwriteSrcIndex)
+	{
+		ShowMessageBox("复制目标的起始索引值无效");
+		return;
+	}
+
+	short delay = m_ui->edt_delay->text().toShort();
+	for (decltype(size) i = 0; i < size; ++i)
+	{
+		if (i < overwriteSrcIndex || i > overwriteTargetIndex)
+		{
+			continue;
+		}
+
+		m_inputVec[i].delay = delay;
+	}
+
+	RefreshInputVecUIList();
+}
+
 void MainWindow::OnBtnSetOverwriteTargetIndex()
 {
 	auto index = m_ui->list_inputVec->currentIndex();
 	m_ui->edt_overwriteIndex->setText(std::to_string(index.row()).c_str());
+	m_ui->edt_indexEnd->setText(std::to_string(index.row()).c_str());
 }
 
 void MainWindow::ShowMessageBox(const char *content)
@@ -730,6 +865,170 @@ void MainWindow::AddTipInfo(const char *str, bool bConvertFlag)
 	m_playerUI.GetUI()->list_tip->addItem((bConvertFlag ? (QString::fromLocal8Bit(str)) : (str)));
 	m_playerUI.GetUI()->list_tip->scrollToBottom();
 #endif
+}
+
+void MainWindow::OnBtnShowHide()
+{
+	const int width = 470;
+	auto geo = m_bkgUI.geometry();
+
+	if (m_bShowHideFlag)
+	{
+		m_bkgUI.setGeometry(geo.left(), geo.top(), geo.width() - width, geo.height());
+	}
+	else
+	{
+		m_bkgUI.setGeometry(geo.left(), geo.top(), geo.width() + width, geo.height());
+	}
+
+	m_bShowHideFlag = !m_bShowHideFlag;
+}
+
+void MainWindow::OnBtnGetModule()
+{
+	int indexStart = m_ui->edt_indexStart->text().toInt();
+	int indexEnd = m_ui->edt_indexEnd->text().toInt();
+	auto size = m_inputVec.size();
+	m_inputModuleVec.clear();
+
+	if (indexStart < 0 || indexStart > size - 1
+		|| indexEnd < 0 || indexEnd > size - 1
+		|| indexEnd < indexStart)
+	{
+		ShowMessageBox("模块索引设置错误");
+		return;
+	}
+
+	for (int i = 0; i < size; ++i)
+	{
+		if (i < indexStart || i > indexEnd) 
+		{
+			continue;
+		}
+
+		m_inputModuleVec.push_back(m_inputVec[i]);
+	}
+
+	RefreshInputModuleVecUIList();
+}
+
+void MainWindow::OnBtnInsertModule()
+{
+	int index = m_ui->edt_insertIndex->text().toInt();
+	auto size = m_inputVec.size();
+	auto insertCount = m_inputModuleVec.size();
+
+	if (0 == size)
+	{
+		for (auto &input : m_inputModuleVec)
+		{
+			m_inputVec.push_back(input);
+		}
+	} 
+	else
+	{
+		if (index > size - 1)
+		{
+			ShowMessageBox("插入索引错误");
+			return;
+		}
+
+		int alreadyInsertCount = 0;
+		while (size > 0 && alreadyInsertCount < insertCount)
+		{
+			int i = 0;
+			for (auto it = m_inputVec.begin(); it != m_inputVec.end(); ++it, ++i)
+			{
+				if (i < index)
+				{
+					continue;
+				}
+	
+				m_inputVec.insert(it, m_inputModuleVec[alreadyInsertCount]);
+				++alreadyInsertCount;
+				//连续插入时，需要把index后移
+				++index;
+
+				break;
+			}
+		}
+	}
+
+	RefreshInputVecUIList();
+}
+
+void MainWindow::OnBtnSaveModule()
+{
+	m_wndWidth = m_ui->edt_wndWidth->text().toInt();
+	m_wndHeight = m_ui->edt_wndHeight->text().toInt();
+
+	//按照二进制存储
+	FILE *pFile = nullptr;
+	std::string strFilePath = m_ui->edt_saveName->text().toLocal8Bit().toStdString();
+	auto pos = strFilePath.find("/");
+	if (std::string::npos == pos)
+	{
+		strFilePath = DEFAULT_MODULE_PATH + strFilePath;
+	}
+
+	QFileInfo file(strFilePath.c_str());
+	if (file.exists() && file.isFile())
+	{
+		QMessageBox msgBox;
+		msgBox.setText(QString::fromLocal8Bit("文件已存在，是否覆盖?"));
+		msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Save);
+		int ret = msgBox.exec();
+		if (QMessageBox::Cancel == ret)
+		{
+			AddTipInfo("已取消保存");
+			return;
+		}
+	}
+
+	fopen_s(&pFile, strFilePath.c_str(), "wb");
+	if (nullptr == pFile)
+		return;
+
+	//然后存入操作数组的大小以及数据
+	int size = (int)m_inputModuleVec.size();
+	fwrite(&size, sizeof(int), 1, pFile);
+	for (auto &input : m_inputModuleVec)
+	{
+		fwrite(&input, sizeof(InputData), 1, pFile);
+	}
+
+	fclose(pFile);
+	AddTipInfo("保存文件成功");
+}
+
+void MainWindow::OnBtnLoadModule()
+{
+	auto res = QFileDialog::getOpenFileName(this, "", DEFAULT_MODULE_PATH);
+	if (res.compare("") == 0)
+	{
+		return;
+	}
+
+	// 	ui->edt_saveName->setText(res);
+	LoadModuleFile(res.toLocal8Bit().toStdString().c_str());
+}
+
+void MainWindow::OnBtnDelSelectModuleInput()
+{
+	auto index = m_ui->list_inputModule->currentIndex();
+
+	auto it = m_inputModuleVec.begin();
+	for (int i = 0; i < m_inputModuleVec.size(); ++i, ++it)
+	{
+		if (i != index.row())
+			continue;
+
+		m_inputModuleVec.erase(it);
+		break;
+	}
+
+	RefreshInputModuleVecUIList();
 }
 
 void MainWindow::OnBtnLisence()
@@ -965,7 +1264,7 @@ void MainWindow::OnBtnOpenFileDialog()
 	}
 
 	// 	ui->edt_saveName->setText(res);
-	LoadInputModuleFile(res.toLocal8Bit().toStdString().c_str());
+	LoadScriptModuleFile(res.toLocal8Bit().toStdString().c_str());
 }
 
 void MainWindow::OnBtnOpenFileDialog_PicPath()
@@ -1041,10 +1340,10 @@ void MainWindow::OnBtnLoadClick()
 		strFilePath = DEFAULT_PATH + strFilePath;
 	}
 
-	LoadInputModuleFile(strFilePath.c_str());
+	LoadScriptModuleFile(strFilePath.c_str());
 }
 
-void MainWindow::LoadInputModuleFile(const char *file)
+void MainWindow::LoadScriptModuleFile(const char *file)
 {
 	std::string strFilePath = file;
 	m_inputVec.clear();
@@ -1059,7 +1358,7 @@ void MainWindow::LoadInputModuleFile(const char *file)
 		return;
 	}
 
-	//先写入两个窗口名(长度+str)
+	//先读入两个窗口名(长度+str)
 	int nameLen = 0;
 	fread(&nameLen, sizeof(int), 1, pFile);
 	char *pStr = new char[nameLen];
@@ -1079,7 +1378,7 @@ void MainWindow::LoadInputModuleFile(const char *file)
 	delete[]pStr;
 	pStr = nullptr;
 
-	//然后存入操作数组的大小以及数据
+	//然后读取操作数组的大小以及数据
 	int size = 0;
 	fread(&size, sizeof(int), 1, pFile);
 	for (int i = 0; i < size; ++i)
@@ -1117,6 +1416,50 @@ void MainWindow::LoadInputModuleFile(const char *file)
 	ResetAllInputFinishFlag();
 #ifdef DEV_VER
 	RefreshInputVecUIList();
+#endif
+}
+
+void MainWindow::LoadModuleFile(const char *file)
+{
+	std::string strFilePath = file;
+	m_inputModuleVec.clear();
+
+	//按照二进制读取
+	FILE *pFile = nullptr;
+	fopen_s(&pFile, strFilePath.c_str(), "rb");
+	if (nullptr == pFile)
+	{
+		RefreshInputVecUIList();
+		AddTipInfo(std::string("读取输入模块[").append(strFilePath).append("]失败").c_str());
+		return;
+	}
+
+	//然后读取操作数组的大小以及数据
+	int size = 0;
+	fread(&size, sizeof(int), 1, pFile);
+	for (int i = 0; i < size; ++i)
+	{
+		InputData input;
+		fread(&input, sizeof(InputData), 1, pFile);
+		m_inputModuleVec.push_back(input);
+	}
+
+	fclose(pFile);
+
+	//更新保存文件显示的名称，否则容易保存覆盖错误，因为现在有模块跳转功能
+	auto findPos = strFilePath.find_last_of("/");
+	if (std::string::npos != findPos)
+	{
+		strFilePath = strFilePath.substr(findPos + 1);
+	}
+
+#ifdef DEV_VER
+	m_ui->edt_saveName->setText(strFilePath.c_str());
+	AddTipInfo(std::string("读取模块[").append(strFilePath).append("]成功，共读取命令").append(std::to_string(size)).append("条").c_str());
+#endif
+
+#ifdef DEV_VER
+	RefreshInputModuleVecUIList();
 #endif
 }
 
