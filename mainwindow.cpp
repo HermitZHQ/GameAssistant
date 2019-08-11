@@ -9,7 +9,12 @@
 #include <time.h>
 #include "ui_player.h"
 
+
+#ifdef _DEBUG
+#import "./NtpTimed.tlb"
+#else
 #import "./NtpTime.tlb"
+#endif
 using namespace NtpTime;
 
 const unsigned int g_crypt = 0xe511f;
@@ -17,19 +22,38 @@ const unsigned int g_crypt = 0xe511f;
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	m_ui(new Ui::MainWindow)
-	, m_hWnd(nullptr)
-	, m_hChildWnd(nullptr)
-	, m_hParentWnd(nullptr)
 	, m_stopFlag(false)
 	, m_wndWidth(890)
 	, m_wndHeight(588)
+	, m_hGameWnd(nullptr)
 	, m_picCompareStrategy(new ZZPicCompareStrategy)
 	, m_playerUI(this)
 	, m_year(0)
 	, m_lisenceLeftSecond(0)
+	, m_simWndType(None)
+	, m_simWndInfoMap({
+		{Thunder, SimWndInfo(QString::fromLocal8Bit("雷电模拟器"))},
+		{MuMu, SimWndInfo(QString::fromLocal8Bit("重装战姬 - MuMu模拟器"))},
+		})
+	, m_curSimWndInfo(QString::fromLocal8Bit("雷电模拟器"))
 {
 	CoUninitialize();
-	auto res = CoInitialize(nullptr);
+	/*auto res = */CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+
+	char cTmp[MAX_PATH] = { 0 };
+	GetCurrentDirectoryA(MAX_PATH, cTmp);
+	std::string strComCmd = "/c RegAsm \"";
+	strComCmd.append(cTmp);
+	//注册com组件
+#ifdef _DEBUG
+	strComCmd.append("/NtpTime.dll\" /tlb:NtpTimed.tlb /codebase");
+	/*auto res2 = */ShellExecuteA(nullptr, "open", "cmd", strComCmd.c_str(), "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319", SW_HIDE);
+#else
+	strComCmd.append("/NtpTime.dll\" /tlb:NtpTime.tlb /codebase");
+	/*auto res2 = */ShellExecuteA(nullptr, "open", "cmd", strComCmd.c_str(), "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319", SW_HIDE);
+#endif
+
+	// 	auto res = CoInitialize(nullptr);
 	ITimeHelperPtr timeHelper(__uuidof(TimeHelper));
 	std::string strRes = timeHelper->getWebTime(&m_year, &m_month, &m_day, &m_hour, &m_minute, &m_second);
 	m_macClient = timeHelper->getMac();
@@ -89,6 +113,8 @@ void MainWindow::PostMsgThread()
 // 	while (m_hWnd && !m_stopFlag)
 // 	{
 
+	//检测游戏本体窗口是否已经设置到了指定大小
+	m_curSimWndInfo.CheckGameWndSize(m_wndWidth, m_wndHeight);
 	//获取最新的游戏窗口大小，通过比例来进行鼠标点击，可以保证窗口任意大小都能点击正确
 	UpdateGameWindowSize();
 	//强制更新窗口内容，即便窗口最小化
@@ -165,6 +191,12 @@ void MainWindow::PostMsgThread()
 		case Pic:
 			HandleGameImgCompare(input);
 			break;
+		case StopScript:
+		{
+			m_timer.stop();
+			AddTipInfo("脚本已运行完毕，请手动选择其他脚本执行");
+		}
+		break;
 		default:
 			break;
 		}
@@ -200,27 +232,31 @@ void MainWindow::PostMsgThread()
 
 BOOL CALLBACK MainWindow::EnumChildProc(_In_ HWND hwnd, _In_ LPARAM lParam)
 {
-	MainWindow *pWnd = (MainWindow *)lParam;
+	SimWndInfo *pInfo = (SimWndInfo*)lParam;
+
+	pInfo->AddLayer();
+	//不使用名称查找的话，直接返回找到的第一个窗口，目前mumu和雷电都是这样
+	if (!pInfo->bUseLayerNameFlag[pInfo->curLayer])
+	{
+		pInfo->layerWnd[pInfo->curLayer] = hwnd;
+		return pInfo->CheckFindFinishe() ? FALSE : TRUE;
+	}
 
 	char strTmp[MAX_PATH] = { 0 };
 	GetWindowTextA(hwnd, strTmp, MAX_PATH);
-	if (strcmp(strTmp, pWnd->m_gameWndChildName.toLocal8Bit().toStdString().c_str()) == 0)
+	if (strcmp(strTmp, pInfo->layerWndName[pInfo->curLayer].toLocal8Bit().toStdString().c_str()) == 0)
 	{
-		pWnd->m_hChildWnd = hwnd;
-		RECT rect;
-		GetWindowRect(pWnd->m_hChildWnd, &rect);
-		pWnd->m_gameWndSize.x = rect.right - rect.left;
-		pWnd->m_gameWndSize.y = rect.bottom - rect.top;
-
-		return FALSE;
+		pInfo->layerWnd[pInfo->curLayer] = hwnd;
+		return pInfo->CheckFindFinishe() ? FALSE : TRUE;
 	}
+
 	return TRUE;
 }
 
 void MainWindow::OnBtnStartClick()
 {
 	m_stopFlag = false;
-	if (nullptr == m_hWnd)
+	if (nullptr == m_hGameWnd)
 	{
 		return;
 	}
@@ -272,6 +308,11 @@ void MainWindow::GetInputData(InputData &input)
 	input.opType = (OpType)m_ui->cb_opType->currentIndex();
 	input.delay = m_ui->edt_delay->text().toShort();
 	input.vk = m_ui->edt_vk->text().toLocal8Bit()[0];
+
+	if (InputType::StopScript == input.type)
+	{
+		return;
+	}
 
 	//----mouse
 // 	if (InputType::Mouse == input.type || InputType::Pic == input.type)
@@ -377,7 +418,7 @@ void MainWindow::OnBtnDel3Inputs()
 		{
 			if (i != index.row())
 				continue;
-	
+
 			m_inputVec.erase(it);
 			break;
 		}
@@ -482,6 +523,7 @@ void MainWindow::OnBtnInsertDrag()
 				if (0 == insertCount)
 				{
 					input.opType = Press;
+					strcpy_s(input.comment, MAX_PATH, "拖动-1");
 				}
 				else if (1 == insertCount)
 				{
@@ -490,6 +532,7 @@ void MainWindow::OnBtnInsertDrag()
 					input.y = input.y2;
 					input.xRate = input.xRate2;
 					input.yRate = input.yRate2;
+					strcpy_s(input.comment, MAX_PATH, "拖动-2");
 				}
 				else if (2 == insertCount)
 				{
@@ -498,6 +541,7 @@ void MainWindow::OnBtnInsertDrag()
 					input.y = input.y2;
 					input.xRate = input.xRate2;
 					input.yRate = input.yRate2;
+					strcpy_s(input.comment, MAX_PATH, "拖动-3");
 				}
 
 				m_inputVec.insert(it, input);
@@ -508,6 +552,12 @@ void MainWindow::OnBtnInsertDrag()
 			}
 		}
 	}
+
+	//插入后更新插入位置
+	m_ui->edt_insertIndex->setText(std::to_string(index).c_str());
+	//调换xy1，2的位置，方便下次输入
+	m_ui->edt_x->setText(m_ui->edt_x2->text());
+	m_ui->edt_y->setText(m_ui->edt_y2->text());
 
 	RefreshInputVecUIList();
 }
@@ -539,12 +589,15 @@ void MainWindow::RefreshInputVecUIList()
 		case Pic:
 			strTmp += "图片";
 			break;
+		case StopScript:
+			strTmp += "停止";
+			break;
 		default:
 			strTmp += "未知";
 			break;
 		}
 
-		if (InputType::Pic != input.type)
+		if (InputType::Pic != input.type && InputType::StopScript != input.type)
 		{
 			strTmp += " 方式:";
 			switch (input.opType)
@@ -567,13 +620,13 @@ void MainWindow::RefreshInputVecUIList()
 			strTmp += std::to_string(input.delay);
 		}
 
-		if (InputType::Keyboard == input.type)
+		if (InputType::Keyboard == input.type && InputType::StopScript != input.type)
 		{
 			strTmp += " 键值:";
 			strTmp += input.vk;
 		}
 
-		if (InputType::Mouse == input.type || InputType::Pic == input.type)
+		if ((InputType::Mouse == input.type || InputType::Pic == input.type) && InputType::StopScript != input.type)
 		{
 			strTmp += " [x:";
 			strTmp += std::to_string(input.x);
@@ -585,7 +638,7 @@ void MainWindow::RefreshInputVecUIList()
 			strTmp += Left2Precision(input.yRate);
 		}
 
-		if (InputType::Pic == input.type)
+		if (InputType::Pic == input.type && InputType::StopScript != input.type)
 		{
 			strTmp += " [x2:";
 			strTmp += std::to_string(input.x2);
@@ -671,7 +724,7 @@ void MainWindow::ShowMessageBox(const char *content)
 void MainWindow::AddTipInfo(const char *str, bool bConvertFlag)
 {
 #ifdef DEV_VER
-	m_ui->list_tip->addItem((bConvertFlag ? (QString::fromLocal8Bit(str)): (str)));
+	m_ui->list_tip->addItem((bConvertFlag ? (QString::fromLocal8Bit(str)) : (str)));
 	m_ui->list_tip->scrollToBottom();
 #else
 	m_playerUI.GetUI()->list_tip->addItem((bConvertFlag ? (QString::fromLocal8Bit(str)) : (str)));
@@ -733,12 +786,12 @@ void MainWindow::OnBtnLisence()
 	if (0 != lisenceMonth)
 	{
 		endDate = curDate.addMonths(lisenceMonth);
-	} 
+	}
 	else
 	{
-		endDate = curDate.addSecs(300);
+		endDate = curDate.addSecs(1800);
 	}
-// 	QDateTime endDate = curDate;
+	// 	QDateTime endDate = curDate;
 	int year, month, day, hour, minute, second;
 
 	//这里只用写入终止时间，因为要比较的当前时间是从网络获取
@@ -863,7 +916,7 @@ bool MainWindow::CheckLisence()
 		if (leftDay > 1)
 		{
 			ShowMessageBox(std::string("许可期限还剩：").append(std::to_string(leftDay)).append("天").c_str());
-		} 
+		}
 		else
 		{
 			ShowMessageBox(std::string("许可期限还剩：").append(std::to_string(m_lisenceLeftSecond / 3600)).append("小时:").append(std::to_string(m_lisenceLeftSecond / 60)).append("分").c_str());
@@ -1011,7 +1064,6 @@ void MainWindow::LoadInputModuleFile(const char *file)
 	fread(&nameLen, sizeof(int), 1, pFile);
 	char *pStr = new char[nameLen];
 	fread(pStr, 1, nameLen, pFile);
-	m_gameWndParentName = QString::fromLocal8Bit(pStr);
 #ifdef DEV_VER
 	m_ui->edt_wndName->setText(QString::fromLocal8Bit(pStr));
 #endif
@@ -1021,7 +1073,6 @@ void MainWindow::LoadInputModuleFile(const char *file)
 	fread(&nameLen, sizeof(int), 1, pFile);
 	pStr = new char[nameLen];
 	fread(pStr, 1, nameLen, pFile);
-	m_gameWndChildName = QString::fromLocal8Bit(pStr);
 #ifdef DEV_VER
 	m_ui->edt_wndName2->setText(QString::fromLocal8Bit(pStr));
 #endif
@@ -1107,24 +1158,24 @@ void MainWindow::HandleMouseInput(InputData &input)
 	{
 	case Click:
 	{
-		PostMessage(m_hWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
-		PostMessage(m_hWnd, WM_LBUTTONUP, 0, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
+		PostMessage(m_hGameWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
+		PostMessage(m_hGameWnd, WM_LBUTTONUP, 0, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
 	}
 	break;
 	case Press:
 	{
-		PostMessage(m_hWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
+		PostMessage(m_hGameWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
 	}
 	break;
 	case Release:
 	{
-		PostMessage(m_hWnd, WM_LBUTTONUP, 0, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
+		PostMessage(m_hGameWnd, WM_LBUTTONUP, 0, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
 	}
 	break;
 	case Move:
 	{
 		//move的时候默认鼠标左键按下
-		PostMessage(m_hWnd, WM_MOUSEMOVE, MK_LBUTTON, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
+		PostMessage(m_hGameWnd, WM_MOUSEMOVE, MK_LBUTTON, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
 	}
 	break;
 	default:
@@ -1139,8 +1190,8 @@ void MainWindow::HandleKeyboardInput(InputData &input)
 	{
 	case Click:
 	{
-		PostMessage(m_hWnd, WM_KEYDOWN, input.vk, 0);
-		PostMessage(m_hWnd, WM_KEYUP, input.vk, 0);
+		PostMessage(m_hGameWnd, WM_KEYDOWN, input.vk, 0);
+		PostMessage(m_hGameWnd, WM_KEYUP, input.vk, 0);
 	}
 	break;
 	case Press:
@@ -1153,64 +1204,137 @@ void MainWindow::HandleKeyboardInput(InputData &input)
 
 void MainWindow::HandleGameImgCompare(InputData &input)
 {
-	m_picCompareStrategy->HandlePicCompare(input, m_hWnd, m_gameWndSize);
+	m_picCompareStrategy->HandlePicCompare(input, m_hGameWnd, m_gameWndSize);
 }
 
 void MainWindow::InitGameWindow()
 {
-	m_hWnd = nullptr;
-	m_hChildWnd = nullptr;
-	m_hParentWnd = nullptr;
-
-	// 	m_gameWndParentName = m_ui->edt_wndName->text();
-	// 	m_gameWndChildName = m_ui->edt_wndName2->text();
-
-		// 	ui->list_tip->addItem(QString::fromLocal8Bit("开始初始化游戏窗口..."));
-		// 	ui->list_tip->addItem(QString::fromLocal8Bit(std::string("窗口名称：").append(ui->edt_wndName->text().toLocal8Bit().toStdString()).c_str()));
-
-	m_hWnd = FindWindowA(nullptr, m_gameWndParentName.toLocal8Bit().toStdString().c_str());
-	m_hParentWnd = m_hWnd;
-	if (nullptr == m_hWnd)
+	ResetSimWndInfo();
+	m_hGameWnd = nullptr;
+	if (None == m_simWndType)
 	{
-		AddTipInfo("查找窗口句柄失败，初始化游戏窗口失败");
+		m_simWndType = Thunder;
 	}
+
+	auto it = m_simWndInfoMap.find(m_simWndType);
+	if (it == m_simWndInfoMap.end())
+	{
+		return;
+	}
+
+	//首先查找指定类型
+	it->second.layerWnd[it->second.curLayer] = FindWindowA(nullptr, it->second.layerWndName[it->second.curLayer].toLocal8Bit().toStdString().c_str());
+	//没有找到指定类型
+	if (nullptr == it->second.layerWnd[it->second.curLayer])
+	{
+		AddTipInfo(std::string("查找指定模拟器[").append(it->second.layerWndName[it->second.curLayer].toLocal8Bit().toStdString()).append("]失败，开始自动查找其他模拟器").c_str());
+
+		for (auto &simWndInfo : m_simWndInfoMap)
+		{
+			simWndInfo.second.layerWnd[simWndInfo.second.curLayer] = FindWindowA(nullptr, simWndInfo.second.layerWndName[simWndInfo.second.curLayer].toLocal8Bit().toStdString().c_str());
+
+			if (nullptr != simWndInfo.second.layerWnd[simWndInfo.second.curLayer])
+			{
+				EnumChildWindows(simWndInfo.second.layerWnd[simWndInfo.second.curLayer], &MainWindow::EnumChildProc, (LPARAM)(&simWndInfo.second));
+
+				if (nullptr != simWndInfo.second.gameWnd)
+				{
+					m_hGameWnd = simWndInfo.second.gameWnd;
+					m_curSimWndInfo = simWndInfo.second;
+					//根据之前的差值比例设定父窗口的大小，有些模拟器比如雷电可以直接设置子窗口，父窗口会放大，但是mumu只设置子窗口，父窗口是不跟随变化的
+					//设置游戏本体窗口到指定大小，这样图片识别应该会比较一致，之前设置的是外层窗口，就会导致游戏本体窗口大小有差别
+					simWndInfo.second.SetGameWndSize(m_wndWidth, m_wndHeight);
+
+					AddTipInfo(std::string("找到模拟器[").append(simWndInfo.second.layerWndName[0].toLocal8Bit().toStdString()).append("]").c_str());
+					break;
+				}
+			}
+		}
+	}
+	//找到指定类型
 	else
 	{
-		RECT rt;
-		GetWindowRect(m_hWnd, &rt);
+// 		RECT rt;
+// 		GetWindowRect(m_hWnd, &rt);
+// 
+// 		//这里的大小设置不要再改动了，如果只是鼠标点击倒是没有关系，主要涉及到图片对比，虽然比例一样，但是图片太小了拉伸以后始终会失真，因为原对比图片的大小是从890 588的分辨率上截取的
+// 		if ((rt.right - rt.left) != m_wndHeight || (rt.bottom - rt.top) != m_wndHeight)
+// 		{
+// 			::SetWindowPos(m_hWnd, HWND_BOTTOM, rt.left, rt.top, m_wndWidth, m_wndHeight, SWP_NOMOVE | SWP_NOACTIVATE);
+// 		}
 
-		//这里的大小设置不要再改动了，如果只是鼠标点击倒是没有关系，主要涉及到图片对比，虽然比例一样，但是图片太小了拉伸以后始终会失真，因为原对比图片的大小是从890 588的分辨率上截取的
-		if ((rt.right - rt.left) != m_wndHeight || (rt.bottom - rt.top) != m_wndHeight)
-		{
-			::SetWindowPos(m_hWnd, HWND_BOTTOM, rt.left, rt.top, m_wndWidth, m_wndHeight, SWP_NOMOVE | SWP_NOACTIVATE);
-		}
+		EnumChildWindows(it->second.layerWnd[it->second.curLayer], &MainWindow::EnumChildProc, (LPARAM)(&it->second));
 
-		if (m_gameWndChildName.toLocal8Bit().toStdString().compare("") != 0)
+		if (nullptr != it->second.gameWnd)
 		{
-			EnumChildWindows(m_hWnd, &MainWindow::EnumChildProc, (LPARAM)this);
-			if (nullptr == m_hChildWnd)
-			{
-				AddTipInfo("查找子窗口失败");
-				m_hWnd = nullptr;
-			}
-			else
-			{
-				// 				ui->list_tip->addItem(QString::fromLocal8Bit("查找子窗口成功"));
-				m_hWnd = m_hChildWnd;
-			}
-		}
+			m_hGameWnd = it->second.gameWnd;
+			m_curSimWndInfo = it->second;
+			//根据之前的差值比例设定父窗口的大小，有些模拟器比如雷电可以直接设置子窗口，父窗口会放大，但是mumu只设置子窗口，父窗口是不跟随变化的
+			//设置游戏本体窗口到指定大小，这样图片识别应该会比较一致，之前设置的是外层窗口，就会导致游戏本体窗口大小有差别
+			it->second.SetGameWndSize(m_wndWidth, m_wndHeight);
 
-		if (nullptr != m_hWnd)
-		{
-			AddTipInfo("初始化游戏窗口成功");
+			AddTipInfo(std::string("找到模拟器[").append(it->second.layerWndName[0].toLocal8Bit().toStdString()).append("]").c_str());
 		}
+	}
+
+	if (nullptr != m_hGameWnd)
+	{
+		UpdateGameWindowSize();
 	}
 }
 
 void MainWindow::UpdateGameWindowSize()
 {
 	RECT rect;
-	GetWindowRect(m_hWnd, &rect);
+	GetWindowRect(m_hGameWnd, &rect);
 	m_gameWndSize.x = rect.right - rect.left;
 	m_gameWndSize.y = rect.bottom - rect.top;
+}
+
+void MainWindow::ResetSimWndInfo()
+{
+	for (auto &info : m_simWndInfoMap)
+	{
+		info.second.curLayer = 0;
+		info.second.gameWnd = nullptr;
+	}
+}
+
+void MainWindow::SetSimWndType(SimWndType type)
+{
+	m_simWndType = type;
+}
+
+void SimWndInfo::SetGameWndSize(int width, int height)
+{
+	if (nullptr == gameWnd)
+	{
+		return;
+	}
+
+	UpdateRect();
+	
+	//n层窗口可以算出n-1层的比例，以主窗口为参考（比例1），算出其他相应的比例，就可以设置大小了
+	double rateW[MAX_LAYER - 1] = { 0 };
+	double rateH[MAX_LAYER - 1] = { 0 };
+	rateW[0] = 1.0;
+	rateH[0] = 1.0;
+
+	int w = 0, h = 0, w2 = 0, h2 = 0;
+	GetLayerSize(0, w, h);//获取到主窗口的大小
+
+	for (int i = 1; i < totalFindLayer; ++i)
+	{
+		GetLayerSize(i, w2, h2);//获取子窗口大小，并算出和主窗口的比例，最后就可以一次性按比例设置所有窗口
+		rateW[i] = (double)w / (double)w2;
+		rateH[i] = (double)h / (double)h2;
+	}
+
+	//从最外层开始，逐层设置大小
+	for (int i = 0; i < totalFindLayer; ++i)
+	{
+		::SetWindowPos(layerWnd[i], HWND_BOTTOM, 0, 0, (width * rateW[totalFindLayer - 1 - i]), (height * rateH[totalFindLayer - 1 - i]), SWP_NOMOVE | SWP_NOACTIVATE);
+		InvalidateRect(layerWnd[i], nullptr, TRUE);
+		Sleep(200);
+	}
 }

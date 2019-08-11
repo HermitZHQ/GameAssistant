@@ -129,6 +129,11 @@
       <string>图片识别</string>
      </property>
     </item>
+    <item>
+     <property name="text">
+      <string>停止脚本</string>
+     </property>
+    </item>
    </widget>
    <widget class="QLabel" name="label_3">
     <property name="geometry">

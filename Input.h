@@ -9,6 +9,7 @@ enum InputType
 	Mouse,
 	Keyboard,
 	Pic,//Í¼Æ¬Ê¶±ð
+	StopScript,//Í£Ö¹½Å±¾
 };
 
 enum OpType

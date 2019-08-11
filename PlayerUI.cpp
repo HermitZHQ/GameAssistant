@@ -6,6 +6,21 @@
 PlayerUI::PlayerUI(MainWindow *wnd) :
 	m_ui(new Ui::PlayerUI)
 	, m_mainWnd(wnd)
+	, m_specificLevelScriptMap({
+		{Nefud_1E, QString(DEFAULT_PATH).append("zz_map_nefud-1e")},
+		{WOLT, QString(DEFAULT_PATH).append("zz_map_fb_wolt")},
+		{Evelyn_50, QString(DEFAULT_PATH).append("zz_map_fb_evelyn_50")},
+		})
+
+	, m_specificDelegateScriptMap({
+		{Slowest, QString(DEFAULT_PATH).append("delegate_slowest")},
+		})
+
+	, m_specificDevScriptMap({
+		{Limit, QString(DEFAULT_PATH).append("dev_limit")},
+		{Normal10, QString(DEFAULT_PATH).append("dev_normal_10")},
+		{Normal20, QString(DEFAULT_PATH).append("dev_normal_20")},
+		})
 {
 	m_ui->setupUi(this);
 }
@@ -15,14 +30,27 @@ PlayerUI::~PlayerUI()
 	delete m_ui;
 }
 
-void PlayerUI::OnBtnStop()
+void PlayerUI::StopScritp()
 {
 	m_mainWnd->OnBtnStopClick();
+	//设置指定的模拟器类型
+	int index = m_ui->cmb_sim->currentIndex();
+	m_mainWnd->SetSimWndType((SimWndType)index);
+}
+
+void PlayerUI::StartScript()
+{
+	m_mainWnd->OnBtnStartClick();
+}
+
+void PlayerUI::OnBtnStop()
+{
+	StopScritp();
 }
 
 void PlayerUI::OnBtnA4Reward()
 {
-	m_mainWnd->OnBtnStopClick();
+	StopScritp();
 
 	int index = m_ui->cmb_delegate->currentIndex();
 	switch (index)
@@ -36,38 +64,65 @@ void PlayerUI::OnBtnA4Reward()
 		break;
 	}
 
-	m_mainWnd->OnBtnStartClick();
+	StartScript();
 }
 
 void PlayerUI::OnBtnDaily()
 {
-	m_mainWnd->OnBtnStopClick();
+	StopScritp();
 	m_mainWnd->LoadInputModuleFile(std::string(DEFAULT_PATH).append("zz_battle_findIcon_daily").c_str());
-	m_mainWnd->OnBtnStartClick();
+	StartScript();
 }
 
 void PlayerUI::OnBtnNextStep()
 {
-	m_mainWnd->OnBtnStopClick();
+	StopScritp();
 	m_mainWnd->LoadInputModuleFile(std::string(DEFAULT_PATH).append("g").c_str());
-	m_mainWnd->OnBtnStartClick();
+	StartScript();
 }
 
 void PlayerUI::OnBtnDelegate()
 {
-	m_mainWnd->OnBtnStopClick();
+	StopScritp();
 
 	int index = m_ui->cmb_delegate->currentIndex();
-	switch (index)
+	auto it = m_specificDelegateScriptMap.find((ZZ_Delegate)index);
+	if (it != m_specificDelegateScriptMap.end())
 	{
-	case A4:
-	{
-		m_mainWnd->LoadInputModuleFile(std::string(DEFAULT_PATH).append("delegate_slowest").c_str());
+		m_mainWnd->LoadInputModuleFile(it->second.toStdString().c_str());
+		StartScript();
 	}
-	break;
-	default:
-		break;
-	}
+}
 
-	m_mainWnd->OnBtnStartClick();
+void PlayerUI::OnBtnDev()
+{
+	StopScritp();
+
+	int index = m_ui->cmb_dev->currentIndex();
+	auto it = m_specificDevScriptMap.find((ZZ_Dev)index);
+	if (it != m_specificDevScriptMap.end())
+	{
+		m_mainWnd->LoadInputModuleFile(it->second.toStdString().c_str());
+		StartScript();
+	}
+}
+
+void PlayerUI::OnBtnRecruit()
+{
+	StopScritp();
+	m_mainWnd->LoadInputModuleFile(std::string(DEFAULT_PATH).append("recruit").c_str());
+	StartScript();
+}
+
+void PlayerUI::OnBtnSepcific()
+{
+	StopScritp();
+
+	int index = m_ui->cmb_specific->currentIndex();
+	auto it = m_specificLevelScriptMap.find((ZZ_Specific)index);
+	if (it != m_specificLevelScriptMap.end())
+	{
+		m_mainWnd->LoadInputModuleFile(it->second.toStdString().c_str());
+		StartScript();
+	}
 }

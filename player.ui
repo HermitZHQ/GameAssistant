@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>405</width>
-    <height>600</height>
+    <width>631</width>
+    <height>592</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,9 +16,9 @@
   <widget class="QPushButton" name="pushButton_2">
    <property name="geometry">
     <rect>
-     <x>12</x>
-     <y>539</y>
-     <width>381</width>
+     <x>350</x>
+     <y>530</y>
+     <width>271</width>
      <height>51</height>
     </rect>
    </property>
@@ -29,14 +29,17 @@
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>30</y>
-     <width>315</width>
-     <height>331</height>
+     <x>10</x>
+     <y>10</y>
+     <width>331</width>
+     <height>571</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
     <property name="spacing">
+     <number>5</number>
+    </property>
+    <property name="topMargin">
      <number>2</number>
     </property>
     <item>
@@ -102,7 +105,7 @@
     <item>
      <widget class="QLabel" name="label_4">
       <property name="text">
-       <string>(4)开始自动委托</string>
+       <string>(4)自动委托，在大厅界面执行</string>
       </property>
      </widget>
     </item>
@@ -131,17 +134,167 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>(5)自动开发，16次，在大厅界面执行</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="cmb_dev">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QComboBox::AdjustToContents</enum>
+      </property>
+      <item>
+       <property name="text">
+        <string>限时开发</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>普通开发10</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>普通开发20</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btn_Dev">
+      <property name="text">
+       <string>开始开发</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_6">
+      <property name="text">
+       <string>(6)自动招募，4次，在大厅界面执行</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btn_recruit">
+      <property name="text">
+       <string>开始招募</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTextEdit" name="textEdit">
+      <property name="html">
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;(7)手动选择关卡，由于某些关卡特征过于相似，容易出现识别错误，还有个别关卡有次数限制，比如剧情副本以及普通副本，&lt;/span&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;可以在进入关卡后手动选择对应脚本执行，只会执行一次&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="cmb_specific">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QComboBox::AdjustToContents</enum>
+      </property>
+      <item>
+       <property name="text">
+        <string>Nefud-1E</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>薇欧蕾特副本</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>伊芙琳副本-50</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btn_solo">
+      <property name="text">
+       <string>开始独立关卡单次运行</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QListWidget" name="list_tip">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>400</y>
-     <width>381</width>
-     <height>131</height>
+     <x>350</x>
+     <y>100</y>
+     <width>271</width>
+     <height>421</height>
     </rect>
    </property>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>350</x>
+     <y>10</y>
+     <width>271</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
+    <item>
+     <widget class="QLabel" name="label_7">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>模拟器选择（支持雷电，木木）</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="cmb_sim">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QComboBox::AdjustToContents</enum>
+      </property>
+      <item>
+       <property name="text">
+        <string>雷电</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>MuMu（木木）</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>
@@ -153,8 +306,8 @@
    <slot>OnBtnA4Reward()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>140</x>
-     <y>171</y>
+     <x>110</x>
+     <y>131</y>
     </hint>
     <hint type="destinationlabel">
      <x>272</x>
@@ -169,8 +322,8 @@
    <slot>OnBtnStop()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>64</x>
-     <y>551</y>
+     <x>402</x>
+     <y>542</y>
     </hint>
     <hint type="destinationlabel">
      <x>334</x>
@@ -185,8 +338,8 @@
    <slot>OnBtnDaily()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>173</x>
-     <y>242</y>
+     <x>143</x>
+     <y>182</y>
     </hint>
     <hint type="destinationlabel">
      <x>298</x>
@@ -201,8 +354,8 @@
    <slot>OnBtnNextStep()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>156</x>
-     <y>64</y>
+     <x>126</x>
+     <y>53</y>
     </hint>
     <hint type="destinationlabel">
      <x>340</x>
@@ -217,12 +370,60 @@
    <slot>OnBtnDelegate()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>229</x>
-     <y>338</y>
+     <x>199</x>
+     <y>261</y>
     </hint>
     <hint type="destinationlabel">
      <x>262</x>
      <y>367</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_Dev</sender>
+   <signal>clicked()</signal>
+   <receiver>PlayerUI</receiver>
+   <slot>OnBtnDev()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>225</x>
+     <y>307</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>367</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_recruit</sender>
+   <signal>clicked()</signal>
+   <receiver>PlayerUI</receiver>
+   <slot>OnBtnRecruit()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>58</x>
+     <y>358</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>105</x>
+     <y>428</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_solo</sender>
+   <signal>clicked()</signal>
+   <receiver>PlayerUI</receiver>
+   <slot>OnBtnSpecific()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>136</x>
+     <y>562</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>218</x>
+     <y>589</y>
     </hint>
    </hints>
   </connection>
@@ -233,5 +434,8 @@
   <slot>OnBtnDaily()</slot>
   <slot>OnBtnNextStep()</slot>
   <slot>OnBtnDelegate()</slot>
+  <slot>OnBtnDev()</slot>
+  <slot>OnBtnRecruit()</slot>
+  <slot>OnBtnSpecific()</slot>
  </slots>
 </ui>

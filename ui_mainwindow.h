@@ -141,6 +141,7 @@ public:
         cb_inputType->addItem(QString());
         cb_inputType->addItem(QString());
         cb_inputType->addItem(QString());
+        cb_inputType->addItem(QString());
         cb_inputType->setObjectName(QString::fromUtf8("cb_inputType"));
         cb_inputType->setGeometry(QRect(10, 140, 91, 22));
         label_3 = new QLabel(centralWidget);
@@ -409,6 +410,7 @@ public:
         cb_inputType->setItemText(0, QApplication::translate("MainWindow", "\351\274\240\346\240\207\350\276\223\345\205\245", nullptr));
         cb_inputType->setItemText(1, QApplication::translate("MainWindow", "\351\224\256\347\233\230\350\276\223\345\205\245", nullptr));
         cb_inputType->setItemText(2, QApplication::translate("MainWindow", "\345\233\276\347\211\207\350\257\206\345\210\253", nullptr));
+        cb_inputType->setItemText(3, QApplication::translate("MainWindow", "\345\201\234\346\255\242\350\204\232\346\234\254", nullptr));
 
         label_3->setText(QApplication::translate("MainWindow", "\350\276\223\345\205\245\347\261\273\345\236\213", nullptr));
         label_4->setText(QApplication::translate("MainWindow", "\346\223\215\344\275\234\347\261\273\345\236\213", nullptr));
