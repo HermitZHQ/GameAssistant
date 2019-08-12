@@ -143,6 +143,8 @@ void MainWindow::PostMsgThread()
 	iLastCount = iCurCount;
 #endif
 
+	//需要把父窗口设置bottom属性，才不会弹出？？
+// 	::SetWindowPos( m_hParentWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
 	bool bAllFinishedFlag = true;
 	int index = -1;
 	for (auto &input : m_inputVec)
@@ -1566,7 +1568,7 @@ void MainWindow::HandleMouseInput(InputData &input)
 	case Click:
 	{
 		PostMessage(m_hGameWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
-		PostMessage(m_hGameWnd, WM_LBUTTONUP, 0, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
+		PostMessage( m_hGameWnd, WM_LBUTTONUP, 0, MAKELONG( m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate ) );
 	}
 	break;
 	case Press:
@@ -1618,6 +1620,8 @@ void MainWindow::InitGameWindow()
 {
 	ResetSimWndInfo();
 	m_hGameWnd = nullptr;
+	m_hParentWnd = nullptr;
+
 	if (None == m_simWndType)
 	{
 		m_simWndType = Thunder;
@@ -1647,6 +1651,7 @@ void MainWindow::InitGameWindow()
 				if (nullptr != simWndInfo.second.gameWnd)
 				{
 					m_hGameWnd = simWndInfo.second.gameWnd;
+					m_hParentWnd = simWndInfo.second.parentWnd;
 					m_curSimWndInfo = simWndInfo.second;
 					//根据之前的差值比例设定父窗口的大小，有些模拟器比如雷电可以直接设置子窗口，父窗口会放大，但是mumu只设置子窗口，父窗口是不跟随变化的
 					//设置游戏本体窗口到指定大小，这样图片识别应该会比较一致，之前设置的是外层窗口，就会导致游戏本体窗口大小有差别
@@ -1675,6 +1680,7 @@ void MainWindow::InitGameWindow()
 		if (nullptr != it->second.gameWnd)
 		{
 			m_hGameWnd = it->second.gameWnd;
+			m_hParentWnd = it->second.parentWnd;
 			m_curSimWndInfo = it->second;
 			//根据之前的差值比例设定父窗口的大小，有些模拟器比如雷电可以直接设置子窗口，父窗口会放大，但是mumu只设置子窗口，父窗口是不跟随变化的
 			//设置游戏本体窗口到指定大小，这样图片识别应该会比较一致，之前设置的是外层窗口，就会导致游戏本体窗口大小有差别
@@ -1740,7 +1746,7 @@ void SimWndInfo::SetGameWndSize(int width, int height)
 	//从最外层开始，逐层设置大小
 	for (int i = 0; i < totalFindLayer; ++i)
 	{
-		::SetWindowPos(layerWnd[i], HWND_BOTTOM, 0, 0, (width * rateW[totalFindLayer - 1 - i]), (height * rateH[totalFindLayer - 1 - i]), SWP_NOMOVE | SWP_NOACTIVATE);
+		::SetWindowPos(layerWnd[i], HWND_BOTTOM, 0, 0, (width * rateW[totalFindLayer - 1 - i]), (height * rateH[totalFindLayer - 1 - i]), SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
 		InvalidateRect(layerWnd[i], nullptr, TRUE);
 		Sleep(200);
 	}

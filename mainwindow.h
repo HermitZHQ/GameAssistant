@@ -33,6 +33,7 @@ struct SimWndInfo
 	bool				bUseLayerNameFlag[MAX_LAYER];
 	HWND				layerWnd[MAX_LAYER];
 	HWND				gameWnd;//最终指定的游戏窗口，把这个窗口设置成统一的大小，脚本就可以正常工作了
+	HWND				parentWnd;//最外层窗口，用于设置bottom???
 	RECT				rt[MAX_LAYER];
 	unsigned short		curLayer;
 	unsigned short		totalFindLayer;//一共要找几层，比如目前的mumu和雷电都是2层
@@ -64,6 +65,7 @@ struct SimWndInfo
 		if (bRes)
 		{
 			gameWnd = layerWnd[curLayer];
+			parentWnd = layerWnd[0];
 		}
 		return bRes;
 	}
@@ -192,6 +194,7 @@ private:
 	SimWndInfoMap				m_simWndInfoMap;
 	SimWndType					m_simWndType;
 	HWND						m_hGameWnd;
+	HWND						m_hParentWnd;
 	SimWndInfo					m_curSimWndInfo;
 
 	bool						m_stopFlag;
