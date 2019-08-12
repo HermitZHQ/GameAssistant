@@ -34,3 +34,4 @@ debug/
 x64/
 *.user
 release/
+platforms/

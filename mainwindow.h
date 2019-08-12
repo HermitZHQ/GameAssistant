@@ -153,6 +153,9 @@ public slots:
 	void OnBtnSaveModule();
 	void OnBtnLoadModule();
 	void OnBtnDelSelectModuleInput();
+	void OnBtnModuleListClick();
+	void OnBtnClearModuleInput();
+	void OnBtnUpdateSelectModuleInput();
 
 	//lisence
 	void OnBtnLisence();

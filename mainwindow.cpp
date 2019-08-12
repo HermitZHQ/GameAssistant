@@ -48,11 +48,12 @@ MainWindow::MainWindow(QWidget *parent) :
 	//注册com组件
 #ifdef _DEBUG
 	strComCmd.append("/NtpTime.dll\" /tlb:NtpTimed.tlb /codebase");
-	/*auto res2 = */ShellExecuteA(nullptr, "open", "cmd", strComCmd.c_str(), "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319", SW_HIDE);
 #else
 	strComCmd.append("/NtpTime.dll\" /tlb:NtpTime.tlb /codebase");
-	/*auto res2 = */ShellExecuteA(nullptr, "open", "cmd", strComCmd.c_str(), "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319", SW_HIDE);
 #endif
+	/*auto res2 = */ShellExecuteA(nullptr, "open", "cmd", strComCmd.c_str(), "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319", SW_HIDE);
+
+	Sleep(2500);
 
 	// 	auto res = CoInitialize(nullptr);
 	ITimeHelperPtr timeHelper(__uuidof(TimeHelper));
@@ -69,6 +70,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #ifdef DEV_VER
 	m_ui->setupUi(this);
+	m_ui->edt_mac->setText(m_macClient);
 	CheckLisence();
 	setParent(&m_bkgUI);
 	m_picCompareStrategy->SetUi(m_ui);
@@ -1025,6 +1027,68 @@ void MainWindow::OnBtnDelSelectModuleInput()
 			continue;
 
 		m_inputModuleVec.erase(it);
+		break;
+	}
+
+	RefreshInputModuleVecUIList();
+}
+
+void MainWindow::OnBtnModuleListClick()
+{
+	auto index = m_ui->list_inputModule->currentIndex();
+	//m_ui->edt_indexStart->setText(std::string(std::to_string(index.row())).c_str());
+
+	auto it = m_inputModuleVec.begin();
+	for (int i = 0; i < m_inputModuleVec.size(); ++i, ++it)
+	{
+		if (i != index.row())
+			continue;
+
+		//把当前input的咨询显示到editbox中
+		m_ui->cb_inputType->setCurrentIndex(it->type);
+		m_ui->cb_opType->setCurrentIndex(it->opType);
+		m_ui->edt_vk->setText(std::string(1, it->vk).c_str());
+		m_ui->edt_delay->setText(std::to_string(it->delay).c_str());
+		m_ui->edt_comment->setText(QString::fromLocal8Bit(it->comment));
+
+		m_ui->edt_x->setText(std::to_string(it->x).c_str());
+		m_ui->edt_y->setText(std::to_string(it->y).c_str());
+		m_ui->edt_x2->setText(std::to_string(it->x2).c_str());
+		m_ui->edt_y2->setText(std::to_string(it->y2).c_str());
+
+		m_ui->edt_rate->setText(std::to_string(it->cmpPicRate).c_str());
+		m_ui->edt_picPath->setText(it->picPath);
+		m_ui->edt_findPicOvertime->setText(std::to_string(it->findPicOvertime).c_str());
+		m_ui->edt_succeedJump->setText(std::to_string(it->findPicSucceedJumpIndex).c_str());
+		m_ui->edt_overtimeJump->setText(std::to_string(it->findPicOvertimeJumpIndex).c_str());
+		m_ui->edt_overtimeJumpModule->setText(it->findPicOvertimeJumpModule);
+		m_ui->edt_succeedJumpModule->setText(it->findPicSucceedJumpModule);
+		m_ui->chk_cmpPicClick->setChecked(it->bCmpPicCheckFlag);
+
+		break;
+	}
+}
+
+void MainWindow::OnBtnClearModuleInput()
+{
+	m_inputModuleVec.clear();
+
+	RefreshInputModuleVecUIList();
+}
+
+void MainWindow::OnBtnUpdateSelectModuleInput()
+{
+	UpdateGameWindowSize();
+	auto index = m_ui->list_inputModule->currentIndex();
+
+	auto it = m_inputModuleVec.begin();
+	for (int i = 0; i < m_inputModuleVec.size(); ++i, ++it)
+	{
+		if (i != index.row())
+			continue;
+
+		GetInputData(*it);
+
 		break;
 	}
 

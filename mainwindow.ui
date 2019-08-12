@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1036</width>
-    <height>696</height>
+    <height>703</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -468,7 +468,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>40</y>
+      <y>30</y>
       <width>441</width>
       <height>341</height>
      </rect>
@@ -494,7 +494,7 @@
     <property name="geometry">
      <rect>
       <x>810</x>
-      <y>390</y>
+      <y>380</y>
       <width>101</width>
       <height>28</height>
      </rect>
@@ -507,7 +507,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>390</y>
+      <y>380</y>
       <width>101</width>
       <height>28</height>
      </rect>
@@ -880,7 +880,7 @@
     <property name="geometry">
      <rect>
       <x>690</x>
-      <y>390</y>
+      <y>380</y>
       <width>101</width>
       <height>28</height>
      </rect>
@@ -1075,7 +1075,7 @@
     <property name="geometry">
      <rect>
       <x>920</x>
-      <y>390</y>
+      <y>380</y>
       <width>101</width>
       <height>28</height>
      </rect>
@@ -1127,7 +1127,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>460</y>
+      <y>440</y>
       <width>441</width>
       <height>191</height>
      </rect>
@@ -1140,7 +1140,7 @@
     <property name="geometry">
      <rect>
       <x>780</x>
-      <y>430</y>
+      <y>420</y>
       <width>61</width>
       <height>21</height>
      </rect>
@@ -1153,7 +1153,7 @@
     <property name="geometry">
      <rect>
       <x>620</x>
-      <y>660</y>
+      <y>640</y>
       <width>31</width>
       <height>31</height>
      </rect>
@@ -1166,7 +1166,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>660</y>
+      <y>640</y>
       <width>31</width>
       <height>31</height>
      </rect>
@@ -1179,7 +1179,7 @@
     <property name="geometry">
      <rect>
       <x>650</x>
-      <y>660</y>
+      <y>640</y>
       <width>16</width>
       <height>31</height>
      </rect>
@@ -1192,7 +1192,7 @@
     <property name="geometry">
      <rect>
       <x>660</x>
-      <y>660</y>
+      <y>640</y>
       <width>31</width>
       <height>31</height>
      </rect>
@@ -1205,7 +1205,7 @@
     <property name="geometry">
      <rect>
       <x>700</x>
-      <y>660</y>
+      <y>640</y>
       <width>71</width>
       <height>28</height>
      </rect>
@@ -1231,7 +1231,7 @@
     <property name="geometry">
      <rect>
       <x>780</x>
-      <y>660</y>
+      <y>640</y>
       <width>71</width>
       <height>28</height>
      </rect>
@@ -1244,7 +1244,7 @@
     <property name="geometry">
      <rect>
       <x>860</x>
-      <y>660</y>
+      <y>640</y>
       <width>71</width>
       <height>28</height>
      </rect>
@@ -1257,13 +1257,52 @@
     <property name="geometry">
      <rect>
       <x>940</x>
-      <y>660</y>
+      <y>640</y>
       <width>71</width>
       <height>28</height>
      </rect>
     </property>
     <property name="text">
      <string>删除选中</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_clearModuleInput">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>670</y>
+      <width>71</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>清空列表</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_updateSelectModuleInput">
+    <property name="geometry">
+     <rect>
+      <x>940</x>
+      <y>670</y>
+      <width>71</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>更新选中</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_34">
+    <property name="geometry">
+     <rect>
+      <x>650</x>
+      <y>670</y>
+      <width>201</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>注意更新时需开启游戏客户端</string>
     </property>
    </widget>
   </widget>
@@ -1647,7 +1686,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>762</x>
-     <y>668</y>
+     <y>648</y>
     </hint>
     <hint type="destinationlabel">
      <x>958</x>
@@ -1679,7 +1718,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>825</x>
-     <y>680</y>
+     <y>660</y>
     </hint>
     <hint type="destinationlabel">
      <x>929</x>
@@ -1695,7 +1734,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>892</x>
-     <y>669</y>
+     <y>649</y>
     </hint>
     <hint type="destinationlabel">
      <x>920</x>
@@ -1711,11 +1750,59 @@
    <hints>
     <hint type="sourcelabel">
      <x>1007</x>
-     <y>668</y>
+     <y>648</y>
     </hint>
     <hint type="destinationlabel">
      <x>1028</x>
      <y>619</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>list_inputModule</sender>
+   <signal>clicked(QModelIndex)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnModuleListClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>935</x>
+     <y>499</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>994</x>
+     <y>447</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_clearModuleInput</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnClearModuleInput()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>875</x>
+     <y>678</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>792</x>
+     <y>680</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_updateSelectModuleInput</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnUpdateSelectModuleInput()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>976</x>
+     <y>685</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>764</x>
+     <y>683</y>
     </hint>
    </hints>
   </connection>
@@ -1749,5 +1836,8 @@
   <slot>OnBtnSaveModule()</slot>
   <slot>OnBtnLoadModule()</slot>
   <slot>OnBtnDelSelectModuleInput()</slot>
+  <slot>OnBtnModuleListClick()</slot>
+  <slot>OnBtnClearModuleInput()</slot>
+  <slot>OnBtnUpdateSelectModuleInput()</slot>
  </slots>
 </ui>
