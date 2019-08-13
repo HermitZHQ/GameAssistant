@@ -3,11 +3,13 @@
 #include "windows.h"
 #include <unordered_map>
 #include <string>
+#include "QString"
 
 #ifdef _DEBUG
 #define DEV_VER
 #endif
 
+#define Q8(str) (QString::fromLocal8Bit(str))
 #define TT_BEGIN char cTmp[MAX_PATH] = { 0 };\
 				DWORD dwTime2 = GetTickCount();
 

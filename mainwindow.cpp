@@ -19,6 +19,19 @@ using namespace NtpTime;
 
 const unsigned int g_crypt = 0xe511f;
 
+std::unordered_map<InputType, QString> InputTypeStrMap = {
+	{InputType::Mouse, Q8("鼠标")},
+	{InputType::Keyboard, Q8("键盘")},
+	{InputType::Pic, Q8("图片")},
+	{InputType::StopScript, Q8("停止")},
+};
+std::unordered_map<OpType, QString> OpTypeStrMap = {
+	{OpType::Click, Q8("点击")},
+	{OpType::Press, Q8("按住")},
+	{OpType::Move, Q8("移动")},
+	{OpType::Release, Q8("释放")},
+};
+
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	m_ui(new Ui::MainWindow)
@@ -76,6 +89,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_picCompareStrategy->SetUi(m_ui);
 	m_bkgUI.setGeometry(geometry());
 	setWindowTitle("Develop-Ver 1.0.8");
+	//set table view model
+	m_ui->tv_inputVec->setModel(&m_inputDataModel);
 #else
 	m_bkgUI.setWindowTitle("Game-Assistant");
 	if (!CheckLisence())
@@ -1483,6 +1498,8 @@ void MainWindow::LoadScriptModuleFile(const char *file)
 #ifdef DEV_VER
 	RefreshInputVecUIList();
 #endif
+
+	SetInputDataModel();
 }
 
 void MainWindow::LoadModuleFile(const char *file)
@@ -1527,6 +1544,58 @@ void MainWindow::LoadModuleFile(const char *file)
 #ifdef DEV_VER
 	RefreshInputModuleVecUIList();
 #endif
+}
+
+void MainWindow::SetInputDataModel()
+{
+	auto row = m_inputVec.size();
+	m_inputDataModel.clear();
+	m_inputDataModel.setRowCount(row);
+	m_inputDataModel.setColumnCount(26);
+	m_inputDataModel.setHorizontalHeaderLabels(QStringList({
+		Q8("注释"), Q8("类型"), Q8("操作"), Q8("vk"), "x", "y", "x2", "y2", "xRate", "yRate",
+		"xRate2", "yRate2", "delay", Q8("开始时间"), Q8("完成标记"), Q8("初始开始时间标记"),
+		Q8("图片对比标记"), "cmpPicRate", "picPath", Q8("查找图片超时"), Q8("比图成功跳转"),
+		Q8("比图超时跳转"), Q8("比图成功跳转模块"), Q8("比图超时跳转模块", Q8("比图点击"), 
+		)}));
+
+	for (int i = 0; i < row; ++i)
+	{
+		for (int j = 0; j < 26; ++j)
+		{
+			QModelIndex index = m_inputDataModel.index(i, j, QModelIndex());
+			switch (j)
+			{
+			case 0:
+			{
+				m_inputDataModel.setData(index, Q8(m_inputVec[i].comment));
+			}
+			break;
+			case 1:
+			{
+				m_inputDataModel.setData(index, InputTypeStrMap[(m_inputVec[i].type)]);
+			}
+			break;
+			case 2:
+			{
+				m_inputDataModel.setData(index, OpTypeStrMap[(m_inputVec[i].opType)]);
+			}
+			break;
+			case 3:
+			{
+				m_inputDataModel.setData(index, std::string(1, (m_inputVec[i].vk)).c_str());
+			}
+			break;
+			default:
+			{
+				m_inputDataModel.setData(index, "default data");
+			}
+				break;
+			}
+		}
+	}
+
+	m_ui->tv_inputVec->resizeColumnsToContents();
 }
 
 void MainWindow::ResetAllInputFinishFlag()

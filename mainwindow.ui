@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1036</width>
+    <width>1449</width>
     <height>703</height>
    </rect>
   </property>
@@ -1303,6 +1303,16 @@
     </property>
     <property name="text">
      <string>注意更新时需开启游戏客户端</string>
+    </property>
+   </widget>
+   <widget class="QTableView" name="tv_inputVec">
+    <property name="geometry">
+     <rect>
+      <x>1030</x>
+      <y>30</y>
+      <width>411</width>
+      <height>192</height>
+     </rect>
     </property>
    </widget>
   </widget>

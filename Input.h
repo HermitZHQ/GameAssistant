@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.h>
+#include "PreDef.h"
 
 #define PATH_LEN (MAX_PATH)
 
@@ -50,6 +51,7 @@ struct InputData
 	//--------------扩展数据（每次扩展记得减少reserve的大小，之前预留的大小为path_len*3）
 	bool				bCmpPicCheckFlag;
 	char				comment[PATH_LEN];
+	//------总26列数据
 	char				reserve[PATH_LEN * 2 - (1)];//.....预留数据扩展，免得每次加入新数据，之前的保存文件都要报废
 
 	InputData()

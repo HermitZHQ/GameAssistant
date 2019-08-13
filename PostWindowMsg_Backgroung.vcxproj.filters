@@ -44,6 +44,9 @@
     <Filter Include="UI">
       <UniqueIdentifier>{ef7e1aa8-1f17-4daa-8abe-7e462ec9e86c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Model">
+      <UniqueIdentifier>{ec2ca3cc-8b04-4954-bc8a-3eb701fdc655}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -63,6 +66,9 @@
     </ClCompile>
     <ClCompile Include="PlayerUI.cpp">
       <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="InputDataModel.cpp">
+      <Filter>Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -119,6 +125,9 @@
     </ClInclude>
     <ClInclude Include="ui_player.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputDataModel.h">
+      <Filter>Model</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

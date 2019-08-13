@@ -11,6 +11,8 @@
 #include "Input.h"
 #include "PlayerUI.h"
 #include "BkgUI.h"
+//model view
+#include "InputDataModel.h"
 
 namespace Ui {
 class MainWindow;
@@ -171,6 +173,7 @@ public slots:
 	void OnBtnLoadClick();
 	void LoadScriptModuleFile(const char *file);
 	void LoadModuleFile(const char *file);
+	void SetInputDataModel();
 
 	//重置所有命令的标识
 	void ResetAllInputFinishFlag();
@@ -222,6 +225,9 @@ private:
 
 	//list module
 	bool						m_bShowHideFlag;
+
+	//model view relevant
+	InputDataModel				m_inputDataModel;
 };
 
 #endif // MAINWINDOW_H

@@ -13,11 +13,13 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
+#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QListWidget>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QTableView>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -122,12 +124,13 @@ public:
     QPushButton *btn_clearModuleInput;
     QPushButton *btn_updateSelectModuleInput;
     QLabel *label_34;
+    QTableView *tv_inputVec;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1036, 703);
+        MainWindow->resize(1449, 703);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         btn_start = new QPushButton(centralWidget);
@@ -430,6 +433,9 @@ public:
         label_34 = new QLabel(centralWidget);
         label_34->setObjectName(QString::fromUtf8("label_34"));
         label_34->setGeometry(QRect(650, 670, 201, 31));
+        tv_inputVec = new QTableView(centralWidget);
+        tv_inputVec->setObjectName(QString::fromUtf8("tv_inputVec"));
+        tv_inputVec->setGeometry(QRect(1030, 30, 411, 192));
         MainWindow->setCentralWidget(centralWidget);
 
         retranslateUi(MainWindow);
