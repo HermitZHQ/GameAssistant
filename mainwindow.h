@@ -13,6 +13,7 @@
 #include "BkgUI.h"
 //model view
 #include "InputDataModel.h"
+#include "ItemDelegate.h"
 
 namespace Ui {
 class MainWindow;
@@ -174,6 +175,7 @@ public slots:
 	void LoadScriptModuleFile(const char *file);
 	void LoadModuleFile(const char *file);
 	void SetInputDataModel();
+	void GetInputDataModel();
 
 	//重置所有命令的标识
 	void ResetAllInputFinishFlag();
@@ -228,6 +230,7 @@ private:
 
 	//model view relevant
 	InputDataModel				m_inputDataModel;
+	ItemDelegate				m_itemDelegate;
 };
 
 #endif // MAINWINDOW_H

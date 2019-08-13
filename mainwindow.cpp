@@ -25,11 +25,24 @@ std::unordered_map<InputType, QString> InputTypeStrMap = {
 	{InputType::Pic, Q8("图片")},
 	{InputType::StopScript, Q8("停止")},
 };
+std::unordered_map<QString, InputType> StrInputTypeMap = {
+	{ Q8( "鼠标" ), InputType::Mouse},
+	{ Q8( "键盘" ), InputType::Keyboard},
+	{ Q8( "图片" ), InputType::Pic},
+	{ Q8( "停止" ), InputType::StopScript},
+};
+
 std::unordered_map<OpType, QString> OpTypeStrMap = {
 	{OpType::Click, Q8("点击")},
 	{OpType::Press, Q8("按住")},
 	{OpType::Move, Q8("移动")},
 	{OpType::Release, Q8("释放")},
+};
+std::unordered_map<QString, OpType> StrOpTypeMap = {
+	{ Q8( "点击" ), OpType::Click },
+	{ Q8( "按住" ), OpType::Press },
+	{ Q8( "移动" ), OpType::Move },
+	{ Q8( "释放" ), OpType::Release },
 };
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -89,8 +102,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_picCompareStrategy->SetUi(m_ui);
 	m_bkgUI.setGeometry(geometry());
 	setWindowTitle("Develop-Ver 1.0.8");
+
 	//set table view model
 	m_ui->tv_inputVec->setModel(&m_inputDataModel);
+	m_ui->tv_inputVec->setItemDelegate( &m_itemDelegate );
 #else
 	m_bkgUI.setWindowTitle("Game-Assistant");
 	if (!CheckLisence())
@@ -1553,39 +1568,99 @@ void MainWindow::SetInputDataModel()
 	m_inputDataModel.setRowCount(row);
 	m_inputDataModel.setColumnCount(26);
 	m_inputDataModel.setHorizontalHeaderLabels(QStringList({
-		Q8("注释"), Q8("类型"), Q8("操作"), Q8("vk"), "x", "y", "x2", "y2", "xRate", "yRate",
-		"xRate2", "yRate2", "delay", Q8("开始时间"), Q8("完成标记"), Q8("初始开始时间标记"),
-		Q8("图片对比标记"), "cmpPicRate", "picPath", Q8("查找图片超时"), Q8("比图成功跳转"),
-		Q8("比图超时跳转"), Q8("比图成功跳转模块"), Q8("比图超时跳转模块", Q8("比图点击"), 
-		)}));
+		Q8("注释"), Q8("类型"), Q8("操作"), Q8("vk"), "delay", 
+		"x", "y", "xRate", "yRate",	"x2", "y2", "xRate2", "yRate2",
+		Q8("开始时间"), Q8("完成标记"), Q8("初始开始时间标记"),
+		Q8("图片对比标记"), "cmpPicRate", "picPath", Q8("查找图片超时"), Q8( "比图超时标记" ),
+		Q8("比图成功跳转"), Q8("比图超时跳转"), Q8("比图成功跳转模块"), Q8("比图超时跳转模块"), Q8("比图点击"),
+		}));
 
 	for (int i = 0; i < row; ++i)
 	{
 		for (int j = 0; j < 26; ++j)
 		{
 			QModelIndex index = m_inputDataModel.index(i, j, QModelIndex());
+
 			switch (j)
 			{
 			case 0:
-			{
-				m_inputDataModel.setData(index, Q8(m_inputVec[i].comment));
-			}
-			break;
+				m_inputDataModel.setData( index, Q8( m_inputVec[i].comment ) );
+				break;
 			case 1:
-			{
-				m_inputDataModel.setData(index, InputTypeStrMap[(m_inputVec[i].type)]);
-			}
-			break;
+				m_inputDataModel.setData( index, InputTypeStrMap[( m_inputVec[i].type )] );
+				break;
 			case 2:
-			{
-				m_inputDataModel.setData(index, OpTypeStrMap[(m_inputVec[i].opType)]);
-			}
-			break;
+				m_inputDataModel.setData( index, OpTypeStrMap[( m_inputVec[i].opType )] );
+				break;
 			case 3:
-			{
-				m_inputDataModel.setData(index, std::string(1, (m_inputVec[i].vk)).c_str());
-			}
-			break;
+				m_inputDataModel.setData( index, std::string( 1, ( m_inputVec[i].vk ) ).c_str() );
+				break;
+			case 4:
+				m_inputDataModel.setData( index, m_inputVec[i].delay );
+				break;
+			case 5:
+				m_inputDataModel.setData( index, m_inputVec[i].x );
+				break;
+			case 6:
+				m_inputDataModel.setData( index, m_inputVec[i].y );
+				break;
+			case 7:
+				m_inputDataModel.setData( index, m_inputVec[i].xRate );
+				break;
+			case 8:
+				m_inputDataModel.setData( index, m_inputVec[i].yRate );
+				break;
+			case 9:
+				m_inputDataModel.setData( index, m_inputVec[i].x2 );
+				break;
+			case 10:
+				m_inputDataModel.setData( index, m_inputVec[i].y2 );
+				break;
+			case 11:
+				m_inputDataModel.setData( index, m_inputVec[i].xRate2 );
+				break;
+			case 12:
+				m_inputDataModel.setData( index, m_inputVec[i].yRate2 );
+				break;
+			case 13:
+				m_inputDataModel.setData( index, (UINT)m_inputVec[i].startTime );
+				break;
+			case 14:
+				m_inputDataModel.setData( index, m_inputVec[i].bFinishFlag );
+				break;
+			case 15:
+				m_inputDataModel.setData( index, m_inputVec[i].bInitStartTimeFlag );
+				break;
+			case 16:
+				m_inputDataModel.setData( index, m_inputVec[i].bFindPicFlag );
+				break;
+			case 17:
+				m_inputDataModel.setData( index, m_inputVec[i].cmpPicRate );
+				break;
+			case 18:
+				m_inputDataModel.setData( index, m_inputVec[i].picPath );
+				break;
+			case 19:
+				m_inputDataModel.setData( index, m_inputVec[i].findPicOvertime );
+				break;
+			case 20:
+				m_inputDataModel.setData( index, m_inputVec[i].bFindPicOvertimeFlag );
+				break;
+			case 21:
+				m_inputDataModel.setData( index, m_inputVec[i].findPicSucceedJumpIndex );
+				break;
+			case 22:
+				m_inputDataModel.setData( index, m_inputVec[i].findPicOvertimeJumpIndex );
+				break;
+			case 23:
+				m_inputDataModel.setData( index, m_inputVec[i].findPicSucceedJumpModule );
+				break;
+			case 24:
+				m_inputDataModel.setData( index, m_inputVec[i].findPicOvertimeJumpModule );
+				break;
+			case 25:
+				m_inputDataModel.setData( index, m_inputVec[i].bCmpPicCheckFlag );
+				break;
 			default:
 			{
 				m_inputDataModel.setData(index, "default data");
@@ -1596,6 +1671,107 @@ void MainWindow::SetInputDataModel()
 	}
 
 	m_ui->tv_inputVec->resizeColumnsToContents();
+}
+
+void MainWindow::GetInputDataModel()
+{
+	auto row = m_inputDataModel.rowCount();
+	auto col = m_inputDataModel.columnCount();
+
+	for (int i = 0; i < row; ++i)
+	{
+		for (int j = 0; j < col; ++j)
+		{
+			QModelIndex index = m_inputDataModel.index( i, j, QModelIndex() );
+
+			switch ( j )
+			{
+			case 0:
+				strcpy_s( m_inputVec[i].comment, MAX_PATH, m_inputDataModel.data(index).toString().toLocal8Bit().toStdString().c_str());
+				break;
+			case 1:
+				m_inputVec[i].type = StrInputTypeMap[m_inputDataModel.data(index).toString()];
+				break;
+			case 2:
+				m_inputVec[i].opType = StrOpTypeMap[m_inputDataModel.data(index).toString()];
+				break;
+			case 3:
+				m_inputVec[i].vk = m_inputDataModel.data(index).toString().toStdString().at(0);
+				break;
+			case 4:
+				m_inputVec[i].delay = m_inputDataModel.data(index).toString().toShort();
+				break;
+			case 5:
+				m_inputVec[i].x = m_inputDataModel.data(index).toString().toInt();
+				break;
+			case 6:
+				m_inputVec[i].y = m_inputDataModel.data(index).toString().toInt();
+				break;
+			case 7:
+				m_inputVec[i].xRate = m_inputDataModel.data(index).toString().toFloat();
+				break;
+			case 8:
+				m_inputVec[i].yRate = m_inputDataModel.data( index ).toString().toFloat();
+				break;
+			case 9:
+				m_inputVec[i].x2 = m_inputDataModel.data( index ).toString().toInt();
+				break;
+			case 10:
+				m_inputVec[i].y2 = m_inputDataModel.data( index ).toString().toInt();
+				break;
+			case 11:
+				m_inputVec[i].xRate2 = m_inputDataModel.data( index ).toString().toFloat();
+				break;
+			case 12:
+				m_inputVec[i].yRate2 = m_inputDataModel.data( index ).toString().toFloat();
+				break;
+			case 13:
+				m_inputVec[i].startTime = m_inputDataModel.data(index).toString().toUInt();
+				break;
+			case 14:
+				m_inputVec[i].bFinishFlag = m_inputDataModel.data(index).toBool();
+				break;
+			case 15:
+				m_inputVec[i].bInitStartTimeFlag = m_inputDataModel.data( index ).toBool();
+				break;
+			case 16:
+				m_inputVec[i].bFindPicFlag = m_inputDataModel.data( index ).toBool();
+				break;
+			case 17:
+				m_inputVec[i].cmpPicRate = m_inputDataModel.data( index ).toString().toFloat();
+				break;
+			case 18:
+				strcpy_s( m_inputVec[i].picPath, MAX_PATH, m_inputDataModel.data( index ).toString().toLocal8Bit().toStdString().c_str() );
+				break;
+			case 19:
+				m_inputVec[i].findPicOvertime = m_inputDataModel.data( index ).toString().toInt();
+				break;
+			case 20:
+				m_inputVec[i].bFindPicOvertimeFlag = m_inputDataModel.data( index ).toBool();
+				break;
+			case 21:
+				m_inputVec[i].findPicSucceedJumpIndex = m_inputDataModel.data( index ).toString().toInt();
+				break;
+			case 22:
+				m_inputVec[i].findPicOvertimeJumpIndex = m_inputDataModel.data( index ).toString().toInt();
+				break;
+			case 23:
+				strcpy_s( m_inputVec[i].findPicSucceedJumpModule, MAX_PATH, m_inputDataModel.data( index ).toString().toLocal8Bit().toStdString().c_str() );
+				break;
+			case 24:
+				strcpy_s( m_inputVec[i].findPicOvertimeJumpModule, MAX_PATH, m_inputDataModel.data( index ).toString().toLocal8Bit().toStdString().c_str() );
+				break;
+			case 25:
+				m_inputVec[i].bCmpPicCheckFlag = m_inputDataModel.data( index ).toBool();
+				break;
+			default:
+			{
+				ShowMessageBox( "出现致命model读取错误" );
+			}
+			break;
+			}
+		}
+	}
 }
 
 void MainWindow::ResetAllInputFinishFlag()

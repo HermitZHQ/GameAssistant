@@ -70,6 +70,9 @@
     <ClCompile Include="InputDataModel.cpp">
       <Filter>Model</Filter>
     </ClCompile>
+    <ClCompile Include="ItemDelegate.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="mainwindow.h">
@@ -80,6 +83,9 @@
     </QtMoc>
     <QtMoc Include="PlayerUI.h">
       <Filter>UI</Filter>
+    </QtMoc>
+    <QtMoc Include="ItemDelegate.h">
+      <Filter>Model</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
