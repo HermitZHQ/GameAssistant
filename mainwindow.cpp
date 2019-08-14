@@ -25,11 +25,11 @@ std::unordered_map<InputType, QString> InputTypeStrMap = {
 	{InputType::Pic, Q8("图片")},
 	{InputType::StopScript, Q8("停止")},
 };
-std::unordered_map<QString, InputType> StrInputTypeMap = {
-	{ Q8( "鼠标" ), InputType::Mouse},
-	{ Q8( "键盘" ), InputType::Keyboard},
-	{ Q8( "图片" ), InputType::Pic},
-	{ Q8( "停止" ), InputType::StopScript},
+std::unordered_map<std::string, InputType> StrInputTypeMap = {
+	{ ( "鼠标" ), InputType::Mouse},
+	{ ( "键盘" ), InputType::Keyboard},
+	{ ( "图片" ), InputType::Pic},
+	{ ( "停止" ), InputType::StopScript},
 };
 
 std::unordered_map<OpType, QString> OpTypeStrMap = {
@@ -38,11 +38,11 @@ std::unordered_map<OpType, QString> OpTypeStrMap = {
 	{OpType::Move, Q8("移动")},
 	{OpType::Release, Q8("释放")},
 };
-std::unordered_map<QString, OpType> StrOpTypeMap = {
-	{ Q8( "点击" ), OpType::Click },
-	{ Q8( "按住" ), OpType::Press },
-	{ Q8( "移动" ), OpType::Move },
-	{ Q8( "释放" ), OpType::Release },
+std::unordered_map<std::string, OpType> StrOpTypeMap = {
+	{ ( "点击" ), OpType::Click },
+	{ ( "按住" ), OpType::Press },
+	{ ( "移动" ), OpType::Move },
+	{ ( "释放" ), OpType::Release },
 };
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -103,9 +103,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_bkgUI.setGeometry(geometry());
 	setWindowTitle("Develop-Ver 1.0.8");
 
-	//set table view model
-	m_ui->tv_inputVec->setModel(&m_inputDataModel);
-	m_ui->tv_inputVec->setItemDelegate( &m_itemDelegate );
+	InitTableView();
 #else
 	m_bkgUI.setWindowTitle("Game-Assistant");
 	if (!CheckLisence())
@@ -332,6 +330,7 @@ void MainWindow::OnBtnAddInput()
 	AddTipInfo(std::string("已添加").append(std::to_string(repeatTime)).append("条指令").c_str());
 
 	RefreshInputVecUIList();
+	SetInputDataModel();
 }
 
 void MainWindow::GetInputData(InputData &input)
@@ -396,6 +395,7 @@ void MainWindow::OnBtnDelLastInput()
 	AddTipInfo(std::string("还剩下").append(std::to_string(m_inputVec.size())).append("条指令").c_str());
 
 	RefreshInputVecUIList();
+	SetInputDataModel();
 }
 
 void MainWindow::OnBtnDelAllInput()
@@ -404,6 +404,7 @@ void MainWindow::OnBtnDelAllInput()
 	AddTipInfo("已删除所有指令");
 
 	RefreshInputVecUIList();
+	SetInputDataModel();
 }
 
 void MainWindow::OnBtnUpdateAllInput()
@@ -420,52 +421,9 @@ void MainWindow::OnBtnUpdateAllInput()
 	AddTipInfo("已更新所有指令");
 }
 
-void MainWindow::OnBtnDelSelectInputClick()
-{
-	auto index = m_ui->list_inputVec->currentIndex();
-
-	auto it = m_inputVec.begin();
-	for (int i = 0; i < m_inputVec.size(); ++i, ++it)
-	{
-		if (i != index.row())
-			continue;
-
-		m_inputVec.erase(it);
-		break;
-	}
-
-	RefreshInputVecUIList();
-}
-
-void MainWindow::OnBtnDel3Inputs()
-{
-	auto index = m_ui->list_inputVec->currentIndex();
-	if (index.row() + 2 > m_inputVec.size() - 1)
-	{
-		ShowMessageBox("无法连续删除3条指令");
-		return;
-	}
-
-	for (int j = 0; j < 3; ++j)
-	{
-		auto it = m_inputVec.begin();
-		for (int i = 0; i < m_inputVec.size(); ++i, ++it)
-		{
-			if (i != index.row())
-				continue;
-
-			m_inputVec.erase(it);
-			break;
-		}
-	}
-
-	RefreshInputVecUIList();
-}
-
 void MainWindow::OnBtnInputListClick()
 {
 	auto index = m_ui->list_inputVec->currentIndex();
-	m_ui->edt_indexStart->setText(std::string(std::to_string(index.row())).c_str());
 
 	auto it = m_inputVec.begin();
 	for (int i = 0; i < m_inputVec.size(); ++i, ++it)
@@ -537,6 +495,7 @@ void MainWindow::OnBtnInsertInputClick()
 	}
 
 	RefreshInputVecUIList();
+	SetInputDataModel();
 }
 
 void MainWindow::OnBtnInsertDrag()
@@ -694,191 +653,9 @@ void MainWindow::RefreshInputVecUIList()
 	}
 }
 
-void MainWindow::RefreshInputModuleVecUIList()
-{
-	m_ui->list_inputModule->clear();
-
-	int index = -1;
-	for (auto &input : m_inputModuleVec)
-	{
-		++index;
-		std::string strTmp;
-		strTmp = "<";
-		strTmp += std::to_string(index);
-		strTmp += ">";
-		strTmp += "(";
-		strTmp += input.comment;
-		strTmp += ")";
-		strTmp += " 类型:";
-		switch (input.type)
-		{
-		case Mouse:
-			strTmp += "鼠标";
-			break;
-		case Keyboard:
-			strTmp += "键盘";
-			break;
-		case Pic:
-			strTmp += "图片";
-			break;
-		case StopScript:
-			strTmp += "停止";
-			break;
-		default:
-			strTmp += "未知";
-			break;
-		}
-
-		if (InputType::Pic != input.type && InputType::StopScript != input.type)
-		{
-			strTmp += " 方式:";
-			switch (input.opType)
-			{
-			case Click:
-				strTmp += "点击";
-				break;
-			case Press:
-				strTmp += "按住";
-				break;
-			case Move:
-				strTmp += "移动";
-				break;
-			case Release:
-				strTmp += "释放";
-				break;
-			}
-
-			strTmp += " 延迟:";
-			strTmp += std::to_string(input.delay);
-		}
-
-		if (InputType::Keyboard == input.type && InputType::StopScript != input.type)
-		{
-			strTmp += " 键值:";
-			strTmp += input.vk;
-		}
-
-		if ((InputType::Mouse == input.type || InputType::Pic == input.type) && InputType::StopScript != input.type)
-		{
-			strTmp += " [x:";
-			strTmp += std::to_string(input.x);
-			strTmp += " y:";
-			strTmp += std::to_string(input.y);
-			strTmp += "] xRate:";
-			strTmp += Left2Precision(input.xRate);
-			strTmp += " yRate:";
-			strTmp += Left2Precision(input.yRate);
-		}
-
-		if (InputType::Pic == input.type && InputType::StopScript != input.type)
-		{
-			strTmp += " [x2:";
-			strTmp += std::to_string(input.x2);
-			strTmp += " y2:";
-			strTmp += std::to_string(input.y2);
-			strTmp += "] xRate2:";
-			strTmp += Left2Precision(input.xRate2);
-			strTmp += " yRate2:";
-			strTmp += Left2Precision(input.yRate2);
-
-			strTmp += " 路径:";
-			strTmp += input.picPath;
-		}
-
-		m_ui->list_inputModule->addItem(QString::fromLocal8Bit(strTmp.c_str()));
-	}
-}
-
 void MainWindow::OnBtnClearTipInfo()
 {
 	m_ui->list_tip->clear();
-}
-
-void MainWindow::OnBtnOverwrite()
-{
-	auto index = m_ui->list_inputVec->currentIndex();
-	if (!index.isValid())
-	{
-		ShowMessageBox("没有选择有效的目标索引");
-		return;
-	}
-
-	int overwriteNum = m_ui->edt_overwriteNum->text().toInt();
-	int overwriteTargetIndex = m_ui->edt_overwriteIndex->text().toInt();
-	int overwriteSrcIndex = index.row();
-
-	auto size = m_inputVec.size();
-	if (overwriteTargetIndex + (overwriteNum - 1) > size - 1
-		|| overwriteTargetIndex < 0
-		|| overwriteTargetIndex == overwriteSrcIndex)
-	{
-		ShowMessageBox("复制目标的起始索引值无效");
-		return;
-	}
-
-	int alreadOverwriteNum = 0;
-	for (decltype(size) i = 0; i < size; ++i)
-	{
-		if (i < overwriteSrcIndex)
-		{
-			continue;
-		}
-
-		if (alreadOverwriteNum < overwriteNum)
-		{
-			m_inputVec[overwriteTargetIndex + alreadOverwriteNum] = m_inputVec[i];
-			++alreadOverwriteNum;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	RefreshInputVecUIList();
-}
-
-void MainWindow::OnBtnOverwriteDelay()
-{
-	auto index = m_ui->list_inputVec->currentIndex();
-	if (!index.isValid())
-	{
-		ShowMessageBox("没有选择有效的目标索引");
-		return;
-	}
-
-	int overwriteNum = m_ui->edt_overwriteNum->text().toInt();
-	int overwriteTargetIndex = m_ui->edt_overwriteIndex->text().toInt();
-	int overwriteSrcIndex = index.row();
-
-	auto size = m_inputVec.size();
-	if (overwriteTargetIndex + (overwriteNum - 1) > size - 1
-		|| overwriteTargetIndex < 0
-		|| overwriteTargetIndex == overwriteSrcIndex)
-	{
-		ShowMessageBox("复制目标的起始索引值无效");
-		return;
-	}
-
-	short delay = m_ui->edt_delay->text().toShort();
-	for (decltype(size) i = 0; i < size; ++i)
-	{
-		if (i < overwriteSrcIndex || i > overwriteTargetIndex)
-		{
-			continue;
-		}
-
-		m_inputVec[i].delay = delay;
-	}
-
-	RefreshInputVecUIList();
-}
-
-void MainWindow::OnBtnSetOverwriteTargetIndex()
-{
-	auto index = m_ui->list_inputVec->currentIndex();
-	m_ui->edt_overwriteIndex->setText(std::to_string(index.row()).c_str());
-	m_ui->edt_indexEnd->setText(std::to_string(index.row()).c_str());
 }
 
 void MainWindow::ShowMessageBox(const char *content)
@@ -899,232 +676,6 @@ void MainWindow::AddTipInfo(const char *str, bool bConvertFlag)
 	m_playerUI.GetUI()->list_tip->addItem((bConvertFlag ? (QString::fromLocal8Bit(str)) : (str)));
 	m_playerUI.GetUI()->list_tip->scrollToBottom();
 #endif
-}
-
-void MainWindow::OnBtnShowHide()
-{
-	const int width = 470;
-	auto geo = m_bkgUI.geometry();
-
-	if (m_bShowHideFlag)
-	{
-		m_bkgUI.setGeometry(geo.left(), geo.top(), geo.width() - width, geo.height());
-	}
-	else
-	{
-		m_bkgUI.setGeometry(geo.left(), geo.top(), geo.width() + width, geo.height());
-	}
-
-	m_bShowHideFlag = !m_bShowHideFlag;
-}
-
-void MainWindow::OnBtnGetModule()
-{
-	int indexStart = m_ui->edt_indexStart->text().toInt();
-	int indexEnd = m_ui->edt_indexEnd->text().toInt();
-	auto size = m_inputVec.size();
-	m_inputModuleVec.clear();
-
-	if (indexStart < 0 || indexStart > size - 1
-		|| indexEnd < 0 || indexEnd > size - 1
-		|| indexEnd < indexStart)
-	{
-		ShowMessageBox("模块索引设置错误");
-		return;
-	}
-
-	for (int i = 0; i < size; ++i)
-	{
-		if (i < indexStart || i > indexEnd) 
-		{
-			continue;
-		}
-
-		m_inputModuleVec.push_back(m_inputVec[i]);
-	}
-
-	RefreshInputModuleVecUIList();
-}
-
-void MainWindow::OnBtnInsertModule()
-{
-	int index = m_ui->edt_insertIndex->text().toInt();
-	auto size = m_inputVec.size();
-	auto insertCount = m_inputModuleVec.size();
-
-	if (0 == size)
-	{
-		for (auto &input : m_inputModuleVec)
-		{
-			m_inputVec.push_back(input);
-		}
-	} 
-	else
-	{
-		if (index > size - 1)
-		{
-			ShowMessageBox("插入索引错误");
-			return;
-		}
-
-		int alreadyInsertCount = 0;
-		while (size > 0 && alreadyInsertCount < insertCount)
-		{
-			int i = 0;
-			for (auto it = m_inputVec.begin(); it != m_inputVec.end(); ++it, ++i)
-			{
-				if (i < index)
-				{
-					continue;
-				}
-	
-				m_inputVec.insert(it, m_inputModuleVec[alreadyInsertCount]);
-				++alreadyInsertCount;
-				//连续插入时，需要把index后移
-				++index;
-
-				break;
-			}
-		}
-	}
-
-	RefreshInputVecUIList();
-}
-
-void MainWindow::OnBtnSaveModule()
-{
-	m_wndWidth = m_ui->edt_wndWidth->text().toInt();
-	m_wndHeight = m_ui->edt_wndHeight->text().toInt();
-
-	//按照二进制存储
-	FILE *pFile = nullptr;
-	std::string strFilePath = m_ui->edt_saveName->text().toLocal8Bit().toStdString();
-	auto pos = strFilePath.find("/");
-	if (std::string::npos == pos)
-	{
-		strFilePath = DEFAULT_MODULE_PATH + strFilePath;
-	}
-
-	QFileInfo file(strFilePath.c_str());
-	if (file.exists() && file.isFile())
-	{
-		QMessageBox msgBox;
-		msgBox.setText(QString::fromLocal8Bit("文件已存在，是否覆盖?"));
-		msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
-		msgBox.setDefaultButton(QMessageBox::Save);
-		int ret = msgBox.exec();
-		if (QMessageBox::Cancel == ret)
-		{
-			AddTipInfo("已取消保存");
-			return;
-		}
-	}
-
-	fopen_s(&pFile, strFilePath.c_str(), "wb");
-	if (nullptr == pFile)
-		return;
-
-	//然后存入操作数组的大小以及数据
-	int size = (int)m_inputModuleVec.size();
-	fwrite(&size, sizeof(int), 1, pFile);
-	for (auto &input : m_inputModuleVec)
-	{
-		fwrite(&input, sizeof(InputData), 1, pFile);
-	}
-
-	fclose(pFile);
-	AddTipInfo("保存文件成功");
-}
-
-void MainWindow::OnBtnLoadModule()
-{
-	auto res = QFileDialog::getOpenFileName(this, "", DEFAULT_MODULE_PATH);
-	if (res.compare("") == 0)
-	{
-		return;
-	}
-
-	// 	ui->edt_saveName->setText(res);
-	LoadModuleFile(res.toLocal8Bit().toStdString().c_str());
-}
-
-void MainWindow::OnBtnDelSelectModuleInput()
-{
-	auto index = m_ui->list_inputModule->currentIndex();
-
-	auto it = m_inputModuleVec.begin();
-	for (int i = 0; i < m_inputModuleVec.size(); ++i, ++it)
-	{
-		if (i != index.row())
-			continue;
-
-		m_inputModuleVec.erase(it);
-		break;
-	}
-
-	RefreshInputModuleVecUIList();
-}
-
-void MainWindow::OnBtnModuleListClick()
-{
-	auto index = m_ui->list_inputModule->currentIndex();
-	//m_ui->edt_indexStart->setText(std::string(std::to_string(index.row())).c_str());
-
-	auto it = m_inputModuleVec.begin();
-	for (int i = 0; i < m_inputModuleVec.size(); ++i, ++it)
-	{
-		if (i != index.row())
-			continue;
-
-		//把当前input的咨询显示到editbox中
-		m_ui->cb_inputType->setCurrentIndex(it->type);
-		m_ui->cb_opType->setCurrentIndex(it->opType);
-		m_ui->edt_vk->setText(std::string(1, it->vk).c_str());
-		m_ui->edt_delay->setText(std::to_string(it->delay).c_str());
-		m_ui->edt_comment->setText(QString::fromLocal8Bit(it->comment));
-
-		m_ui->edt_x->setText(std::to_string(it->x).c_str());
-		m_ui->edt_y->setText(std::to_string(it->y).c_str());
-		m_ui->edt_x2->setText(std::to_string(it->x2).c_str());
-		m_ui->edt_y2->setText(std::to_string(it->y2).c_str());
-
-		m_ui->edt_rate->setText(std::to_string(it->cmpPicRate).c_str());
-		m_ui->edt_picPath->setText(it->picPath);
-		m_ui->edt_findPicOvertime->setText(std::to_string(it->findPicOvertime).c_str());
-		m_ui->edt_succeedJump->setText(std::to_string(it->findPicSucceedJumpIndex).c_str());
-		m_ui->edt_overtimeJump->setText(std::to_string(it->findPicOvertimeJumpIndex).c_str());
-		m_ui->edt_overtimeJumpModule->setText(it->findPicOvertimeJumpModule);
-		m_ui->edt_succeedJumpModule->setText(it->findPicSucceedJumpModule);
-		m_ui->chk_cmpPicClick->setChecked(it->bCmpPicCheckFlag);
-
-		break;
-	}
-}
-
-void MainWindow::OnBtnClearModuleInput()
-{
-	m_inputModuleVec.clear();
-
-	RefreshInputModuleVecUIList();
-}
-
-void MainWindow::OnBtnUpdateSelectModuleInput()
-{
-	UpdateGameWindowSize();
-	auto index = m_ui->list_inputModule->currentIndex();
-
-	auto it = m_inputModuleVec.begin();
-	for (int i = 0; i < m_inputModuleVec.size(); ++i, ++it)
-	{
-		if (i != index.row())
-			continue;
-
-		GetInputData(*it);
-
-		break;
-	}
-
-	RefreshInputModuleVecUIList();
 }
 
 void MainWindow::OnBtnLisence()
@@ -1351,6 +902,206 @@ QString MainWindow::GetMAC()
 	return strMac;
 }
 
+void MainWindow::InitTableView()
+{
+	//set table view model
+	m_ui->tv_inputVec->setModel(&m_inputDataModel);
+	m_ui->tv_inputVec->setItemDelegate(&m_itemDelegate);
+
+	auto actUpdateDelay = m_menu.addAction(Q8("更新延迟"));
+	auto actCopy = m_menu.addAction(Q8("复制内容"));
+	auto actPaste = m_menu.addAction(Q8("粘贴内容"));
+	auto actCopyInput = m_menu.addAction(Q8("复制行"));
+	auto actInsertCopyInput = m_menu.addAction(Q8("插入复制行"));
+	auto actPasteOverwriteInput = m_menu.addAction(Q8("粘贴覆盖行"));
+	auto actDel = m_menu.addAction(Q8("删除"));
+
+	m_ui->tv_inputVec->setContextMenuPolicy(Qt::CustomContextMenu);
+	m_ui->tv_inputVec->connect(m_ui->tv_inputVec, &QTableView::customContextMenuRequested, [&](const QPoint &pt) {
+		auto pos = m_ui->tv_inputVec->mapToGlobal(pt);
+		m_menu.move(pos);
+		m_menu.show();
+	});
+
+	m_menu.connect(actUpdateDelay, &QAction::triggered, this, &MainWindow::TableViewUpdateDelay);
+	m_menu.connect(actCopy, &QAction::triggered, this, &MainWindow::TableViewCopy);
+	m_menu.connect(actPaste, &QAction::triggered, this, &MainWindow::TableViewPaste);
+	m_menu.connect(actCopyInput, &QAction::triggered, this, &MainWindow::TableViewCopyInput);
+	m_menu.connect(actInsertCopyInput, &QAction::triggered, this, &MainWindow::TableViewInsertCopyInput);
+	m_menu.connect(actPasteOverwriteInput, &QAction::triggered, this, &MainWindow::TableViewPasteOverwriteInput);
+	m_menu.connect(actDel, &QAction::triggered, this, &MainWindow::TableViewDel);
+}
+
+void MainWindow::TableViewUpdateDelay()
+{
+	short delay = m_ui->edt_delay->text().toShort();
+
+	auto model = m_ui->tv_inputVec->selectionModel();
+	if (model->hasSelection())
+	{
+		auto indexList = model->selectedIndexes();
+		for (auto &index : indexList)
+		{
+			if (index.column() != 4)
+			{
+				ShowMessageBox("选择了错误的列更新延迟");
+				return;
+			}
+
+			m_inputDataModel.setData(index, delay);
+		}
+
+		GetInputDataModel();
+		RefreshInputVecUIList();
+	}
+}
+
+void MainWindow::TableViewCopy()
+{
+	auto model = m_ui->tv_inputVec->selectionModel();
+	if (model->hasSelection())
+	{
+		auto indexList = model->selectedIndexes();
+		if (indexList.size() > 1)
+		{
+			ShowMessageBox("只能复制一个单元");
+			return;
+		}
+
+		m_copyContent = m_inputDataModel.data(indexList[0]).toString();
+	}
+}
+
+void MainWindow::TableViewPaste()
+{
+	auto model = m_ui->tv_inputVec->selectionModel();
+	if (model->hasSelection())
+	{
+		auto indexList = model->selectedIndexes();
+		for (auto &index : indexList)
+		{
+			m_inputDataModel.setData(index, m_copyContent);
+		}
+
+		GetInputDataModel();
+		RefreshInputVecUIList();
+	}
+}
+
+void MainWindow::TableViewCopyInput()
+{
+	auto model = m_ui->tv_inputVec->selectionModel();
+	if (model->hasSelection())
+	{
+		m_copyInputVec.clear();
+		auto indexList = model->selectedIndexes();
+		for (auto &index : indexList)
+		{
+			m_copyInputVec.push_back(m_inputVec[index.row()]);
+		}
+	}
+}
+
+void MainWindow::TableViewInsertCopyInput()
+{
+	auto model = m_ui->tv_inputVec->selectionModel();
+	if (model->hasSelection())
+	{
+		int insertCount = (int)m_copyInputVec.size();
+
+		auto indexList = model->selectedIndexes();
+		if (indexList.size() > 1)
+		{
+			ShowMessageBox("粘贴行时，只能选定一行作为插入索引");
+			return;
+		}
+		else if (0 == insertCount)
+		{
+			ShowMessageBox("粘贴内容为空");
+			return;
+		}
+
+		int index = indexList[0].row();
+		int alreadyInsertCount = 0;
+		while (alreadyInsertCount < insertCount)
+		{
+			int i = 0;
+			for (auto it = m_inputVec.begin(); it != m_inputVec.end(); ++it, ++i)
+			{
+				if (i < index)
+				{
+					continue;
+				}
+
+				m_inputVec.insert(it, m_copyInputVec[alreadyInsertCount]);
+				++alreadyInsertCount;
+				//连续插入时，需要把index后移
+				++index;
+
+				break;
+			}
+		}
+
+		SetInputDataModel();
+		RefreshInputVecUIList();
+	}
+}
+
+void MainWindow::TableViewPasteOverwriteInput()
+{
+	auto model = m_ui->tv_inputVec->selectionModel();
+	if (model->hasSelection())
+	{
+		auto indexList = model->selectedIndexes();
+		if (indexList.size() != m_copyInputVec.size())
+		{
+			ShowMessageBox("复制的行数和要粘贴覆盖的行数不一致");
+			return;
+		}
+
+		int alreadOverwriteNum = 0;
+		for (auto &index : indexList)
+		{
+			m_inputVec[index.row()] = m_copyInputVec[alreadOverwriteNum++];
+		}
+
+		SetInputDataModel();
+		RefreshInputVecUIList();
+	}
+}
+
+void MainWindow::TableViewDel()
+{
+	auto model = m_ui->tv_inputVec->selectionModel();
+	if (model->hasSelection())
+	{
+		auto indexList = model->selectedIndexes();
+		decltype(m_inputVec) inputVecTmp;
+		for (int i = 0; i < m_inputVec.size(); ++i)
+		{
+			bool bDelFlag = false;
+			for (auto &index : indexList)
+			{
+				if (index.row() == i)
+				{
+					bDelFlag = true;
+					break;
+				}
+			}
+
+			if (bDelFlag)
+				continue;
+
+			inputVecTmp.push_back(m_inputVec[i]);
+		}
+		m_inputVec.swap(inputVecTmp);
+
+		SetInputDataModel();
+		GetInputDataModel();
+		RefreshInputVecUIList();
+	}
+}
+
 void MainWindow::OnBtnOpenFileDialog()
 {
 	auto res = QFileDialog::getOpenFileName(this, "", DEFAULT_PATH);
@@ -1425,6 +1176,9 @@ void MainWindow::OnBtnSaveClick()
 
 	fclose(pFile);
 	AddTipInfo("保存文件成功");
+
+	//test code...
+	GetInputDataModel();
 }
 
 void MainWindow::OnBtnLoadClick()
@@ -1555,17 +1309,13 @@ void MainWindow::LoadModuleFile(const char *file)
 	m_ui->edt_saveName->setText(strFilePath.c_str());
 	AddTipInfo(std::string("读取模块[").append(strFilePath).append("]成功，共读取命令").append(std::to_string(size)).append("条").c_str());
 #endif
-
-#ifdef DEV_VER
-	RefreshInputModuleVecUIList();
-#endif
 }
 
 void MainWindow::SetInputDataModel()
 {
 	auto row = m_inputVec.size();
 	m_inputDataModel.clear();
-	m_inputDataModel.setRowCount(row);
+	m_inputDataModel.setRowCount((int)row);
 	m_inputDataModel.setColumnCount(26);
 	m_inputDataModel.setHorizontalHeaderLabels(QStringList({
 		Q8("注释"), Q8("类型"), Q8("操作"), Q8("vk"), "delay", 
@@ -1677,9 +1427,11 @@ void MainWindow::GetInputDataModel()
 {
 	auto row = m_inputDataModel.rowCount();
 	auto col = m_inputDataModel.columnCount();
+	m_inputVec.clear();
 
 	for (int i = 0; i < row; ++i)
 	{
+		m_inputVec.push_back(InputData());
 		for (int j = 0; j < col; ++j)
 		{
 			QModelIndex index = m_inputDataModel.index( i, j, QModelIndex() );
@@ -1690,10 +1442,10 @@ void MainWindow::GetInputDataModel()
 				strcpy_s( m_inputVec[i].comment, MAX_PATH, m_inputDataModel.data(index).toString().toLocal8Bit().toStdString().c_str());
 				break;
 			case 1:
-				m_inputVec[i].type = StrInputTypeMap[m_inputDataModel.data(index).toString()];
+				m_inputVec[i].type = StrInputTypeMap[m_inputDataModel.data(index).toString().toLocal8Bit().toStdString()];
 				break;
 			case 2:
-				m_inputVec[i].opType = StrOpTypeMap[m_inputDataModel.data(index).toString()];
+				m_inputVec[i].opType = StrOpTypeMap[m_inputDataModel.data(index).toString().toLocal8Bit().toStdString()];
 				break;
 			case 3:
 				m_inputVec[i].vk = m_inputDataModel.data(index).toString().toStdString().at(0);

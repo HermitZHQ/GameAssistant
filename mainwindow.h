@@ -14,6 +14,7 @@
 //model view
 #include "InputDataModel.h"
 #include "ItemDelegate.h"
+#include "QMenu"
 
 namespace Ui {
 class MainWindow;
@@ -135,38 +136,31 @@ public slots:
 	void OnBtnDelLastInput();
 	void OnBtnDelAllInput();
 	void OnBtnUpdateAllInput();
-	void OnBtnDelSelectInputClick();
-	void OnBtnDel3Inputs();
 	void OnBtnInputListClick();
 	void OnBtnUpdateSelectInputClick();
 	void OnBtnInsertInputClick();
 	void OnBtnInsertDrag();
 	void RefreshInputVecUIList();
-	void RefreshInputModuleVecUIList();
 	void OnBtnClearTipInfo();
-	void OnBtnOverwrite();
-	void OnBtnOverwriteDelay();
-	void OnBtnSetOverwriteTargetIndex();
 
 	void ShowMessageBox(const char *content);
 	void AddTipInfo(const char *str, bool bConvertFlag = true);
-
-	//list module
-	void OnBtnShowHide();
-	void OnBtnGetModule();
-	void OnBtnInsertModule();
-	void OnBtnSaveModule();
-	void OnBtnLoadModule();
-	void OnBtnDelSelectModuleInput();
-	void OnBtnModuleListClick();
-	void OnBtnClearModuleInput();
-	void OnBtnUpdateSelectModuleInput();
 
 	//lisence
 	void OnBtnLisence();
 	bool OnBtnLisenceInfo();
 	bool CheckLisence();
 	QString GetMAC();
+
+	//table view(model-view-delegate)
+	void InitTableView();
+	void TableViewUpdateDelay();
+	void TableViewCopy();
+	void TableViewPaste();
+	void TableViewCopyInput();
+	void TableViewInsertCopyInput();
+	void TableViewPasteOverwriteInput();
+	void TableViewDel();
 
 	void OnBtnOpenFileDialog();
 	void OnBtnOpenFileDialog_PicPath();
@@ -231,6 +225,9 @@ private:
 	//model view relevant
 	InputDataModel				m_inputDataModel;
 	ItemDelegate				m_itemDelegate;
+	QMenu						m_menu;
+	QString						m_copyContent;
+	std::vector<InputData>		m_copyInputVec;
 };
 
 #endif // MAINWINDOW_H
