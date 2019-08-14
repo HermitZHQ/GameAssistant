@@ -53,13 +53,14 @@
 
 #include <QStyledItemDelegate>
 
+class MainWindow;
 //! [0]
 class ItemDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
 
 public:
-	ItemDelegate( QObject *parent = 0 );
+	ItemDelegate( MainWindow *mainWnd, QObject *parent = 0 );
 
 	QWidget *createEditor( QWidget *parent, const QStyleOptionViewItem &option,
 		const QModelIndex &index ) const override;
@@ -70,6 +71,9 @@ public:
 
 	void updateEditorGeometry( QWidget *editor,
 		const QStyleOptionViewItem &option, const QModelIndex &index ) const override;
+
+private:
+	MainWindow								*m_mainWnd;
 };
 //! [0]
 

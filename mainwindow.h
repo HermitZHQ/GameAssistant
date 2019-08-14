@@ -137,6 +137,8 @@ public slots:
 	void OnBtnDelAllInput();
 	void OnBtnUpdateAllInput();
 	void OnBtnInputListClick();
+	void OnTableViewClick();
+	void UpdateInputDataUI(int index);
 	void OnBtnUpdateSelectInputClick();
 	void OnBtnInsertInputClick();
 	void OnBtnInsertDrag();
@@ -159,15 +161,14 @@ public slots:
 	void TableViewPaste();
 	void TableViewCopyInput();
 	void TableViewInsertCopyInput();
+	void TableViewInsertCopyInputDown();
 	void TableViewPasteOverwriteInput();
 	void TableViewDel();
 
 	void OnBtnOpenFileDialog();
 	void OnBtnOpenFileDialog_PicPath();
 	void OnBtnSaveClick();
-	void OnBtnLoadClick();
 	void LoadScriptModuleFile(const char *file);
-	void LoadModuleFile(const char *file);
 	void SetInputDataModel();
 	void GetInputDataModel();
 

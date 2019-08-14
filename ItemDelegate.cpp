@@ -61,10 +61,12 @@ using a spin box widget.
 #include <QSpinBox>
 #include "QLineEdit"
 #include "QFileDialog"
+#include "mainwindow.h"
 
 //! [0]
-ItemDelegate::ItemDelegate( QObject *parent )
+ItemDelegate::ItemDelegate( MainWindow *mainWnd, QObject *parent )
 	: QStyledItemDelegate( parent )
+	, m_mainWnd(mainWnd)
 {
 }
 //! [0]
@@ -97,7 +99,7 @@ void ItemDelegate::setModelData( QWidget *editor, QAbstractItemModel *model,
 	QLineEdit *lineEdt = static_cast< QLineEdit* >( editor );
 	QString str = lineEdt->text();
 
-	if (index.column() == 23 || index.column() == 24)
+	if (index.column() == 23 || index.column() == 24 || index.column() == 18)
 	{
 		auto res = QFileDialog::getOpenFileName( nullptr, "", DEFAULT_PATH );
 		if ( res.compare( "" ) == 0 )
@@ -113,6 +115,10 @@ void ItemDelegate::setModelData( QWidget *editor, QAbstractItemModel *model,
 	{
 		model->setData( index, str, Qt::EditRole );
 	}
+
+	//after set model data, we should update the real data
+	m_mainWnd->GetInputDataModel();
+	m_mainWnd->RefreshInputVecUIList();
 }
 //! [3]
 
