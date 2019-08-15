@@ -149,6 +149,7 @@ public slots:
 	void OnTableViewClick();
 	void UpdateInputDataUI(int index);
 	void OnBtnUpdateSelectInputClick();
+	void UpdateSelectInputData( int index );
 	void OnBtnInsertInputClick();
 	void InsertInputData(int index);
 	void OnBtnInsertDrag();
@@ -174,6 +175,7 @@ public slots:
 	void TableViewInsertCopyInputDown();
 	void TableViewPasteOverwriteInput();
 	void TableViewDel();
+	void TableViewUpdateSingleView();
 
 	void OnBtnOpenFileDialog();
 	void OnBtnOpenFileDialog_PicPath();

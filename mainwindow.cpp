@@ -394,6 +394,7 @@ void MainWindow::OnBtnStartClick()
 	m_stopFlag = false;
 	if (nullptr == m_hGameWnd)
 	{
+		AddTipInfo( "game wnd null, start failed" );
 		return;
 	}
 	ResetAllInputFinishFlag();
@@ -574,13 +575,18 @@ void MainWindow::OnBtnUpdateSelectInputClick()
 	UpdateGameWindowSize();
 	auto index = m_ui->list_inputVec->currentIndex();
 
+	UpdateSelectInputData( index.row() );
+}
+
+void MainWindow::UpdateSelectInputData( int index )
+{
 	auto it = m_inputVec.begin();
-	for (int i = 0; i < m_inputVec.size(); ++i, ++it)
+	for ( int i = 0; i < m_inputVec.size(); ++i, ++it )
 	{
-		if (i != index.row())
+		if ( i != index )
 			continue;
 
-		GetInputData(*it);
+		GetInputData( *it );
 
 		break;
 	}
@@ -1033,7 +1039,8 @@ void MainWindow::InitTableView()
 	auto actInsertCopyInput = m_menu.addAction( Q8( "插入复制行（上）" ) );
 	auto actInsertCopyInputDown = m_menu.addAction( Q8( "插入复制行（下）" ) );
 	auto actPasteOverwriteInput = m_menu.addAction(Q8("粘贴覆盖行"));
-	auto actDel = m_menu.addAction(Q8("删除"));
+	auto actDel = m_menu.addAction( Q8( "删除" ) );
+	auto updateSingleRow = m_menu.addAction( Q8( "更新单行" ) );
 
 	m_ui->tv_inputVec->setContextMenuPolicy(Qt::CustomContextMenu);
 	//table view connect
@@ -1052,7 +1059,8 @@ void MainWindow::InitTableView()
 	m_menu.connect( actInsertCopyInput, &QAction::triggered, this, &MainWindow::TableViewInsertCopyInput );
 	m_menu.connect( actInsertCopyInputDown, &QAction::triggered, this, &MainWindow::TableViewInsertCopyInputDown );
 	m_menu.connect(actPasteOverwriteInput, &QAction::triggered, this, &MainWindow::TableViewPasteOverwriteInput);
-	m_menu.connect(actDel, &QAction::triggered, this, &MainWindow::TableViewDel);
+	m_menu.connect( actDel, &QAction::triggered, this, &MainWindow::TableViewDel );
+	m_menu.connect( updateSingleRow, &QAction::triggered, this, &MainWindow::TableViewUpdateSingleView );
 }
 
 void MainWindow::TableViewUpdateDelay()
@@ -1167,6 +1175,7 @@ void MainWindow::TableViewInsertCopyInput()
 
 		SetInputDataModel();
 		RefreshInputVecUIList();
+		m_ui->tv_inputVec->setCurrentIndex( m_inputDataModel.index( index - 1, 0 ) );
 	}
 }
 
@@ -1192,27 +1201,38 @@ void MainWindow::TableViewInsertCopyInputDown()
 		int index = indexList[0].row();
 		index += 1;//向下插入
 		int alreadyInsertCount = 0;
-		while ( alreadyInsertCount < insertCount )
+		if (index < m_inputVec.size() )
 		{
-			int i = 0;
-			for ( auto it = m_inputVec.begin(); it != m_inputVec.end(); ++it, ++i )
+			while ( alreadyInsertCount < insertCount )
 			{
-				if ( i < index )
+				int i = 0;
+				for ( auto it = m_inputVec.begin(); it != m_inputVec.end(); ++it, ++i )
 				{
-					continue;
+					if ( i < index )
+					{
+						continue;
+					}
+	
+					m_inputVec.insert( it, m_copyInputVec[alreadyInsertCount] );
+					++alreadyInsertCount;
+					//连续插入时，需要把index后移
+					++index;
+	
+					break;
 				}
-
-				m_inputVec.insert( it, m_copyInputVec[alreadyInsertCount] );
-				++alreadyInsertCount;
-				//连续插入时，需要把index后移
-				++index;
-
-				break;
+			}
+		} 
+		else
+		{
+			for (auto &input : m_copyInputVec)
+			{
+				m_inputVec.push_back( input );
 			}
 		}
 
 		SetInputDataModel();
 		RefreshInputVecUIList();
+		m_ui->tv_inputVec->setCurrentIndex( m_inputDataModel.index( index + 1, 0 ) );
 	}
 }
 
@@ -1244,6 +1264,7 @@ void MainWindow::TableViewDel()
 	auto model = m_ui->tv_inputVec->selectionModel();
 	if (model->hasSelection())
 	{
+		int lastDelIndex = 0;
 		auto indexList = model->selectedIndexes();
 		decltype(m_inputVec) inputVecTmp;
 		for (int i = 0; i < m_inputVec.size(); ++i)
@@ -1253,6 +1274,7 @@ void MainWindow::TableViewDel()
 			{
 				if (index.row() == i)
 				{
+					lastDelIndex = index.row();
 					bDelFlag = true;
 					break;
 				}
@@ -1268,6 +1290,24 @@ void MainWindow::TableViewDel()
 		SetInputDataModel();
 		GetInputDataModel();
 		RefreshInputVecUIList();
+
+		m_ui->tv_inputVec->setCurrentIndex(m_inputDataModel.index(lastDelIndex - 1, 0));
+	}
+}
+
+void MainWindow::TableViewUpdateSingleView()
+{
+	auto model = m_ui->tv_inputVec->selectionModel();
+	if ( model->hasSelection() )
+	{
+		auto indexList = model->selectedIndexes();
+		if ( indexList.size() != 1 )
+		{
+			ShowMessageBox( "一次只能更新一行数据" );
+			return;
+		}
+
+		UpdateSelectInputData( indexList[0].row() );
 	}
 }
 

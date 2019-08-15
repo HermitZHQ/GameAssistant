@@ -36,6 +36,7 @@ private:
 	//capture flags
 	bool											m_bLMouseDown;//for pic/route cap
 
+	bool											m_bCtrlDown;
 	bool											m_bLShiftDown;//for continuous route click point insert
 	bool											m_bLAltDown;//for continuous route drag point insert
 };
