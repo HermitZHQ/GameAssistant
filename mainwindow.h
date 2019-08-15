@@ -120,7 +120,16 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-	static BOOL CALLBACK EnumChildProc(_In_ HWND hwnd,_In_ LPARAM lParam);
+	static BOOL CALLBACK EnumChildProc(_In_ HWND hwnd, _In_ LPARAM lParam);
+	const inline HWND GetGameWnd() {
+		return m_hGameWnd;
+	}
+	int GetTableViewIndex();
+	void SetTableViewIndex(int index);
+	void CaptureUpdate();
+	void InsertComparePicOperation(int x, int y, int x2, int y2);
+	void InsertClickOperation(int x, int y);
+	void InsertDragOperation(int x, int y, int x2, int y2);
 
 public slots:
 	void PostMsgThread();
@@ -141,6 +150,7 @@ public slots:
 	void UpdateInputDataUI(int index);
 	void OnBtnUpdateSelectInputClick();
 	void OnBtnInsertInputClick();
+	void InsertInputData(int index);
 	void OnBtnInsertDrag();
 	void RefreshInputVecUIList();
 	void OnBtnClearTipInfo();
@@ -208,6 +218,7 @@ private:
 
 	QTimer						m_lisenceCheckTimer;
 	QTimer						m_delayTimer;
+	QTimer						m_captureUpdateTimer;
 	long						m_year;
 	long						m_month;
 	long						m_day;

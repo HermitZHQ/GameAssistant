@@ -8,6 +8,7 @@
 #include "QDebug"
 #include <time.h>
 #include "ui_player.h"
+#include "CaptureInputDataMgr.h"
 
 
 #ifdef _DEBUG
@@ -105,6 +106,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	setWindowTitle("Develop-Ver 1.0.8");
 
 	InitTableView();
+	CaptureInputDataMgr::Singleton(this);
+	CaptureInputDataMgr::Singleton().BeginCapture();
+	connect(&m_captureUpdateTimer, &QTimer::timeout, this, &MainWindow::CaptureUpdate);
+	m_captureUpdateTimer.start(10);
 #else
 	m_bkgUI.setWindowTitle("Game-Assistant");
 	if (!CheckLisence())
@@ -285,6 +290,103 @@ BOOL CALLBACK MainWindow::EnumChildProc(_In_ HWND hwnd, _In_ LPARAM lParam)
 	}
 
 	return TRUE;
+}
+
+void MainWindow::InsertComparePicOperation(int x, int y, int x2, int y2)
+{
+	m_ui->edt_x->setText(QString::number(x));
+	m_ui->edt_y->setText(QString::number(y));
+	m_ui->edt_x2->setText(QString::number(x2));
+	m_ui->edt_y2->setText(QString::number(y2));
+
+	auto model = m_ui->tv_inputVec->selectionModel();
+	if (model->hasSelection() && model->selectedIndexes().size() == 1)
+	{
+		m_ui->cb_inputType->setCurrentIndex(InputType::Pic);
+		m_ui->edt_comment->setText(Q8("对比图片"));
+		m_ui->edt_delay->setText(QString::number(200));
+
+		int index = model->selectedIndexes()[0].row();
+		InsertInputData(index);
+	}
+	else
+	{
+		ShowMessageBox("当前选择的index无法进行插入图片对比操作");
+		return;
+	}
+}
+
+void MainWindow::InsertClickOperation(int x, int y)
+{
+	m_ui->edt_x->setText(QString::number(x));
+	m_ui->edt_y->setText(QString::number(y));
+
+	auto model = m_ui->tv_inputVec->selectionModel();
+	if (model->hasSelection() && model->selectedIndexes().size() == 1)
+	{
+		m_ui->cb_inputType->setCurrentIndex(InputType::Mouse);
+		m_ui->cb_opType->setCurrentIndex(OpType::Click);
+		m_ui->edt_comment->setText(Q8("点击"));
+		m_ui->edt_delay->setText(QString::number(500));
+
+		int index = model->selectedIndexes()[0].row();
+		InsertInputData(index);
+	}
+	else
+	{
+		AddTipInfo("当前选择的index无法进行插入点击操作");
+		return;
+	}
+}
+
+void MainWindow::InsertDragOperation(int x, int y, int x2, int y2)
+{
+	m_ui->edt_x->setText(QString::number(x));
+	m_ui->edt_y->setText(QString::number(y));
+
+	auto model = m_ui->tv_inputVec->selectionModel();
+	if (model->hasSelection() && model->selectedIndexes().size() == 1)
+	{
+		m_ui->cb_inputType->setCurrentIndex(InputType::Mouse);
+		m_ui->edt_delay->setText(QString::number(250));
+		m_ui->cb_opType->setCurrentIndex(OpType::Press);
+		m_ui->edt_comment->setText(Q8("拖动-1"));
+
+		int index = model->selectedIndexes()[0].row();
+		InsertInputData(index);
+
+		m_ui->edt_x->setText(QString::number(x2));
+		m_ui->edt_y->setText(QString::number(y2));
+		m_ui->cb_opType->setCurrentIndex(OpType::Move);
+		m_ui->edt_comment->setText(Q8("拖动-2"));
+		InsertInputData(index + 1);
+
+		m_ui->cb_opType->setCurrentIndex(OpType::Release);
+		m_ui->edt_comment->setText(Q8("拖动-3"));
+		InsertInputData(index + 2);
+	}
+	else
+	{
+		AddTipInfo("当前选择的index无法进行插入点击操作");
+		return;
+	}
+}
+
+int MainWindow::GetTableViewIndex()
+{
+	return m_ui->tv_inputVec->currentIndex().row();
+}
+
+void MainWindow::SetTableViewIndex(int index)
+{
+	auto curIndex = m_inputDataModel.index(index, 0);
+	m_ui->tv_inputVec->setCurrentIndex(curIndex);
+	m_ui->tv_inputVec->scrollTo(curIndex);
+}
+
+void MainWindow::CaptureUpdate()
+{
+	CaptureInputDataMgr::Singleton().CaptureThreadUpdate(nullptr);
 }
 
 void MainWindow::OnBtnStartClick()
@@ -490,7 +592,11 @@ void MainWindow::OnBtnUpdateSelectInputClick()
 void MainWindow::OnBtnInsertInputClick()
 {
 	int index = m_ui->edt_insertIndex->text().toInt();
+	InsertInputData(index);
+}
 
+void MainWindow::InsertInputData(int index)
+{
 	auto size = m_inputVec.size();
 	auto it = m_inputVec.begin();
 	for (int i = 0; i < size; ++i, ++it)
