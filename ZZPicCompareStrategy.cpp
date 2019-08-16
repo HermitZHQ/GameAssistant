@@ -4,14 +4,16 @@
 #include "mainwindow.h"
 #include <math.h>
 #include "QTime"
+#include "mainwindow.h"
 
 #define SAFE_DEL_ARR(p) if (nullptr != p){delete[] p; p = nullptr;}
 
 using namespace std;
 using namespace cv;
 
-ZZPicCompareStrategy::ZZPicCompareStrategy()
-	:m_buf(nullptr), m_dc(nullptr)
+ZZPicCompareStrategy::ZZPicCompareStrategy(MainWindow *mainWnd)
+	:PicCompareStrategy(mainWnd)
+	, m_buf(nullptr), m_dc(nullptr)
 	, m_compatibleDc(nullptr), m_compatibleBmp(nullptr)
 {
 }
@@ -135,7 +137,7 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 		const double cmpOffsetRate = 0.3;
 		if (rOffsetRate > cmpOffsetRate || gOffsetRate > cmpOffsetRate || bOffsetRate > cmpOffsetRate)
 		{
-// 			m_ui->list_tip->addItem(std::string("rgb over offset:").append(input.picPath).c_str());
+// 			m_mainWnd->AddTipInfo(std::string("rgb over offset:").append(input.picPath).c_str());
 #ifdef DEV_VER
 			char cTmp[MAX_PATH] = { 0 };
 			sprintf_s(cTmp, MAX_PATH, "rgb over offset:[%f|%f|%f]_%s\n", rOffsetRate, gOffsetRate, bOffsetRate, input.picPath);
@@ -191,7 +193,7 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 			}
 // 			cv::imwrite("C:\\Users\\cdzha\\Desktop\\curImg_size0.png", img2);
 #ifdef DEV_VER
-			m_ui->list_tip->addItem(std::string("key point too low[").append(std::to_string(kpts1.size())).append("|").append( std::to_string( kpts2.size() ) ).append("]-").append( strPicName ).c_str());
+			m_mainWnd->AddTipInfo(std::string("key point too low[").append(std::to_string(kpts1.size())).append("|").append( std::to_string( kpts2.size() ) ).append("]-").append( strPicName ).c_str());
 #endif // _DEBUG
 			return 0.0;
 		}
@@ -219,7 +221,7 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 #ifdef DEV_VER
 		if (rate > 1.0)
 		{
-			m_ui->list_tip->addItem(std::string("s1:").append(std::to_string(kpts1.size())).append(" s2:").append(std::to_string(kpts2.size())).append(" m1:").append(std::to_string(matched1.size())).append(" m2:").append(std::to_string(matched2.size())).c_str());
+			m_mainWnd->AddTipInfo(std::string("s1:").append(std::to_string(kpts1.size())).append(" s2:").append(std::to_string(kpts2.size())).append(" m1:").append(std::to_string(matched1.size())).append(" m2:").append(std::to_string(matched2.size())).c_str());
 		}
 #endif // _DEBUG
 
@@ -251,8 +253,9 @@ m_ui->edt_rate->setText(Left2Precision(rate).c_str());
 		//对比成功后点击图片的中心点
 		(input.bCmpPicCheckFlag) ? MouseClick(gameWnd, x + (x2 - x) / 2.0, y + (y2 - y) / 2.0) : (0);
 #ifdef DEV_VER
-		m_ui->list_tip->addItem(QTime::currentTime().toString().toStdString().append(":cmp[").append(Left2Precision(rate)).append("|").append(std::to_string(GetTickCount() - dwTime)).append("|").append( std::to_string( kpSize1 ) ).append("-").append( std::to_string( kpSize2 ) ).append("]-").append(input.picPath).append("_").append(Left2Precision(rOffsetRate)).append("_").append(Left2Precision(gOffsetRate)).append("_").append(Left2Precision(bOffsetRate)).c_str());
+		m_mainWnd->AddTipInfo(QTime::currentTime().toString().toStdString().append(":cmp[").append(Left2Precision(rate)).append("|").append(std::to_string(GetTickCount() - dwTime)).append("|").append( std::to_string( kpSize1 ) ).append("-").append( std::to_string( kpSize2 ) ).append("]-").append(input.picPath).append("_").append(Left2Precision(rOffsetRate)).append("_").append(Left2Precision(gOffsetRate)).append("_").append(Left2Precision(bOffsetRate)).c_str());
 #endif
+		m_mainWnd->AddTipInfo(std::string(input.comment).append("-成功").c_str());
 	}
 
 	dwTime = GetTickCount() - dwTime;

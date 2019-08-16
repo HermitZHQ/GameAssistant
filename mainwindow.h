@@ -142,21 +142,17 @@ public slots:
 	//主要用于更新xy坐标的百分比
 	void UpdateInputData(InputData &input);
 
-	void OnBtnDelLastInput();
 	void OnBtnDelAllInput();
 	void OnBtnUpdateAllInput();
-	void OnBtnInputListClick();
 	void OnTableViewClick();
 	void UpdateInputDataUI(int index);
-	void OnBtnUpdateSelectInputClick();
 	void UpdateSelectInputData( int index );
 	void OnBtnInsertInputClick();
 	void InsertInputData(int index);
-	void OnBtnInsertDrag();
-	void RefreshInputVecUIList();
 	void OnBtnClearTipInfo();
 
 	void ShowMessageBox(const char *content);
+	bool ShowConfirmBox(const char *str);
 	void AddTipInfo(const char *str, bool bConvertFlag = true);
 
 	//lisence
@@ -240,7 +236,7 @@ private:
 	InputDataModel				m_inputDataModel;
 	ItemDelegate				m_itemDelegate;
 	QMenu						m_menu;
-	QString						m_copyContent;
+	QList<QVariant>				m_copyList;
 	std::vector<InputData>		m_copyInputVec;
 };
 

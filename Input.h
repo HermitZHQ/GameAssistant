@@ -11,6 +11,7 @@ enum InputType
 	Keyboard,
 	Pic,//图片识别
 	StopScript,//停止脚本
+	Log,//输出日志，方便玩家查看脚本进度
 };
 
 enum OpType
@@ -51,8 +52,10 @@ struct InputData
 	//--------------扩展数据（每次扩展记得减少reserve的大小，之前预留的大小为path_len*3）
 	bool				bCmpPicCheckFlag;
 	char				comment[PATH_LEN];
+	short				repeatCount;
+	short				alreadyRepeatCount;
 	//------总26列数据
-	char				reserve[PATH_LEN * 2 - (1)];//.....预留数据扩展，免得每次加入新数据，之前的保存文件都要报废
+	char				reserve[PATH_LEN * 2 - (1 + 2 + 2)];//.....预留数据扩展，免得每次加入新数据，之前的保存文件都要报废
 
 	InputData()
 		:type(Mouse), opType(Click), vk(0), x(0), y(0)
@@ -61,11 +64,13 @@ struct InputData
 		, bInitStartTimeFlag(false), bFindPicFlag(false)
 		, findPicOvertime(-1), bFindPicOvertimeFlag(false)
 		, bCmpPicCheckFlag(true)
-		, findPicSucceedJumpIndex(-1), findPicOvertimeJumpIndex(-1)
+		, findPicSucceedJumpIndex(-1), findPicOvertimeJumpIndex(-1), repeatCount(1)
+		, alreadyRepeatCount(0)
 	{
 		ZeroMemory(picPath, PATH_LEN);
 		ZeroMemory(findPicSucceedJumpModule, PATH_LEN);
 		ZeroMemory(findPicOvertimeJumpModule, PATH_LEN);
 		ZeroMemory(comment, PATH_LEN);
+		ZeroMemory(reserve, sizeof(reserve));
 	}
 };

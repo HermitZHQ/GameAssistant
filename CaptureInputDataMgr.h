@@ -15,7 +15,7 @@ public:
 
 	void BeginCapture();
 	void StopCapture();
-	void CaptureThreadUpdate(void *pData = nullptr);
+	void CaptureThreadUpdate();
 	void CaptureAndInsertPicRect();
 	void CaptureContinuousClickList();
 	void CaptureContinuousDragList();

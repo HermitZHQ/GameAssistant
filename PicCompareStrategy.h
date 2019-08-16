@@ -7,10 +7,13 @@ namespace Ui {
 	class MainWindow;
 }
 
+class MainWindow;
 class PicCompareStrategy
 {
 public:
-	PicCompareStrategy() {}
+	PicCompareStrategy(MainWindow *mainWnd)
+		:m_mainWnd(mainWnd)
+	{}
 	virtual ~PicCompareStrategy() {}
 	virtual double HandlePicCompare(InputData &input, HWND gameWnd, const CSize &s) = 0;
 	virtual void MouseClick(HWND gameWnd, int x, int y)
@@ -22,6 +25,7 @@ public:
 
 protected:
 	Ui::MainWindow						*m_ui;
+	MainWindow							*m_mainWnd;
 
 private:
 };

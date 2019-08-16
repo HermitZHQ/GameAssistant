@@ -25,12 +25,14 @@ std::unordered_map<InputType, QString> InputTypeStrMap = {
 	{InputType::Keyboard, Q8("键盘")},
 	{InputType::Pic, Q8("图片")},
 	{InputType::StopScript, Q8("停止")},
+	{InputType::Log, Q8("日志")},
 };
 std::unordered_map<std::string, InputType> StrInputTypeMap = {
 	{ ( "鼠标" ), InputType::Mouse},
 	{ ( "键盘" ), InputType::Keyboard},
 	{ ( "图片" ), InputType::Pic},
-	{ ( "停止" ), InputType::StopScript},
+	{ ("停止"), InputType::StopScript},
+	{ ("日志"), InputType::Log},
 };
 
 std::unordered_map<OpType, QString> OpTypeStrMap = {
@@ -46,6 +48,15 @@ std::unordered_map<std::string, OpType> StrOpTypeMap = {
 	{ ( "释放" ), OpType::Release },
 };
 
+QStringList g_horizontalHeaderLables({
+		Q8("注释"), Q8("类型"), Q8("操作"), Q8("vk"), "delay",
+		"x", "y", "xRate", "yRate",	"x2", "y2", "xRate2", "yRate2",
+		Q8("开始时间"), Q8("完成标记"), Q8("初始开始时间标记"),
+		Q8("图片对比标记"), "cmpPicRate", "picPath", Q8("查找图片超时"), Q8("比图超时标记"),
+		Q8("比图成功跳转"), Q8("比图超时跳转"), Q8("比图成功跳转模块"), Q8("比图超时跳转模块"), Q8("比图点击"),
+		Q8("重复")
+	});
+
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	m_ui(new Ui::MainWindow)
@@ -53,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	, m_wndWidth(890)
 	, m_wndHeight(588)
 	, m_hGameWnd(nullptr)
-	, m_picCompareStrategy(new ZZPicCompareStrategy)
+	, m_picCompareStrategy(new ZZPicCompareStrategy(this))
 	, m_playerUI(this)
 	, m_year(0)
 	, m_lisenceLeftSecond(0)
@@ -138,17 +149,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::PostMsgThread()
 {
-	// 	ui->list_tip->addItem(QString::fromLocal8Bit("投递消息线程已开始运作..."));
 	if (m_inputVec.size() == 0)
 	{
 		m_timer.stop();
 		AddTipInfo("脚本中命令数为0，线程退出...");
 		return;
 	}
-
-	//执行脚本时为顺序执行，每执行完一个finishflag就标识为true，都完成以后重置所有标识，进行反复循环
-// 	while (m_hWnd && !m_stopFlag)
-// 	{
 
 	//检测游戏本体窗口是否已经设置到了指定大小
 	m_curSimWndInfo.CheckGameWndSize(m_wndWidth, m_wndHeight);
@@ -162,21 +168,6 @@ void MainWindow::PostMsgThread()
 // 	PostMessage(m_hWnd, WM_ERASEBKGND, 0, 0);
 // 	PostMessage(m_hWnd, WM_PAINT, 0, 0);
 
-#ifdef DEV_VER
-	int iCurCount = m_ui->list_tip->count();
-	static int iLastCount = iCurCount;
-	//检测提示列表大小，超过一定值清空
-	if (iCurCount > 500)
-	{
-		m_ui->list_tip->clear();
-	}
-	else if (iLastCount != iCurCount)
-	{
-		m_ui->list_tip->scrollToBottom();
-	}
-	iLastCount = iCurCount;
-#endif
-
 	//需要把父窗口设置bottom属性，才不会弹出？？
 // 	::SetWindowPos( m_hParentWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
 	bool bAllFinishedFlag = true;
@@ -184,8 +175,9 @@ void MainWindow::PostMsgThread()
 	for (auto &input : m_inputVec)
 	{
 		++index;
-		//判断完成
-		if ((input.bFinishFlag && input.type != Pic) || (input.type == Pic && (input.bFindPicFlag || input.bFindPicOvertimeFlag)))
+		//判断操作已经完成
+		if ((input.bFinishFlag && input.type != Pic) 
+			|| (input.type == Pic && (input.bFindPicFlag || input.bFindPicOvertimeFlag)))
 			continue;
 
 		//初始化输入开始时间
@@ -236,6 +228,11 @@ void MainWindow::PostMsgThread()
 			AddTipInfo("脚本已运行完毕，请手动选择其他脚本执行");
 		}
 		break;
+		case Log:
+		{
+			AddTipInfo(input.comment);
+		}
+		break;
 		default:
 			break;
 		}
@@ -253,20 +250,24 @@ void MainWindow::PostMsgThread()
 			break;
 		}
 
-		//只要处理过了，就标记为处理完毕
-		input.bFinishFlag = true;
+		//处理完后，如果已重复次数等于需要重复的次数，就标记为处理完毕（目前重复次数不对图片对比流程生效）
+		++input.alreadyRepeatCount;
+		if (input.alreadyRepeatCount == input.repeatCount)
+		{
+			input.bFinishFlag = true;
+		}
+		else
+		{
+			//没有达到重复次数时，重置开始时间，break继续判断延迟
+			input.startTime = GetTickCount();
+			break;
+		}
 	}
 
 	if (bAllFinishedFlag)
 	{
 		ResetAllInputFinishFlag();
 	}
-
-	// 		Sleep(1);
-	// 	}
-
-
-	// 	ui->list_tip->addItem(QString::fromLocal8Bit("线程已退出..."));
 }
 
 BOOL CALLBACK MainWindow::EnumChildProc(_In_ HWND hwnd, _In_ LPARAM lParam)
@@ -386,7 +387,7 @@ void MainWindow::SetTableViewIndex(int index)
 
 void MainWindow::CaptureUpdate()
 {
-	CaptureInputDataMgr::Singleton().CaptureThreadUpdate(nullptr);
+	CaptureInputDataMgr::Singleton().CaptureThreadUpdate();
 }
 
 void MainWindow::OnBtnStartClick()
@@ -394,8 +395,12 @@ void MainWindow::OnBtnStartClick()
 	m_stopFlag = false;
 	if (nullptr == m_hGameWnd)
 	{
-		AddTipInfo( "game wnd null, start failed" );
-		return;
+		InitGameWindow();
+		if (nullptr == m_hGameWnd)
+		{
+			AddTipInfo("game wnd null, start failed");
+			return;
+		}
 	}
 	ResetAllInputFinishFlag();
 
@@ -406,14 +411,14 @@ void MainWindow::OnBtnStartClick()
 	m_timer.setInterval(1);
 	// 	m_timer.setSingleShot(true);
 	m_timer.start();
-	AddTipInfo("开始脚本处理...");
+	AddTipInfo("开始脚本处理......");
 }
 
 void MainWindow::OnBtnStopClick()
 {
 	m_stopFlag = true;
 	m_timer.stop();
-	AddTipInfo("停止脚本处理...");
+	AddTipInfo("脚本处理已停止......");
 }
 
 void MainWindow::OnBtnAddInput()
@@ -421,7 +426,7 @@ void MainWindow::OnBtnAddInput()
 	//添加前先更新游戏窗口大小
 	UpdateGameWindowSize();
 
-	int repeatTime = m_ui->edt_repeat->text().toShort();
+	int repeatTime = 1;
 
 	InputData input;
 	GetInputData(input);
@@ -433,7 +438,6 @@ void MainWindow::OnBtnAddInput()
 
 	AddTipInfo(std::string("已添加").append(std::to_string(repeatTime)).append("条指令").c_str());
 
-	RefreshInputVecUIList();
 	SetInputDataModel();
 }
 
@@ -446,6 +450,7 @@ void MainWindow::GetInputData(InputData &input)
 	input.opType = (OpType)m_ui->cb_opType->currentIndex();
 	input.delay = m_ui->edt_delay->text().toShort();
 	input.vk = m_ui->edt_vk->text().toLocal8Bit()[0];
+	input.repeatCount = m_ui->edt_repeat->text().toShort();
 
 	if (InputType::StopScript == input.type)
 	{
@@ -488,31 +493,22 @@ void MainWindow::UpdateInputData(InputData &input)
 	input.yRate2 = (float)input.y2 / (float)m_gameWndSize.y;
 }
 
-void MainWindow::OnBtnDelLastInput()
-{
-	if (m_inputVec.size() <= 0)
-		return;
-
-	m_inputVec.pop_back();
-
-	AddTipInfo("已删除上一条指令");
-	AddTipInfo(std::string("还剩下").append(std::to_string(m_inputVec.size())).append("条指令").c_str());
-
-	RefreshInputVecUIList();
-	SetInputDataModel();
-}
-
 void MainWindow::OnBtnDelAllInput()
 {
+	if (!ShowConfirmBox("确认要删除所有命令吗？"))
+	{
+		return;
+	}
+
 	m_inputVec.clear();
 	AddTipInfo("已删除所有指令");
 
-	RefreshInputVecUIList();
 	SetInputDataModel();
 }
 
 void MainWindow::OnBtnUpdateAllInput()
 {
+	int index = GetTableViewIndex();
 	UpdateGameWindowSize();
 
 	auto it = m_inputVec.begin();
@@ -521,19 +517,15 @@ void MainWindow::OnBtnUpdateAllInput()
 		UpdateInputData(*it);
 	}
 
-	RefreshInputVecUIList();
+	SetInputDataModel();
+	SetTableViewIndex(index);
 	AddTipInfo("已更新所有指令");
-}
-
-void MainWindow::OnBtnInputListClick()
-{
-	auto index = m_ui->list_inputVec->currentIndex();
-	UpdateInputDataUI( index.row() );
 }
 
 void MainWindow::OnTableViewClick()
 {
 	auto index = m_ui->tv_inputVec->currentIndex();
+	m_ui->edt_insertIndex->setText(QString::number(index.row()));
 	UpdateInputDataUI( index.row() );
 }
 
@@ -551,6 +543,7 @@ void MainWindow::UpdateInputDataUI( int index )
 		m_ui->edt_vk->setText( std::string( 1, it->vk ).c_str() );
 		m_ui->edt_delay->setText( std::to_string( it->delay ).c_str() );
 		m_ui->edt_comment->setText( QString::fromLocal8Bit( it->comment ) );
+		m_ui->edt_repeat->setText(std::to_string(it->repeatCount).c_str());
 
 		m_ui->edt_x->setText( std::to_string( it->x ).c_str() );
 		m_ui->edt_y->setText( std::to_string( it->y ).c_str() );
@@ -570,14 +563,6 @@ void MainWindow::UpdateInputDataUI( int index )
 	}
 }
 
-void MainWindow::OnBtnUpdateSelectInputClick()
-{
-	UpdateGameWindowSize();
-	auto index = m_ui->list_inputVec->currentIndex();
-
-	UpdateSelectInputData( index.row() );
-}
-
 void MainWindow::UpdateSelectInputData( int index )
 {
 	auto it = m_inputVec.begin();
@@ -592,13 +577,13 @@ void MainWindow::UpdateSelectInputData( int index )
 	}
 
 	SetInputDataModel();
-	RefreshInputVecUIList();
 }
 
 void MainWindow::OnBtnInsertInputClick()
 {
 	int index = m_ui->edt_insertIndex->text().toInt();
 	InsertInputData(index);
+	SetTableViewIndex(index);
 }
 
 void MainWindow::InsertInputData(int index)
@@ -618,163 +603,7 @@ void MainWindow::InsertInputData(int index)
 		}
 	}
 
-	RefreshInputVecUIList();
 	SetInputDataModel();
-}
-
-void MainWindow::OnBtnInsertDrag()
-{
-	int index = m_ui->edt_insertIndex->text().toInt();
-	int insertCount = 0;
-	auto size = m_inputVec.size();
-
-	while (insertCount < 3 && size > 0)
-	{
-		auto it = m_inputVec.begin();
-		for (int i = 0; i < size; ++i, ++it)
-		{
-			if (index == i)
-			{
-				InputData input;
-				GetInputData(input);
-				input.type = Mouse;
-				input.delay = 250;//默认插入250延迟
-
-				if (0 == insertCount)
-				{
-					input.opType = Press;
-					strcpy_s(input.comment, MAX_PATH, "拖动-1");
-				}
-				else if (1 == insertCount)
-				{
-					input.opType = Move;
-					input.x = input.x2;
-					input.y = input.y2;
-					input.xRate = input.xRate2;
-					input.yRate = input.yRate2;
-					strcpy_s(input.comment, MAX_PATH, "拖动-2");
-				}
-				else if (2 == insertCount)
-				{
-					input.opType = Release;
-					input.x = input.x2;
-					input.y = input.y2;
-					input.xRate = input.xRate2;
-					input.yRate = input.yRate2;
-					strcpy_s(input.comment, MAX_PATH, "拖动-3");
-				}
-
-				m_inputVec.insert(it, input);
-
-				++index;
-				++insertCount;
-				break;
-			}
-		}
-	}
-
-	//插入后更新插入位置
-	m_ui->edt_insertIndex->setText(std::to_string(index).c_str());
-	//调换xy1，2的位置，方便下次输入
-	m_ui->edt_x->setText(m_ui->edt_x2->text());
-	m_ui->edt_y->setText(m_ui->edt_y2->text());
-
-	RefreshInputVecUIList();
-}
-
-void MainWindow::RefreshInputVecUIList()
-{
-	m_ui->list_inputVec->clear();
-
-	int index = -1;
-	for (auto &input : m_inputVec)
-	{
-		++index;
-		std::string strTmp;
-		strTmp = "<";
-		strTmp += std::to_string(index);
-		strTmp += ">";
-		strTmp += "(";
-		strTmp += input.comment;
-		strTmp += ")";
-		strTmp += " 类型:";
-		switch (input.type)
-		{
-		case Mouse:
-			strTmp += "鼠标";
-			break;
-		case Keyboard:
-			strTmp += "键盘";
-			break;
-		case Pic:
-			strTmp += "图片";
-			break;
-		case StopScript:
-			strTmp += "停止";
-			break;
-		default:
-			strTmp += "未知";
-			break;
-		}
-
-		if (InputType::Pic != input.type && InputType::StopScript != input.type)
-		{
-			strTmp += " 方式:";
-			switch (input.opType)
-			{
-			case Click:
-				strTmp += "点击";
-				break;
-			case Press:
-				strTmp += "按住";
-				break;
-			case Move:
-				strTmp += "移动";
-				break;
-			case Release:
-				strTmp += "释放";
-				break;
-			}
-
-			strTmp += " 延迟:";
-			strTmp += std::to_string(input.delay);
-		}
-
-		if (InputType::Keyboard == input.type && InputType::StopScript != input.type)
-		{
-			strTmp += " 键值:";
-			strTmp += input.vk;
-		}
-
-		if ((InputType::Mouse == input.type || InputType::Pic == input.type) && InputType::StopScript != input.type)
-		{
-			strTmp += " [x:";
-			strTmp += std::to_string(input.x);
-			strTmp += " y:";
-			strTmp += std::to_string(input.y);
-			strTmp += "] xRate:";
-			strTmp += Left2Precision(input.xRate);
-			strTmp += " yRate:";
-			strTmp += Left2Precision(input.yRate);
-		}
-
-		if (InputType::Pic == input.type && InputType::StopScript != input.type)
-		{
-			strTmp += " [x2:";
-			strTmp += std::to_string(input.x2);
-			strTmp += " y2:";
-			strTmp += std::to_string(input.y2);
-			strTmp += "] xRate2:";
-			strTmp += Left2Precision(input.xRate2);
-			strTmp += " yRate2:";
-			strTmp += Left2Precision(input.yRate2);
-
-			strTmp += " 路径:";
-			strTmp += input.picPath;
-		}
-
-		m_ui->list_inputVec->addItem(QString::fromLocal8Bit(strTmp.c_str()));
-	}
 }
 
 void MainWindow::OnBtnClearTipInfo()
@@ -791,8 +620,30 @@ void MainWindow::ShowMessageBox(const char *content)
 	mb.exec();
 }
 
+bool MainWindow::ShowConfirmBox(const char *str)
+{
+	QMessageBox mb;
+	mb.setWindowTitle("Info");
+	mb.setText(QString::fromLocal8Bit(str));
+	mb.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+	mb.setDefaultButton(QMessageBox::Cancel);
+	if (QMessageBox::Ok == mb.exec())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 void MainWindow::AddTipInfo(const char *str, bool bConvertFlag)
 {
+	if (m_ui->list_tip->count() > 200)
+	{
+		m_ui->list_tip->clear();
+	}
+
 #ifdef DEV_VER
 	m_ui->list_tip->addItem((bConvertFlag ? (QString::fromLocal8Bit(str)) : (str)));
 	m_ui->list_tip->scrollToBottom();
@@ -1033,14 +884,15 @@ void MainWindow::InitTableView()
 	m_ui->tv_inputVec->setItemDelegate(&m_itemDelegate);
 
 	auto actUpdateDelay = m_menu.addAction(Q8("更新延迟"));
+	auto updateSingleRow = m_menu.addAction(Q8("更新单行"));
 	auto actCopy = m_menu.addAction(Q8("复制内容"));
 	auto actPaste = m_menu.addAction(Q8("粘贴内容"));
 	auto actCopyInput = m_menu.addAction(Q8("复制行"));
 	auto actInsertCopyInput = m_menu.addAction( Q8( "插入复制行（上）" ) );
 	auto actInsertCopyInputDown = m_menu.addAction( Q8( "插入复制行（下）" ) );
 	auto actPasteOverwriteInput = m_menu.addAction(Q8("粘贴覆盖行"));
-	auto actDel = m_menu.addAction( Q8( "删除" ) );
-	auto updateSingleRow = m_menu.addAction( Q8( "更新单行" ) );
+	auto actDel = m_menu.addAction(Q8("删除"));
+	auto actDelAll = m_menu.addAction(Q8("删除所有"));
 
 	m_ui->tv_inputVec->setContextMenuPolicy(Qt::CustomContextMenu);
 	//table view connect
@@ -1053,14 +905,15 @@ void MainWindow::InitTableView()
 
 	//menu connect
 	m_menu.connect(actUpdateDelay, &QAction::triggered, this, &MainWindow::TableViewUpdateDelay);
+	m_menu.connect(updateSingleRow, &QAction::triggered, this, &MainWindow::TableViewUpdateSingleView);
 	m_menu.connect(actCopy, &QAction::triggered, this, &MainWindow::TableViewCopy);
 	m_menu.connect(actPaste, &QAction::triggered, this, &MainWindow::TableViewPaste);
 	m_menu.connect(actCopyInput, &QAction::triggered, this, &MainWindow::TableViewCopyInput);
 	m_menu.connect( actInsertCopyInput, &QAction::triggered, this, &MainWindow::TableViewInsertCopyInput );
 	m_menu.connect( actInsertCopyInputDown, &QAction::triggered, this, &MainWindow::TableViewInsertCopyInputDown );
 	m_menu.connect(actPasteOverwriteInput, &QAction::triggered, this, &MainWindow::TableViewPasteOverwriteInput);
-	m_menu.connect( actDel, &QAction::triggered, this, &MainWindow::TableViewDel );
-	m_menu.connect( updateSingleRow, &QAction::triggered, this, &MainWindow::TableViewUpdateSingleView );
+	m_menu.connect(actDel, &QAction::triggered, this, &MainWindow::TableViewDel);
+	m_menu.connect(actDelAll, &QAction::triggered, this, &MainWindow::OnBtnDelAllInput);
 }
 
 void MainWindow::TableViewUpdateDelay()
@@ -1083,7 +936,6 @@ void MainWindow::TableViewUpdateDelay()
 		}
 
 		GetInputDataModel();
-		RefreshInputVecUIList();
 	}
 }
 
@@ -1092,14 +944,14 @@ void MainWindow::TableViewCopy()
 	auto model = m_ui->tv_inputVec->selectionModel();
 	if (model->hasSelection())
 	{
-		auto indexList = model->selectedIndexes();
-		if (indexList.size() > 1)
-		{
-			ShowMessageBox("只能复制一个单元");
-			return;
-		}
+		//先清空复制列表
+		m_copyList.clear();
 
-		m_copyContent = m_inputDataModel.data(indexList[0]).toString();
+		auto indexList = model->selectedIndexes();
+		for (auto &index : indexList)
+		{
+			m_copyList.push_back(m_inputDataModel.data(index));
+		}
 	}
 }
 
@@ -1109,13 +961,19 @@ void MainWindow::TableViewPaste()
 	if (model->hasSelection())
 	{
 		auto indexList = model->selectedIndexes();
-		for (auto &index : indexList)
+		auto size = indexList.size();
+		if (size != m_copyList.size())
 		{
-			m_inputDataModel.setData(index, m_copyContent);
+			ShowMessageBox("复制的个数和要粘贴的个数不一样");
+			return;
+		}
+
+		for (int i = 0; i < size; ++i)
+		{
+			m_inputDataModel.setData(indexList[i], m_copyList[i]);
 		}
 
 		GetInputDataModel();
-		RefreshInputVecUIList();
 	}
 }
 
@@ -1174,7 +1032,6 @@ void MainWindow::TableViewInsertCopyInput()
 		}
 
 		SetInputDataModel();
-		RefreshInputVecUIList();
 		m_ui->tv_inputVec->setCurrentIndex( m_inputDataModel.index( index - 1, 0 ) );
 	}
 }
@@ -1231,7 +1088,6 @@ void MainWindow::TableViewInsertCopyInputDown()
 		}
 
 		SetInputDataModel();
-		RefreshInputVecUIList();
 		m_ui->tv_inputVec->setCurrentIndex( m_inputDataModel.index( index + 1, 0 ) );
 	}
 }
@@ -1255,7 +1111,6 @@ void MainWindow::TableViewPasteOverwriteInput()
 		}
 
 		SetInputDataModel();
-		RefreshInputVecUIList();
 	}
 }
 
@@ -1289,7 +1144,6 @@ void MainWindow::TableViewDel()
 
 		SetInputDataModel();
 		GetInputDataModel();
-		RefreshInputVecUIList();
 
 		m_ui->tv_inputVec->setCurrentIndex(m_inputDataModel.index(lastDelIndex - 1, 0));
 	}
@@ -1308,6 +1162,7 @@ void MainWindow::TableViewUpdateSingleView()
 		}
 
 		UpdateSelectInputData( indexList[0].row() );
+		SetTableViewIndex(indexList[0].row());
 	}
 }
 
@@ -1400,7 +1255,7 @@ void MainWindow::LoadScriptModuleFile(const char *file)
 	fopen_s(&pFile, strFilePath.c_str(), "rb");
 	if (nullptr == pFile)
 	{
-		RefreshInputVecUIList();
+		SetInputDataModel();
 		AddTipInfo(std::string("读取输入模块[").append(strFilePath).append("]失败").c_str());
 		return;
 	}
@@ -1433,6 +1288,9 @@ void MainWindow::LoadScriptModuleFile(const char *file)
 	{
 		InputData input;
 		fread(&input, sizeof(InputData), 1, pFile);
+		//临时改动，我先读取所有脚本一次，把重复次数都改到1，让以前的脚本可用
+// 		input.repeatCount = 1;
+
 		//插入数据前，先把picPath等路径转换到相对路径下
 		strTmp = input.picPath;
 		auto pos = strTmp.find_last_of( "/" );
@@ -1490,11 +1348,10 @@ void MainWindow::LoadScriptModuleFile(const char *file)
 	InitGameWindow();
 	//因为保存的时候可能保存了改动的初始flag，所以加载模块时，把所有标记都重置一下，以确保正常使用
 	ResetAllInputFinishFlag();
-#ifdef DEV_VER
-	RefreshInputVecUIList();
-#endif
 
+#ifdef DEV_VER
 	SetInputDataModel();
+#endif
 }
 
 void MainWindow::SetInputDataModel()
@@ -1502,18 +1359,20 @@ void MainWindow::SetInputDataModel()
 	auto row = m_inputVec.size();
 	m_inputDataModel.clear();
 	m_inputDataModel.setRowCount((int)row);
-	m_inputDataModel.setColumnCount(26);
-	m_inputDataModel.setHorizontalHeaderLabels(QStringList({
-		Q8("注释"), Q8("类型"), Q8("操作"), Q8("vk"), "delay", 
-		"x", "y", "xRate", "yRate",	"x2", "y2", "xRate2", "yRate2",
-		Q8("开始时间"), Q8("完成标记"), Q8("初始开始时间标记"),
-		Q8("图片对比标记"), "cmpPicRate", "picPath", Q8("查找图片超时"), Q8( "比图超时标记" ),
-		Q8("比图成功跳转"), Q8("比图超时跳转"), Q8("比图成功跳转模块"), Q8("比图超时跳转模块"), Q8("比图点击"),
-		}));
+
+	m_inputDataModel.setColumnCount(g_horizontalHeaderLables.size());
+	m_inputDataModel.setHorizontalHeaderLabels(g_horizontalHeaderLables);
+
+	QStringList verticalHeaderList;
+	for (int i = 0; i < row; ++i)
+	{
+		verticalHeaderList.push_back(QString::number(i));
+	}
+	m_inputDataModel.setVerticalHeaderLabels(verticalHeaderList);
 
 	for (int i = 0; i < row; ++i)
 	{
-		for (int j = 0; j < 26; ++j)
+		for (int j = 0; j < g_horizontalHeaderLables.size(); ++j)
 		{
 			QModelIndex index = m_inputDataModel.index(i, j, QModelIndex());
 
@@ -1596,6 +1455,9 @@ void MainWindow::SetInputDataModel()
 				break;
 			case 25:
 				m_inputDataModel.setData( index, m_inputVec[i].bCmpPicCheckFlag );
+				break;
+			case 26:
+				m_inputDataModel.setData(index, m_inputVec[i].repeatCount);
 				break;
 			default:
 			{
@@ -1702,6 +1564,9 @@ void MainWindow::GetInputDataModel()
 			case 25:
 				m_inputVec[i].bCmpPicCheckFlag = m_inputDataModel.data( index ).toBool();
 				break;
+			case 26:
+				m_inputVec[i].repeatCount = m_inputDataModel.data(index).toString().toShort();
+				break;
 			default:
 			{
 				ShowMessageBox( "出现致命model读取错误" );
@@ -1720,6 +1585,7 @@ void MainWindow::ResetAllInputFinishFlag()
 		input.bInitStartTimeFlag = false;
 		input.bFindPicFlag = false;
 		input.bFindPicOvertimeFlag = false;
+		input.alreadyRepeatCount = 0;
 	}
 }
 
@@ -1740,6 +1606,7 @@ void MainWindow::JumpInput(int index)
 			m_inputVec[i].bFindPicFlag = false;
 			m_inputVec[i].bInitStartTimeFlag = false;
 			m_inputVec[i].bFindPicOvertimeFlag = false;
+			m_inputVec[i].alreadyRepeatCount = 0;
 		}
 	}
 }

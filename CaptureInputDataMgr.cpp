@@ -43,7 +43,7 @@ void CaptureInputDataMgr::StopCapture()
 // 	m_bStopFlag = true;
 }
 
-void CaptureInputDataMgr::CaptureThreadUpdate(void *pData)
+void CaptureInputDataMgr::CaptureThreadUpdate()
 {
 	CaptureAndInsertPicRect();
 	CaptureContinuousClickList();
