@@ -152,10 +152,10 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 		//测试获取图片是否正常，之前我获取的rgb图片中的rgb值就填写反了，而且我获取特征点的img2没有使用灰度图....
 		if (0)
 		{
-			imwrite("C:/Users/cdzha/Desktop/img2_rgb.png", img2_rgb);
-			imwrite("C:/Users/cdzha/Desktop/img2.png", img2);
-			imwrite("C:/Users/cdzha/Desktop/img1_rgb.png", img1_rgb);
-			imwrite("C:/Users/cdzha/Desktop/img1.png", img1);
+			imwrite("d:/img2_rgb.png", img2_rgb);
+			imwrite("d:/img2.png", img2);
+			imwrite("d:/img1_rgb.png", img1_rgb);
+			imwrite("d:/img1.png", img1);
 		}
 
 		vector<KeyPoint> kpts1, kpts2;
