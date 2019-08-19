@@ -4,9 +4,14 @@
 #include <unordered_map>
 #include <string>
 #include "QString"
+#include "QTimer"
 
 #ifdef _DEBUG
 #define DEV_VER
+#else
+//Game List
+#define ZZZJ //ÖØ×°Õ½¼§
+
 #endif
 
 #define Q8(str) (QString::fromLocal8Bit(str))

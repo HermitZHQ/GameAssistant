@@ -132,7 +132,7 @@ public:
 	void InsertDragOperation(int x, int y, int x2, int y2);
 
 public slots:
-	void PostMsgThread();
+	void PostMsgThread(int cmpParam = -1);
 
 	void OnBtnStartClick();
 	void OnBtnStopClick();
@@ -172,18 +172,20 @@ public slots:
 	void TableViewPasteOverwriteInput();
 	void TableViewDel();
 	void TableViewUpdateSingleView();
+	void TableViewJump();
 
 	void OnBtnOpenFileDialog();
 	void OnBtnOpenFileDialog_PicPath();
 	void OnBtnSaveClick();
 	void LoadScriptModuleFile(const char *file);
+	void LoadScriptModuleFileToSpecificInputVec(const char *file, std::vector<InputData> &inputVec);
 	void SetInputDataModel();
-	void GetInputDataModel();
+	void GetInputDataFromModel(int row, int col);
 
 	//重置所有命令的标识
-	void ResetAllInputFinishFlag();
+	void ResetAllInputFinishFlag(std::vector<InputData> &inputVec);
 	//命令跳转，重置跳转索引之后的标识，完成索引之前的标识设置
-	void JumpInput(int index);
+	void JumpInput(int index, std::vector<InputData> &inputVec);
 
 	void HandleMouseInput(InputData &input);
 	void HandleKeyboardInput(InputData &input);
@@ -191,6 +193,7 @@ public slots:
 
 	void InitGameWindow();
 	void UpdateGameWindowSize();
+	void CheckGameWndSize();
 	void ResetSimWndInfo();
 	void SetSimWndType(SimWndType type);
 
@@ -217,6 +220,7 @@ private:
 	QTimer						m_lisenceCheckTimer;
 	QTimer						m_delayTimer;
 	QTimer						m_captureUpdateTimer;
+	QTimer						m_checkGameWndSizeTimer;
 	long						m_year;
 	long						m_month;
 	long						m_day;

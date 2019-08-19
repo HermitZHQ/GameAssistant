@@ -97,11 +97,16 @@ public:
     QLabel *label_30;
     QLineEdit *edt_mac;
     QTableView *tv_inputVec;
+    QLabel *label_13;
+    QLineEdit *edt_outputParam;
+    QLabel *label_27;
+    QLineEdit *edt_cmpParam;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
+        MainWindow->setEnabled(true);
         MainWindow->resize(932, 714);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
@@ -133,6 +138,7 @@ public:
         cb_inputType->addItem(QString());
         cb_inputType->addItem(QString());
         cb_inputType->addItem(QString());
+        cb_inputType->addItem(QString());
         cb_inputType->setObjectName(QString::fromUtf8("cb_inputType"));
         cb_inputType->setGeometry(QRect(450, 30, 81, 22));
         label_3 = new QLabel(centralWidget);
@@ -156,7 +162,7 @@ public:
         edt_vk->setGeometry(QRect(650, 30, 71, 21));
         btn_addInput = new QPushButton(centralWidget);
         btn_addInput->setObjectName(QString::fromUtf8("btn_addInput"));
-        btn_addInput->setGeometry(QRect(640, 230, 81, 41));
+        btn_addInput->setGeometry(QRect(670, 280, 81, 28));
         label_6 = new QLabel(centralWidget);
         label_6->setObjectName(QString::fromUtf8("label_6"));
         label_6->setGeometry(QRect(740, 10, 81, 21));
@@ -189,10 +195,10 @@ public:
         edt_y2->setGeometry(QRect(550, 80, 81, 21));
         label_11 = new QLabel(centralWidget);
         label_11->setObjectName(QString::fromUtf8("label_11"));
-        label_11->setGeometry(QRect(840, 60, 61, 21));
+        label_11->setGeometry(QRect(650, 210, 61, 21));
         edt_repeat = new QLineEdit(centralWidget);
         edt_repeat->setObjectName(QString::fromUtf8("edt_repeat"));
-        edt_repeat->setGeometry(QRect(840, 80, 51, 21));
+        edt_repeat->setGeometry(QRect(650, 230, 61, 21));
         btn_save = new QPushButton(centralWidget);
         btn_save->setObjectName(QString::fromUtf8("btn_save"));
         btn_save->setGeometry(QRect(850, 220, 71, 28));
@@ -216,19 +222,19 @@ public:
         label_15->setGeometry(QRect(350, 210, 81, 21));
         edt_rate = new QLineEdit(centralWidget);
         edt_rate->setObjectName(QString::fromUtf8("edt_rate"));
-        edt_rate->setGeometry(QRect(350, 230, 81, 21));
+        edt_rate->setGeometry(QRect(350, 230, 71, 21));
         label_16 = new QLabel(centralWidget);
         label_16->setObjectName(QString::fromUtf8("label_16"));
-        label_16->setGeometry(QRect(460, 260, 61, 21));
+        label_16->setGeometry(QRect(350, 260, 61, 21));
         edt_cmpPic = new QLineEdit(centralWidget);
         edt_cmpPic->setObjectName(QString::fromUtf8("edt_cmpPic"));
-        edt_cmpPic->setGeometry(QRect(460, 280, 51, 21));
+        edt_cmpPic->setGeometry(QRect(350, 280, 71, 21));
         label_17 = new QLabel(centralWidget);
         label_17->setObjectName(QString::fromUtf8("label_17"));
-        label_17->setGeometry(QRect(840, 10, 61, 21));
+        label_17->setGeometry(QRect(450, 210, 61, 21));
         edt_findPicOvertime = new QLineEdit(centralWidget);
         edt_findPicOvertime->setObjectName(QString::fromUtf8("edt_findPicOvertime"));
-        edt_findPicOvertime->setGeometry(QRect(840, 30, 51, 21));
+        edt_findPicOvertime->setGeometry(QRect(450, 230, 71, 21));
         label_18 = new QLabel(centralWidget);
         label_18->setObjectName(QString::fromUtf8("label_18"));
         label_18->setGeometry(QRect(350, 110, 91, 21));
@@ -243,10 +249,10 @@ public:
         edt_overtimeJump->setGeometry(QRect(350, 180, 71, 20));
         label_20 = new QLabel(centralWidget);
         label_20->setObjectName(QString::fromUtf8("label_20"));
-        label_20->setGeometry(QRect(350, 260, 111, 21));
+        label_20->setGeometry(QRect(450, 260, 111, 21));
         edt_costTime = new QLineEdit(centralWidget);
         edt_costTime->setObjectName(QString::fromUtf8("edt_costTime"));
-        edt_costTime->setGeometry(QRect(350, 280, 81, 21));
+        edt_costTime->setGeometry(QRect(450, 280, 101, 21));
         label_21 = new QLabel(centralWidget);
         label_21->setObjectName(QString::fromUtf8("label_21"));
         label_21->setGeometry(QRect(770, 280, 31, 28));
@@ -273,7 +279,7 @@ public:
         edt_succeedJumpModule->setGeometry(QRect(450, 130, 191, 21));
         chk_cmpPicClick = new QCheckBox(centralWidget);
         chk_cmpPicClick->setObjectName(QString::fromUtf8("chk_cmpPicClick"));
-        chk_cmpPicClick->setGeometry(QRect(450, 220, 101, 19));
+        chk_cmpPicClick->setGeometry(QRect(540, 220, 101, 19));
         chk_cmpPicClick->setChecked(true);
         btn_openFileDialog = new QPushButton(centralWidget);
         btn_openFileDialog->setObjectName(QString::fromUtf8("btn_openFileDialog"));
@@ -304,7 +310,7 @@ public:
         edt_wndHeight->setGeometry(QRect(360, 40, 61, 21));
         btn_lisence = new QPushButton(centralWidget);
         btn_lisence->setObjectName(QString::fromUtf8("btn_lisence"));
-        btn_lisence->setGeometry(QRect(90, 130, 71, 23));
+        btn_lisence->setGeometry(QRect(100, 130, 71, 23));
         edt_month = new QLineEdit(centralWidget);
         edt_month->setObjectName(QString::fromUtf8("edt_month"));
         edt_month->setGeometry(QRect(20, 100, 31, 21));
@@ -313,16 +319,29 @@ public:
         label_29->setGeometry(QRect(50, 100, 31, 21));
         btn_lisenceInfo = new QPushButton(centralWidget);
         btn_lisenceInfo->setObjectName(QString::fromUtf8("btn_lisenceInfo"));
-        btn_lisenceInfo->setGeometry(QRect(190, 130, 71, 23));
+        btn_lisenceInfo->setGeometry(QRect(180, 130, 71, 23));
         label_30 = new QLabel(centralWidget);
         label_30->setObjectName(QString::fromUtf8("label_30"));
-        label_30->setGeometry(QRect(90, 100, 31, 21));
+        label_30->setGeometry(QRect(100, 100, 31, 21));
         edt_mac = new QLineEdit(centralWidget);
         edt_mac->setObjectName(QString::fromUtf8("edt_mac"));
-        edt_mac->setGeometry(QRect(120, 100, 141, 21));
+        edt_mac->setGeometry(QRect(130, 100, 141, 21));
         tv_inputVec = new QTableView(centralWidget);
         tv_inputVec->setObjectName(QString::fromUtf8("tv_inputVec"));
         tv_inputVec->setGeometry(QRect(10, 310, 911, 361));
+        label_13 = new QLabel(centralWidget);
+        label_13->setObjectName(QString::fromUtf8("label_13"));
+        label_13->setGeometry(QRect(840, 10, 61, 21));
+        edt_outputParam = new QLineEdit(centralWidget);
+        edt_outputParam->setObjectName(QString::fromUtf8("edt_outputParam"));
+        edt_outputParam->setEnabled(true);
+        edt_outputParam->setGeometry(QRect(840, 80, 71, 21));
+        label_27 = new QLabel(centralWidget);
+        label_27->setObjectName(QString::fromUtf8("label_27"));
+        label_27->setGeometry(QRect(840, 60, 71, 21));
+        edt_cmpParam = new QLineEdit(centralWidget);
+        edt_cmpParam->setObjectName(QString::fromUtf8("edt_cmpParam"));
+        edt_cmpParam->setGeometry(QRect(840, 30, 71, 21));
         MainWindow->setCentralWidget(centralWidget);
 
         retranslateUi(MainWindow);
@@ -356,6 +375,7 @@ public:
         cb_inputType->setItemText(2, QApplication::translate("MainWindow", "\345\233\276\347\211\207\350\257\206\345\210\253", nullptr));
         cb_inputType->setItemText(3, QApplication::translate("MainWindow", "\345\201\234\346\255\242\350\204\232\346\234\254", nullptr));
         cb_inputType->setItemText(4, QApplication::translate("MainWindow", "\350\276\223\345\207\272\346\227\245\345\277\227", nullptr));
+        cb_inputType->setItemText(5, QApplication::translate("MainWindow", "\345\221\275\344\273\244\350\267\263\350\275\254", nullptr));
 
         label_3->setText(QApplication::translate("MainWindow", "\350\276\223\345\205\245\347\261\273\345\236\213", nullptr));
         label_4->setText(QApplication::translate("MainWindow", "\346\223\215\344\275\234\347\261\273\345\236\213", nullptr));
@@ -427,6 +447,10 @@ public:
         btn_lisenceInfo->setText(QApplication::translate("MainWindow", "\346\237\245\347\234\213\350\256\270\345\217\257", nullptr));
         label_30->setText(QApplication::translate("MainWindow", "MAC", nullptr));
         edt_mac->setText(QApplication::translate("MainWindow", "D8D0900B8F6D", nullptr));
+        label_13->setText(QApplication::translate("MainWindow", "\345\257\271\346\257\224\345\217\202\346\225\260", nullptr));
+        edt_outputParam->setText(QApplication::translate("MainWindow", "0", nullptr));
+        label_27->setText(QApplication::translate("MainWindow", "\350\276\223\345\207\272\345\217\202\346\225\260", nullptr));
+        edt_cmpParam->setText(QApplication::translate("MainWindow", "0", nullptr));
     } // retranslateUi
 
 };

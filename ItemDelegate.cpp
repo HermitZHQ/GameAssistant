@@ -117,7 +117,7 @@ void ItemDelegate::setModelData( QWidget *editor, QAbstractItemModel *model,
 	}
 
 	//after set model data, we should update the real data
-	m_mainWnd->GetInputDataModel();
+	m_mainWnd->GetInputDataFromModel(index.row(), index.column());
 }
 //! [3]
 

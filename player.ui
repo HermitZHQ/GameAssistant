@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>631</width>
-    <height>592</height>
+    <height>653</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,218 +25,6 @@
    <property name="text">
     <string>停止脚本</string>
    </property>
-  </widget>
-  <widget class="QWidget" name="verticalLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>331</width>
-     <height>571</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
-    <property name="spacing">
-     <number>5</number>
-    </property>
-    <property name="topMargin">
-     <number>2</number>
-    </property>
-    <item>
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>(1)用于复杂关卡，手动拉好路线后的托管</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="btn_nextStep">
-      <property name="text">
-       <string>下一步和开战辅助</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>(2)进入A(1-4)战场后点击开始，目前只支持A4</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="cmb_reward">
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="autoFillBackground">
-       <bool>true</bool>
-      </property>
-      <property name="sizeAdjustPolicy">
-       <enum>QComboBox::AdjustToContents</enum>
-      </property>
-      <item>
-       <property name="text">
-        <string>A4</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="pushButton">
-      <property name="text">
-       <string>开始赏金挂机</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_3">
-      <property name="text">
-       <string>(3)在主战场（可以看到A1-4）点击开始</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="btn_daily">
-      <property name="text">
-       <string>开始日常挂机</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_4">
-      <property name="text">
-       <string>(4)自动委托，在大厅界面执行</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="cmb_delegate">
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="autoFillBackground">
-       <bool>true</bool>
-      </property>
-      <property name="sizeAdjustPolicy">
-       <enum>QComboBox::AdjustToContents</enum>
-      </property>
-      <item>
-       <property name="text">
-        <string>最慢</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="btn_daily_2">
-      <property name="text">
-       <string>开始委托</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_5">
-      <property name="text">
-       <string>(5)自动开发，16次，在大厅界面执行</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="cmb_dev">
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="autoFillBackground">
-       <bool>true</bool>
-      </property>
-      <property name="sizeAdjustPolicy">
-       <enum>QComboBox::AdjustToContents</enum>
-      </property>
-      <item>
-       <property name="text">
-        <string>限时开发</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>普通开发10</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>普通开发20</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="btn_Dev">
-      <property name="text">
-       <string>开始开发</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_6">
-      <property name="text">
-       <string>(6)自动招募，4次，在大厅界面执行</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="btn_recruit">
-      <property name="text">
-       <string>开始招募</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QTextEdit" name="textEdit">
-      <property name="html">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;(7)手动选择关卡，由于某些关卡特征过于相似，容易出现识别错误，还有个别关卡有次数限制，比如剧情副本以及普通副本，&lt;/span&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;可以在进入关卡后手动选择对应脚本执行，只会执行一次&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="cmb_specific">
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="autoFillBackground">
-       <bool>true</bool>
-      </property>
-      <property name="sizeAdjustPolicy">
-       <enum>QComboBox::AdjustToContents</enum>
-      </property>
-      <item>
-       <property name="text">
-        <string>Nefud-1E/2E</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>薇欧蕾特副本</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>伊芙琳副本-50</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="btn_solo">
-      <property name="text">
-       <string>开始独立关卡单次运行</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
   </widget>
   <widget class="QListWidget" name="list_tip">
    <property name="geometry">
@@ -296,6 +84,313 @@ p, li { white-space: pre-wrap; }
     </item>
    </layout>
   </widget>
+  <widget class="QTextEdit" name="textEdit">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>413</y>
+     <width>329</width>
+     <height>113</height>
+    </rect>
+   </property>
+   <property name="html">
+    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;(7)手动选择关卡，由于某些关卡特征过于相似，容易出现识别错误，还有个别关卡有次数限制，比如剧情副本以及普通副本，&lt;/span&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;可以在进入关卡后手动选择对应脚本执行，只会执行一次，可循环的关卡在开始任务处执行即可&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_daily_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>248</y>
+     <width>329</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>开始委托</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>46</y>
+     <width>329</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>开始赏金挂机</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>281</y>
+     <width>329</width>
+     <height>15</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>(5)自动开发，16次，在大厅界面执行</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="cmb_delegate">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>222</y>
+     <width>60</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
+   <property name="sizeAdjustPolicy">
+    <enum>QComboBox::AdjustToContents</enum>
+   </property>
+   <item>
+    <property name="text">
+     <string>最慢</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QPushButton" name="btn_recruit">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>380</y>
+     <width>329</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>开始招募</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>202</y>
+     <width>329</width>
+     <height>15</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>(4)自动委托，在大厅界面执行</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="cmb_reward">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>20</y>
+     <width>81</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
+   <property name="sizeAdjustPolicy">
+    <enum>QComboBox::AdjustToContents</enum>
+   </property>
+   <item>
+    <property name="text">
+     <string>A4</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QComboBox" name="cmb_specific">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>531</y>
+     <width>249</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
+   <property name="sizeAdjustPolicy">
+    <enum>QComboBox::AdjustToContents</enum>
+   </property>
+   <item>
+    <property name="text">
+     <string>Nefud-1E/2E</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Hecate-1E</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>薇欧蕾特副本50（可循环）</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>薇欧蕾特副本60（可循环）</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>伊芙琳副本50（第四章，可循环）</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>伊芙琳副本60（第五章，可循环）</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>149</y>
+     <width>329</width>
+     <height>15</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>(3)在主战场（可以看到A1-4）点击开始</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="cmb_dev">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>301</y>
+     <width>106</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
+   <property name="sizeAdjustPolicy">
+    <enum>QComboBox::AdjustToContents</enum>
+   </property>
+   <item>
+    <property name="text">
+     <string>限时开发</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>普通开发10</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>普通开发20</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QPushButton" name="btn_Dev">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>327</y>
+     <width>329</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>开始开发</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_solo">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>557</y>
+     <width>329</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>开始独立关卡单次运行</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_daily">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>169</y>
+     <width>329</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>开始日常挂机</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>360</y>
+     <width>329</width>
+     <height>15</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>(6)自动招募，4次，在大厅界面执行</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_startAuto">
+   <property name="geometry">
+    <rect>
+     <x>210</x>
+     <y>590</y>
+     <width>271</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>开始挂机</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="chk_reward">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>20</y>
+     <width>121</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>自动赏金挂机</string>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>
@@ -348,22 +443,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>btn_nextStep</sender>
-   <signal>clicked()</signal>
-   <receiver>PlayerUI</receiver>
-   <slot>OnBtnNextStep()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>126</x>
-     <y>53</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>340</x>
-     <y>14</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>btn_daily_2</sender>
    <signal>clicked()</signal>
    <receiver>PlayerUI</receiver>
@@ -387,7 +466,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>225</x>
-     <y>307</y>
+     <y>354</y>
     </hint>
     <hint type="destinationlabel">
      <x>367</x>
@@ -403,7 +482,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>58</x>
-     <y>358</y>
+     <y>407</y>
     </hint>
     <hint type="destinationlabel">
      <x>105</x>
@@ -427,6 +506,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btn_startAuto</sender>
+   <signal>clicked()</signal>
+   <receiver>PlayerUI</receiver>
+   <slot>OnBtnStartAuto()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>464</x>
+     <y>618</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>617</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>OnBtnA4Reward()</slot>
@@ -437,5 +532,6 @@ p, li { white-space: pre-wrap; }
   <slot>OnBtnDev()</slot>
   <slot>OnBtnRecruit()</slot>
   <slot>OnBtnSpecific()</slot>
+  <slot>OnBtnStartAuto()</slot>
  </slots>
 </ui>

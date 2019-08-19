@@ -4,6 +4,7 @@
 #include "mainwindow.h"
 #include <math.h>
 #include "QTime"
+#include "QTimer"
 #include "mainwindow.h"
 
 #define SAFE_DEL_ARR(p) if (nullptr != p){delete[] p; p = nullptr;}
@@ -166,8 +167,8 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 		akaze->detectAndCompute(img2, noArray(), kpts2, desc2);
 
 		//为了能够读取出图片的特征点，我们需要等比例的放大图片，直到特征点个数大于30（测试性质）
-		float fScaleStep = 0.5f;//每次加大基数
-		const unsigned int cKPNum = 50;
+		float fScaleStep = 1.0f;//每次加大基数
+		const unsigned int cKPNum = 30;
 		int originalWidth1 = img1.cols;
 		int originalHeight1 = img1.rows;
 		int originalWidth2 = img2.cols;
@@ -251,9 +252,14 @@ m_ui->edt_rate->setText(Left2Precision(rate).c_str());
 
 		input.bFindPicFlag = true;
 		//对比成功后点击图片的中心点
-		(input.bCmpPicCheckFlag) ? MouseClick(gameWnd, x + (x2 - x) / 2.0, y + (y2 - y) / 2.0) : (0);
+		if (input.bCmpPicCheckFlag)
+		{
+			Sleep(650);
+			MouseClick(gameWnd, x + (x2 - x) / 2.0, y + (y2 - y) / 2.0);
+		}
+
 #ifdef DEV_VER
-		m_mainWnd->AddTipInfo(QTime::currentTime().toString().toStdString().append(":cmp[").append(Left2Precision(rate)).append("|").append(std::to_string(GetTickCount() - dwTime)).append("|").append( std::to_string( kpSize1 ) ).append("-").append( std::to_string( kpSize2 ) ).append("]-").append(input.picPath).append("_").append(Left2Precision(rOffsetRate)).append("_").append(Left2Precision(gOffsetRate)).append("_").append(Left2Precision(bOffsetRate)).c_str());
+		m_mainWnd->AddTipInfo(std::string("cmp[").append(Left2Precision(rate)).append("|").append(std::to_string(GetTickCount() - dwTime)).append("|").append( std::to_string( kpSize1 ) ).append("-").append( std::to_string( kpSize2 ) ).append("]-").append(input.picPath).append("_").append(Left2Precision(rOffsetRate)).append("_").append(Left2Precision(gOffsetRate)).append("_").append(Left2Precision(bOffsetRate)).c_str());
 #endif
 		m_mainWnd->AddTipInfo(std::string(input.comment).append("-成功").c_str());
 	}
