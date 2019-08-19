@@ -1166,6 +1166,8 @@ void MainWindow::TableViewPasteOverwriteInput()
 	if (model->hasSelection())
 	{
 		auto indexList = model->selectedIndexes();
+		int index = indexList[0].row();
+
 		if (indexList.size() != m_copyInputVec.size())
 		{
 			ShowMessageBox("复制的行数和要粘贴覆盖的行数不一致");
@@ -1179,6 +1181,7 @@ void MainWindow::TableViewPasteOverwriteInput()
 		}
 
 		SetInputDataModel();
+		SetTableViewIndex(index);
 	}
 }
 

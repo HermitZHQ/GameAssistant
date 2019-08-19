@@ -24,11 +24,9 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 		{Normal10, QString(DEFAULT_PATH).append("dev_normal_10")},
 		{Normal20, QString(DEFAULT_PATH).append("dev_normal_20")},
 		})
-	, m_mapRecognizeCmpParam(-1)
-	, m_mapRecognizeOutputParam(0)
-	, m_lastOutputParam(-1)
-	, m_nextStepCmpParam(-1)
-	, m_nextStepOutputParam(0)
+	, m_mapStatusCmpParam(-1)
+	, m_mapStatusOutputParam(0)
+	, m_lastStatusParam(-1)
 {
 	m_ui->setupUi(this);
 }
@@ -41,20 +39,52 @@ PlayerUI::~PlayerUI()
 void PlayerUI::Init()
 {
 	//链接对应timer的函数
-	m_mapRecognizeTimer.connect(&m_mapRecognizeTimer, &QTimer::timeout, this, &PlayerUI::UpdateMapStatusRecognizeScript);
+	m_mapStatusTimer.connect(&m_mapStatusTimer, &QTimer::timeout, this, &PlayerUI::UpdateMapStatusRecognizeScript);
 	m_nextStepTimer.connect(&m_nextStepTimer, &QTimer::timeout, this, &PlayerUI::UpdateNextStepScript);
-	m_autoTimer.connect(&m_autoTimer, &QTimer::timeout, this, &PlayerUI::UpdateAutoScript);
-	m_rewardMapRecognizeTimer.connect(&m_rewardMapRecognizeTimer, &QTimer::timeout, this, &PlayerUI::UpdateRewardMapRecognizeScript);
+	m_mapPosSelectTimer.connect(&m_mapPosSelectTimer, &QTimer::timeout, this, &PlayerUI::UpdateMapPositionSelectScript);
+	m_mapRecognizeTimer.connect(&m_mapRecognizeTimer, &QTimer::timeout, this, &PlayerUI::UpdateAllMapRecognizeAndBattleScript);
 
 	//预先初始化不会变化的inputVec
-	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("map_status_recognize").c_str(), m_mapRecognizeInputVec);
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("map_status_recognize").c_str(), m_mapStatusInputVec);
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("next_step").c_str(), m_nextStepInputVec);
-	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("zz_map_recognize_reward").c_str(), m_rewardMapRecognizeInputVec);
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("zz_map_recognize").c_str(), m_mapRecognizeInputVec);
 }
 
 void PlayerUI::UpdateMapStatusRecognizeScript()
 {
-	UpdateMapRecognizeInputDataVector(m_mapRecognizeCmpParam);
+	UpdateMapRecognizeInputDataVector(m_mapStatusCmpParam);
+
+	//根据状态开始和关闭对应的timer执行脚本，提高效率，减少错误点击
+	if (m_mapStatusOutputParam >= ZZ_Map_Param::Battle_deploy
+		&& m_mapStatusOutputParam <= ZZ_Map_Param::Battle_end)
+	{
+		if (!m_mapRecognizeTimer.isActive())
+		{
+			//因为战斗脚本完成后，现在都会停止，不会跳转回地图查找，这样处理比较简单，否则还涉及到跳转回地图查找后又进入战斗脚本的问题，具体游戏这边的脚本更新都有所改动，停止脚本不再停止timer，而是把inputVec清空，所以当我们需要再次开启地图识别的时候，我们需要先加载识别文件（因为这时候vec是空）
+			m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("zz_map_recognize").c_str(), m_mapRecognizeInputVec);
+			m_mapRecognizeTimer.start(2);
+			m_mainWnd->AddTipInfo("已进入战斗场景");
+		}
+
+		if (m_mapPosSelectTimer.isActive())
+		{
+			m_mapPosSelectTimer.stop();
+		}
+	}
+	else if (m_mapStatusOutputParam >= ZZ_Map_Param::Lobby
+		&& m_mapStatusOutputParam <= ZZ_Map_Param::Battle_A4)
+	{
+		if (m_mapRecognizeTimer.isActive())
+		{
+			m_mapRecognizeTimer.stop();
+			m_mainWnd->AddTipInfo("已从战斗场景退出");
+		}
+
+		if (!m_mapPosSelectTimer.isActive())
+		{
+			m_mapPosSelectTimer.start(2);
+		}
+	}
 }
 
 void PlayerUI::UpdateNextStepScript()
@@ -65,64 +95,56 @@ void PlayerUI::UpdateNextStepScript()
 	}
 }
 
-void PlayerUI::UpdateAutoScript()
+void PlayerUI::UpdateMapPositionSelectScript()
 {
 	//根据游戏状态，动态加载切换各个脚本
 
 	//情景发生变化时，才替换一次脚本
-	if (m_lastOutputParam != m_mapRecognizeOutputParam)
+	if (m_lastStatusParam != m_mapStatusOutputParam)
 	{
-		m_lastOutputParam = m_mapRecognizeOutputParam;
+		m_lastStatusParam = m_mapStatusOutputParam;
 
 		//赏金
 		if (m_ui->chk_reward->isChecked())
 		{
-			if (ZZ_Map_Param::Battle_Main == m_mapRecognizeOutputParam)
+			if (ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam)
 			{
-				m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("zz_battle_findIcon_a4_reward").c_str(), m_autoInputVec);
-
-				m_rewardMapRecognizeTimer.stop();
-				m_rewardMapRecognizeTimer.start(2);
+				m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("zz_battle_findIcon_a4_reward").c_str(), m_mapPosSelectInputVec);
 			}
-			else if (ZZ_Map_Param::Lobby == m_mapRecognizeOutputParam
-				|| ZZ_Map_Param::Dev == m_mapRecognizeOutputParam
-				|| ZZ_Map_Param::Recruit == m_mapRecognizeOutputParam
-				|| ZZ_Map_Param::Member == m_mapRecognizeOutputParam
-				|| ZZ_Map_Param::Team == m_mapRecognizeOutputParam
-				|| ZZ_Map_Param::Battle_A1 == m_mapRecognizeOutputParam
-				|| ZZ_Map_Param::Battle_A2 == m_mapRecognizeOutputParam
-				|| ZZ_Map_Param::Battle_A3 == m_mapRecognizeOutputParam
-				|| ZZ_Map_Param::Battle_A4 == m_mapRecognizeOutputParam)
+			else if (m_mapStatusOutputParam >= ZZ_Map_Param::Lobby
+				&& m_mapStatusOutputParam <= ZZ_Map_Param::Battle_A4
+				&& m_mapStatusOutputParam != ZZ_Map_Param::Battle_Main)
 			{
-				m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("to_battle_main").c_str(), m_autoInputVec);
+				m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("to_battle_main").c_str(), m_mapPosSelectInputVec);
 			}
 			else
 			{
-				if (0 != m_lastOutputParam)
+				if (0 != m_lastStatusParam)
 				{
-					m_mainWnd->ShowMessageBox(std::string("当前界面无法跳转执行赏金任务_").append(std::to_string(m_lastOutputParam)).c_str());
+					m_mainWnd->AddTipInfo(std::string("当前界面无法跳转执行赏金任务_").append(std::to_string(m_lastStatusParam)).c_str());
 				}
 			}
 		}
 	}
 
-	if (m_autoInputVec.size())
+	if (m_mapPosSelectInputVec.size())
 	{
-		UpdateNormalInputDataVector(-1, m_autoInputVec);
+		UpdateNormalInputDataVector(-1, m_mapPosSelectInputVec);
 	}
 }
 
-void PlayerUI::UpdateRewardMapRecognizeScript()
+void PlayerUI::UpdateAllMapRecognizeAndBattleScript()
 {
-	if (m_rewardMapRecognizeInputVec.size())
+	if (m_mapRecognizeInputVec.size())
 	{
-		UpdateNormalInputDataVector(-1, m_rewardMapRecognizeInputVec);
+		//这里的参数根据用户的勾选变换，目前暂时为-1
+		UpdateNormalInputDataVector(-1, m_mapRecognizeInputVec);
 	}
 }
 
 void PlayerUI::UpdateMapRecognizeInputDataVector(int cmpParam)
 {
-	if (m_mapRecognizeInputVec.size() == 0)
+	if (m_mapStatusInputVec.size() == 0)
 	{
 		m_mainWnd->AddTipInfo("脚本中命令数为0，线程退出...");
 		return;
@@ -142,7 +164,7 @@ void PlayerUI::UpdateMapRecognizeInputDataVector(int cmpParam)
 // 	::SetWindowPos( m_hParentWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
 	bool bAllFinishedFlag = true;
 	int index = -1;
-	for (auto &input : m_mapRecognizeInputVec)
+	for (auto &input : m_mapStatusInputVec)
 	{
 		++index;
 		//判断操作已经完成
@@ -173,8 +195,8 @@ void PlayerUI::UpdateMapRecognizeInputDataVector(int cmpParam)
 			//判断超时指令跳转
 			if (-1 != input.findPicOvertimeJumpIndex)
 			{
-				(0xffff != input.findPicOvertimeJumpIndex) ? m_mainWnd->JumpInput(input.findPicOvertimeJumpIndex, m_mapRecognizeInputVec) :
-					(m_mainWnd->LoadScriptModuleFileToSpecificInputVec(input.findPicOvertimeJumpModule, m_mapRecognizeInputVec));
+				(0xffff != input.findPicOvertimeJumpIndex) ? m_mainWnd->JumpInput(input.findPicOvertimeJumpIndex, m_mapStatusInputVec) :
+					(m_mainWnd->LoadScriptModuleFileToSpecificInputVec(input.findPicOvertimeJumpModule, m_mapStatusInputVec));
 				break;
 			}
 			continue;
@@ -213,15 +235,15 @@ void PlayerUI::UpdateMapRecognizeInputDataVector(int cmpParam)
 		//图片对比成功指令跳转
 		else if (InputType::Pic == input.type && input.bFindPicFlag && -1 != input.findPicSucceedJumpIndex)
 		{
-			m_mapRecognizeOutputParam = input.outputParam;
+			m_mapStatusOutputParam = input.outputParam;
 
-			(0xffff != input.findPicSucceedJumpIndex) ? m_mainWnd->JumpInput(input.findPicSucceedJumpIndex, m_mapRecognizeInputVec) :
-				m_mainWnd->LoadScriptModuleFileToSpecificInputVec(input.findPicSucceedJumpModule, m_mapRecognizeInputVec);
+			(0xffff != input.findPicSucceedJumpIndex) ? m_mainWnd->JumpInput(input.findPicSucceedJumpIndex, m_mapStatusInputVec) :
+				m_mainWnd->LoadScriptModuleFileToSpecificInputVec(input.findPicSucceedJumpModule, m_mapStatusInputVec);
 			break;
 		}
 		else if (InputType::Pic == input.type && input.bFindPicFlag)
 		{
-			m_mapRecognizeOutputParam = input.outputParam;
+			m_mapStatusOutputParam = input.outputParam;
 		}
 
 		//处理完后，如果已重复次数等于需要重复的次数，就标记为处理完毕（目前重复次数不对图片对比流程生效）
@@ -237,7 +259,7 @@ void PlayerUI::UpdateMapRecognizeInputDataVector(int cmpParam)
 			//这里借用了找图成功跳转索引的变量，因为找图我们都不会使用多次，我也就不想再多加结构体变量了，目前的多次重复命令都用于延迟上
 			if (-1 != input.findPicSucceedJumpIndex && 0xffff != input.findPicSucceedJumpIndex)
 			{
-				m_mainWnd->JumpInput(input.findPicSucceedJumpIndex, m_mapRecognizeInputVec);
+				m_mainWnd->JumpInput(input.findPicSucceedJumpIndex, m_mapStatusInputVec);
 			}
 			break;
 		}
@@ -245,7 +267,7 @@ void PlayerUI::UpdateMapRecognizeInputDataVector(int cmpParam)
 
 	if (bAllFinishedFlag)
 	{
-		m_mainWnd->ResetAllInputFinishFlag(m_mapRecognizeInputVec);
+		m_mainWnd->ResetAllInputFinishFlag(m_mapStatusInputVec);
 	}
 }
 
@@ -389,11 +411,11 @@ void PlayerUI::UpdateNormalInputDataVector(int cmpParam, std::vector<InputData> 
 
 void PlayerUI::StopScritp()
 {
-	m_mapRecognizeTimer.stop();
+	m_mapStatusTimer.stop();
 	m_nextStepTimer.stop();
-	m_autoTimer.stop();
-	m_mapRecognizeOutputParam = 0;
-	m_lastOutputParam = -1;
+	m_mapPosSelectTimer.stop();
+	m_mapStatusOutputParam = 0;
+	m_lastStatusParam = -1;
 
 	//设置指定的模拟器类型
 	int index = m_ui->cmb_sim->currentIndex();
@@ -403,9 +425,9 @@ void PlayerUI::StopScritp()
 
 void PlayerUI::StartScript()
 {
-	m_mapRecognizeTimer.start(5);
+	m_mapStatusTimer.start(5);
 	m_nextStepTimer.start(10);
-	m_autoTimer.start(3);
+	m_mapPosSelectTimer.start(3);
 } 
 
 void PlayerUI::OnBtnStop()

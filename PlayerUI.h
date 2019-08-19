@@ -35,6 +35,8 @@ enum ZZ_Dev
 	Normal20,
 };
 
+//参数从1开始，0为默认值，不进行处理
+//相同范围内的枚举连续写，这样比较的时候可以写成范围比较
 enum ZZ_Map_Param
 {
 	Lobby = 1,//大厅
@@ -55,6 +57,16 @@ enum ZZ_Map_Param
 	State_failed,//关卡失败界面
 };
 
+//参数从1开始，0为默认值，不进行处理
+enum ZZ_Cmp_Param
+{
+	Map_Reward_A1 = 1,
+	Map_Reward_A2,
+	Map_Reward_A3,
+	Map_Reward_A4,
+	Map_Daily,
+};
+
 class MainWindow;
 class PlayerUI : public QWidget
 {
@@ -69,8 +81,9 @@ public:
 
 	void UpdateMapStatusRecognizeScript();
 	void UpdateNextStepScript();
-	void UpdateAutoScript();
-	void UpdateRewardMapRecognizeScript();
+	void UpdateMapPositionSelectScript();
+	//根据用户设置，传入对比参数，忽略不需要对比的地图（这样我们就可以把所有的地图对比都放在一个脚本了，之前加的对比参数就有用了）
+	void UpdateAllMapRecognizeAndBattleScript();
 
 protected:
 	void UpdateMapRecognizeInputDataVector(int cmpParam);
@@ -97,25 +110,25 @@ private:
 	std::unordered_map<ZZ_Dev, QString>				m_specificDevScriptMap;
 
 	//此inputVec专门用于识别目前的游戏状态，比如在大厅，在机库，在准备战斗，正在战斗中等
-	QTimer											m_mapRecognizeTimer;
-	std::vector<InputData>							m_mapRecognizeInputVec;
-	int												m_mapRecognizeCmpParam;
-	int												m_mapRecognizeOutputParam;
+	QTimer											m_mapStatusTimer;
+	std::vector<InputData>							m_mapStatusInputVec;
+	int												m_mapStatusCmpParam;
+	int												m_mapStatusOutputParam;
 
-	int												m_lastOutputParam;
+	int												m_lastStatusParam;
 
-	//此inputVec专门用于开启挂机后来点击下一步，开始战斗，以及战斗结算用，就不用一直在其他脚本中重复写了
+	//此inputVec专门用于开启挂机后来点击下一步，开始战斗，以及战斗结算还有跳过对话，跳过错误用，就不用一直在其他脚本中重复写了
 	QTimer											m_nextStepTimer;
 	std::vector<InputData>							m_nextStepInputVec;
 	int												m_nextStepCmpParam;
 	int												m_nextStepOutputParam;
 
-	//此inputVec专门用于根据挂机设置和获取到的游戏状态来自动切换于各个脚本之间
-	QTimer											m_autoTimer;
-	std::vector<InputData>							m_autoInputVec;
+	//此inputVec专门用于根据挂机设置和获取到的游戏状态来自动切换于各个脚本之间（比如切换找赏金图片，找每日图片，找特定fb图标）
+	QTimer											m_mapPosSelectTimer;
+	std::vector<InputData>							m_mapPosSelectInputVec;
 
-	//此inputVec专门用于侦测所有赏金地图
-	QTimer											m_rewardMapRecognizeTimer;
-	std::vector<InputData>							m_rewardMapRecognizeInputVec;
+	//此inputVec专门用于侦测所有地图（加对比参数忽略特定地图）
+	QTimer											m_mapRecognizeTimer;
+	std::vector<InputData>							m_mapRecognizeInputVec;
 };
 
