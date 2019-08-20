@@ -73,8 +73,8 @@ ItemDelegate::ItemDelegate( MainWindow *mainWnd, QObject *parent )
 
 //! [1]
 QWidget *ItemDelegate::createEditor( QWidget *parent,
-	const QStyleOptionViewItem & option,
-	const QModelIndex & index ) const
+	const QStyleOptionViewItem & /*option*/,
+	const QModelIndex & /*index*/ ) const
 {
 	QLineEdit *editor = new QLineEdit( parent );
 	return editor;
@@ -123,7 +123,7 @@ void ItemDelegate::setModelData( QWidget *editor, QAbstractItemModel *model,
 
 //! [4]
 void ItemDelegate::updateEditorGeometry( QWidget *editor,
-	const QStyleOptionViewItem &option, const QModelIndex & index ) const
+	const QStyleOptionViewItem &option, const QModelIndex & /*index*/ ) const
 {
 	editor->setGeometry( option.rect );
 }

@@ -13,6 +13,7 @@ enum InputType
 	StopScript,//停止脚本
 	Log,//输出日志，方便玩家查看脚本进度
 	Jump,//跳转命令，同时支持index和module跳转
+	Wait,//等待命令，当时把delay的类型设置为short了，用于延时不够，而且类型也不对，因为delay后总要做点什么
 };
 
 enum OpType
@@ -57,8 +58,9 @@ struct InputData
 	short				alreadyRepeatCount;
 	int					cmpParam;
 	int					outputParam;
+	int					waitTime;//秒
 	//------总26列数据
-	char				reserve[PATH_LEN * 2 - (1 + sizeof(short) * 2 + sizeof(int) * 2)];//.....预留数据扩展，免得每次加入新数据，之前的保存文件都要报废
+	char				reserve[PATH_LEN * 2 - (1 + sizeof(short) * 2 + sizeof(int) * 3)];//.....预留数据扩展，免得每次加入新数据，之前的保存文件都要报废
 
 	InputData()
 		:type(Mouse), opType(Click), vk(0), x(0), y(0)

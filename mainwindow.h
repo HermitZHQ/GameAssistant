@@ -35,17 +35,22 @@ struct SimWndInfo
 
 	QString				layerWndName[MAX_LAYER];
 	bool				bUseLayerNameFlag[MAX_LAYER];
+	std::vector<bool>	bSetSizeFlagVec;//有些窗口不需要设置最外层就能自动调整最外层，设置了最外层反而会造成旁边的黑边
 	HWND				layerWnd[MAX_LAYER];
 	HWND				gameWnd;//最终指定的游戏窗口，把这个窗口设置成统一的大小，脚本就可以正常工作了
 	HWND				parentWnd;//最外层窗口，用于设置bottom???
 	RECT				rt[MAX_LAYER];
 	unsigned short		curLayer;
+	unsigned short		gameWndLayer;//指定第几层是游戏消息窗口
 	unsigned short		totalFindLayer;//一共要找几层，比如目前的mumu和雷电都是2层
 
-	//默认找2层，且不用查找第二层名字的构造，如果以后还有其他模拟器支持再开发其他构造
-	SimWndInfo(const QString &layer1WndName, unsigned short _totalFindLayer = 2)
-		:gameWnd(nullptr), curLayer(0), totalFindLayer(_totalFindLayer)
+	//最新改为默认不支持2层了，你需要找到几层必须明确写清楚，因为现在雷电和mumu的窗口设置大小机制问题
+	//mumu设置第二层大小可以完全达到指定大小，并且不会反弹，而mumu设置后会有一点黑边，导致分辨率略小的问题
+	SimWndInfo(const QString &layer1WndName, std::vector<bool> setSizeFlagVec, unsigned short _totalFindLayer, unsigned short _gameWndLayer)
+		:gameWnd(nullptr), curLayer(0), totalFindLayer(_totalFindLayer), gameWndLayer(_gameWndLayer)
+
 	{
+		bSetSizeFlagVec = setSizeFlagVec;
 		for (int i = 0; i < MAX_LAYER; ++i)
 		{
 			if (0 == i)
@@ -68,7 +73,7 @@ struct SimWndInfo
 		bool bRes = (curLayer == (totalFindLayer - 1));
 		if (bRes)
 		{
-			gameWnd = layerWnd[curLayer];
+			gameWnd = layerWnd[gameWndLayer - 1];
 			parentWnd = layerWnd[0];
 		}
 		return bRes;
@@ -149,6 +154,10 @@ public slots:
 	void UpdateSelectInputData( int index );
 	void OnBtnInsertInputClick();
 	void InsertInputData(int index);
+	void OnBtnGetBattleTemplate();
+	void OnBtnGetBattleTemplate2();
+	void OnBtnStartTimeCount();
+	void OnBtnEndTimeCount();
 	void OnBtnClearTipInfo();
 
 	void ShowMessageBox(const char *content);
@@ -196,6 +205,8 @@ public slots:
 	void CheckGameWndSize();
 	void ResetSimWndInfo();
 	void SetSimWndType(SimWndType type);
+	void OnReturnPressedResolutionRateX();
+	void OnReturnPressedResolutionRateY();
 
 private:
 	Ui::MainWindow				*m_ui;
@@ -242,6 +253,9 @@ private:
 	QMenu						m_menu;
 	QList<QVariant>				m_copyList;
 	std::vector<InputData>		m_copyInputVec;
+
+	DWORD						m_waitTime;
+	QTimer						m_timeCountTimer;
 };
 
 #endif // MAINWINDOW_H

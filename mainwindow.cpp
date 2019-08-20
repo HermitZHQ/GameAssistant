@@ -27,6 +27,7 @@ std::unordered_map<InputType, QString> InputTypeStrMap = {
 	{InputType::StopScript, Q8("停止")},
 	{InputType::Log, Q8("日志")},
 	{InputType::Jump, Q8("跳转")},
+	{InputType::Wait, Q8("等待")},
 };
 std::unordered_map<std::string, InputType> StrInputTypeMap = {
 	{ ( "鼠标" ), InputType::Mouse},
@@ -35,6 +36,7 @@ std::unordered_map<std::string, InputType> StrInputTypeMap = {
 	{ ("停止"), InputType::StopScript},
 	{ ("日志"), InputType::Log},
 	{ ("跳转"), InputType::Jump},
+	{ ("等待"), InputType::Wait},
 };
 
 std::unordered_map<OpType, QString> OpTypeStrMap = {
@@ -56,15 +58,15 @@ QStringList g_horizontalHeaderLables({
 		Q8("开始时间"), Q8("完成标记"), Q8("初始开始时间标记"),
 		Q8("图片对比标记"), "cmpPicRate", "picPath", Q8("查找图片超时"), Q8("比图超时标记"),
 		Q8("比图成功跳转"), Q8("比图超时跳转"), Q8("比图成功跳转模块"), Q8("比图超时跳转模块"), Q8("比图点击"),
-		Q8("重复"), Q8("对比参数"), Q8("输出参数")
+		Q8("重复"), Q8("对比参数"), Q8("输出参数"), Q8("等待(秒)")
 	});
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	m_ui(new Ui::MainWindow)
 	, m_stopFlag(false)
-	, m_wndWidth(890)
-	, m_wndHeight(588)
+	, m_wndWidth(960)
+	, m_wndHeight(540)
 	, m_hGameWnd(nullptr)
 	, m_picCompareStrategy(new ZZPicCompareStrategy(this))
 	, m_playerUI(this)
@@ -74,10 +76,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	, m_simWndType(None)
 	, m_itemDelegate(this)
 	, m_simWndInfoMap({
-		{Thunder, SimWndInfo(QString::fromLocal8Bit("雷电模拟器"))},
-		{MuMu, SimWndInfo(QString::fromLocal8Bit("重装战姬 - MuMu模拟器"))},
+		{Thunder, SimWndInfo(QString::fromLocal8Bit("雷电模拟器"), {true, true, false}, 2, 2)},
+		{MuMu, SimWndInfo(QString::fromLocal8Bit("重装战姬 - MuMu模拟器"), {false, true, true}, 3, 2)},
 		})
-	, m_curSimWndInfo(QString::fromLocal8Bit("雷电模拟器"))
+	, m_curSimWndInfo(QString::fromLocal8Bit("雷电模拟器"), { true, true, false }, 2, 2)
 {
 	CoUninitialize();
 	/*auto res = */CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
@@ -111,7 +113,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #ifdef DEV_VER
 	m_ui->setupUi(this);
-	m_playerUI.Init();
+// 	m_playerUI.Init();
 	m_ui->edt_mac->setText(m_macClient);
 	CheckLisence();
 	setParent(&m_bkgUI);
@@ -189,6 +191,12 @@ void MainWindow::PostMsgThread(int cmpParam)
 			|| (-1 != cmpParam && input.cmpParam != cmpParam))
 			continue;
 
+#ifdef DEV_VER
+		m_ui->edt_cmpPic->setText(QString::fromLocal8Bit("[").toStdString().append(std::to_string(index)).append("]").c_str());
+
+		// 		AddTipInfo(std::string("handle index:").append(std::to_string(index)).c_str());
+#endif
+
 		//初始化输入开始时间
 		if (!input.bInitStartTimeFlag)
 		{
@@ -201,6 +209,11 @@ void MainWindow::PostMsgThread(int cmpParam)
 		//判断延迟
 		if (GetTickCount() - input.startTime < (DWORD)input.delay)
 			break;
+
+		//等待类型的话，则继续判断是否已到时间
+		if (input.type == Wait && GetTickCount() - input.startTime < (DWORD)(input.waitTime * 1000))
+			break;
+
 
 		//查询图片是否超时
 		if (input.findPicOvertime != -1 && InputType::Pic == input.type && (GetTickCount() - input.startTime > (DWORD)(input.findPicOvertime + input.delay)))
@@ -215,12 +228,6 @@ void MainWindow::PostMsgThread(int cmpParam)
 			}
 			continue;
 		}
-
-#ifdef DEV_VER
-		m_ui->edt_cmpPic->setText(QString::fromLocal8Bit("[").toStdString().append(std::to_string(index)).append("]").c_str());
-
-// 		AddTipInfo(std::string("handle index:").append(std::to_string(index)).c_str());
-#endif
 
 		switch (input.type)
 		{
@@ -490,10 +497,28 @@ void MainWindow::GetInputData(InputData &input)
 	input.type = (InputType)m_ui->cb_inputType->currentIndex();
 	input.opType = (OpType)m_ui->cb_opType->currentIndex();
 	input.delay = m_ui->edt_delay->text().toShort();
+	input.waitTime = m_ui->edt_timeCount->text().toInt();
 	input.vk = m_ui->edt_vk->text().toLocal8Bit()[0];
 	input.repeatCount = m_ui->edt_repeat->text().toShort();
 	input.cmpParam = m_ui->edt_cmpParam->text().toInt();
 	input.outputParam = m_ui->edt_outputParam->text().toInt();
+	//change comment to fix string
+	if (input.type == Jump)
+	{
+		strcpy_s(input.comment, PATH_LEN, "[跳转]");
+	}
+	else if (input.type == Log)
+	{
+		strcpy_s(input.comment, PATH_LEN, "[日志]");
+	}
+	else if (input.type == StopScript)
+	{
+		strcpy_s(input.comment, PATH_LEN, "[停止]");
+	}
+	else if (input.type == Wait)
+	{
+		strcpy_s(input.comment, PATH_LEN, "[等待]");
+	}
 
 	if (InputType::StopScript == input.type)
 	{
@@ -584,7 +609,8 @@ void MainWindow::UpdateInputDataUI( int index )
 		m_ui->cb_inputType->setCurrentIndex( it->type );
 		m_ui->cb_opType->setCurrentIndex( it->opType );
 		m_ui->edt_vk->setText( std::string( 1, it->vk ).c_str() );
-		m_ui->edt_delay->setText( std::to_string( it->delay ).c_str() );
+		m_ui->edt_delay->setText(std::to_string(it->delay).c_str());
+		m_ui->edt_timeCount->setText(std::to_string(it->waitTime).c_str());
 		m_ui->edt_comment->setText( QString::fromLocal8Bit( it->comment ) );
 		m_ui->edt_repeat->setText(std::to_string(it->repeatCount).c_str());
 		m_ui->edt_cmpParam->setText(std::to_string(it->cmpParam).c_str());
@@ -648,6 +674,43 @@ void MainWindow::InsertInputData(int index)
 		}
 	}
 
+	SetInputDataModel();
+}
+
+void MainWindow::OnBtnGetBattleTemplate()
+{
+	LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("module_battle_normal").c_str(), m_copyInputVec);
+
+	AddTipInfo(std::string("已复制战斗模版:").append("module_battle_normal").c_str());
+}
+
+void MainWindow::OnBtnGetBattleTemplate2()
+{
+	LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("module_battle_normal_scale").c_str(), m_copyInputVec);
+
+	AddTipInfo(std::string("已复制战斗模版2:").append("module_battle_normal_scale").c_str());
+}
+
+void MainWindow::OnBtnStartTimeCount()
+{
+	m_waitTime = GetTickCount();
+	m_timeCountTimer.connect(&m_timeCountTimer, &QTimer::timeout, [&]() {
+		m_ui->edt_timeCount->setText(QString::number((GetTickCount() - m_waitTime) / 1000));
+	});
+	m_timeCountTimer.start(500);
+}
+
+void MainWindow::OnBtnEndTimeCount()
+{
+	m_timeCountTimer.stop();
+
+	InputData input;
+	input.type = Wait;
+	strcpy_s(input.comment, MAX_PATH, "[等待]");
+	int secondCount = m_ui->edt_timeCount->text().toInt();
+	input.waitTime = secondCount;
+
+	m_inputVec.push_back(input);
 	SetInputDataModel();
 }
 
@@ -1162,26 +1225,47 @@ void MainWindow::TableViewInsertCopyInputDown()
 
 void MainWindow::TableViewPasteOverwriteInput()
 {
-	auto model = m_ui->tv_inputVec->selectionModel();
-	if (model->hasSelection())
+	if (m_inputVec.size())
 	{
-		auto indexList = model->selectedIndexes();
-		int index = indexList[0].row();
-
-		if (indexList.size() != m_copyInputVec.size())
+		auto model = m_ui->tv_inputVec->selectionModel();
+		if (model->hasSelection())
 		{
-			ShowMessageBox("复制的行数和要粘贴覆盖的行数不一致");
-			return;
+			auto indexList = model->selectedIndexes();
+			int index = indexList[0].row();
+	
+			if (indexList.size() != m_copyInputVec.size())
+			{
+				ShowMessageBox("复制的行数和要粘贴覆盖的行数不一致");
+				return;
+			}
+	
+			int alreadOverwriteNum = 0;
+			for (auto &index : indexList)
+			{
+				m_inputVec[index.row()] = m_copyInputVec[alreadOverwriteNum++];
+			}
+	
+			SetInputDataModel();
+			SetTableViewIndex(index);
 		}
-
-		int alreadOverwriteNum = 0;
-		for (auto &index : indexList)
+// 		else
+// 		{
+// 			for (auto &input : m_copyInputVec)
+// 			{
+// 				m_inputVec.push_back(input);
+// 			}
+// 			SetInputDataModel();
+// 		}
+	} 
+	else
+	{
+		for (auto &input : m_copyInputVec)
 		{
-			m_inputVec[index.row()] = m_copyInputVec[alreadOverwriteNum++];
+			m_inputVec.push_back(input);
 		}
 
 		SetInputDataModel();
-		SetTableViewIndex(index);
+		SetTableViewIndex(0);
 	}
 }
 
@@ -1637,6 +1721,9 @@ void MainWindow::SetInputDataModel()
 			case 28:
 				m_inputDataModel.setData(index, m_inputVec[i].outputParam);
 				break;
+			case 29:
+				m_inputDataModel.setData(index, m_inputVec[i].waitTime);
+				break;
 			default:
 			{
 				m_inputDataModel.setData(index, "default data");
@@ -1742,6 +1829,9 @@ void MainWindow::GetInputDataFromModel(int row, int col)
 		break;
 	case 28:
 		m_inputVec[i].outputParam = m_inputDataModel.data(index).toString().toInt();
+		break;
+	case 29:
+		m_inputVec[i].waitTime = m_inputDataModel.data(index).toString().toInt();
 		break;
 	default:
 	{
@@ -1919,8 +2009,9 @@ void MainWindow::InitGameWindow()
 		UpdateGameWindowSize();
 
 		//检测游戏本体窗口是否已经设置到了指定大小
-		m_checkGameWndSizeTimer.stop();
-		m_checkGameWndSizeTimer.start(1000);
+		//暂时放弃自动调整窗口大小了，问题太多，一时半会儿改不好，让玩家自己保证游戏窗口的分辨率为960，540，以后都统一用这个了
+// 		m_checkGameWndSizeTimer.stop();
+// 		m_checkGameWndSizeTimer.start(1000);
 	}
 }
 
@@ -1930,6 +2021,11 @@ void MainWindow::UpdateGameWindowSize()
 	GetWindowRect(m_hGameWnd, &rect);
 	m_gameWndSize.x = rect.right - rect.left;
 	m_gameWndSize.y = rect.bottom - rect.top;
+
+	if (m_gameWndSize.x != m_wndWidth || m_gameWndSize.y != m_wndHeight)
+	{
+		ShowMessageBox("您的游戏分辨率已经不是960x540，请调整好后重新开启脚本挂机");
+	}
 }
 
 void MainWindow::CheckGameWndSize()
@@ -1951,6 +2047,40 @@ void MainWindow::SetSimWndType(SimWndType type)
 	m_simWndType = type;
 }
 
+void MainWindow::OnReturnPressedResolutionRateX()
+{
+	int width = m_ui->edt_wndWidth->text().toInt();
+	ResolutionRateType type = (ResolutionRateType)m_ui->cb_resolutionRate->currentIndex();
+	switch (type)
+	{
+	case Rate169:
+		m_ui->edt_wndHeight->setText(QString::number(int(width / 1.777777777777778)));
+		break;
+	case Rate1610:
+		m_ui->edt_wndHeight->setText(QString::number(int(width / 1.6)));
+		break;
+	default:
+		break;
+	}
+}
+
+void MainWindow::OnReturnPressedResolutionRateY()
+{
+	int height = m_ui->edt_wndHeight->text().toInt();
+	ResolutionRateType type = (ResolutionRateType)m_ui->cb_resolutionRate->currentIndex();
+	switch (type)
+	{
+	case Rate169:
+		m_ui->edt_wndWidth->setText(QString::number(int(height * 1.777777777777778)));
+		break;
+	case Rate1610:
+		m_ui->edt_wndWidth->setText(QString::number(int(height * 1.6)));
+		break;
+	default:
+		break;
+	}
+}
+
 void SimWndInfo::SetGameWndSize(int width, int height)
 {
 	if (nullptr == gameWnd)
@@ -1961,8 +2091,8 @@ void SimWndInfo::SetGameWndSize(int width, int height)
 	UpdateRect();
 	
 	//n层窗口可以算出n-1层的比例，以主窗口为参考（比例1），算出其他相应的比例，就可以设置大小了
-	double rateW[MAX_LAYER - 1] = { 0 };
-	double rateH[MAX_LAYER - 1] = { 0 };
+	double rateW[MAX_LAYER] = { 0 };
+	double rateH[MAX_LAYER] = { 0 };
 	rateW[0] = 1.0;
 	rateH[0] = 1.0;
 
@@ -1979,7 +2109,12 @@ void SimWndInfo::SetGameWndSize(int width, int height)
 	//从最外层开始，逐层设置大小
 	for (int i = 0; i < totalFindLayer; ++i)
 	{
-		::SetWindowPos(layerWnd[i], HWND_BOTTOM, 0, 0, (width * rateW[totalFindLayer - 1 - i]), (height * rateH[totalFindLayer - 1 - i]), SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
+		if (!bSetSizeFlagVec[i])
+		{
+			continue;
+		}
+
+		::SetWindowPos(layerWnd[i], HWND_BOTTOM, 0, 0, (width * rateW[totalFindLayer - 1] / rateW[i]), (height *  rateH[totalFindLayer - 1] / rateH[i]), SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
 		InvalidateRect(layerWnd[i], nullptr, TRUE);
 		Sleep(200);
 	}

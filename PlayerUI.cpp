@@ -188,6 +188,10 @@ void PlayerUI::UpdateMapRecognizeInputDataVector(int cmpParam)
 		if (GetTickCount() - input.startTime < (DWORD)input.delay)
 			break;
 
+		//等待类型的话，则继续判断是否已到时间
+		if (input.type == Wait && GetTickCount() - input.startTime < (DWORD)(input.waitTime * 1000))
+			break;
+
 		//查询图片是否超时
 		if (input.findPicOvertime != -1 && InputType::Pic == input.type && (GetTickCount() - input.startTime > (DWORD)(input.findPicOvertime + input.delay)))
 		{
@@ -313,6 +317,10 @@ void PlayerUI::UpdateNormalInputDataVector(int cmpParam, std::vector<InputData> 
 
 		//判断延迟
 		if (GetTickCount() - input.startTime < (DWORD)input.delay)
+			break;
+
+		//等待类型的话，则继续判断是否已到时间
+		if (input.type == Wait && GetTickCount() - input.startTime < (DWORD)(input.waitTime * 1000))
 			break;
 
 		//查询图片是否超时

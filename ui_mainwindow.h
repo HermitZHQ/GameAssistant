@@ -57,7 +57,6 @@ public:
     QPushButton *btn_save;
     QLineEdit *edt_saveName;
     QLabel *label_12;
-    QPushButton *btn_updateSelectInpu;
     QLabel *label_14;
     QLineEdit *edt_picPath;
     QLabel *label_15;
@@ -101,21 +100,29 @@ public:
     QLineEdit *edt_outputParam;
     QLabel *label_27;
     QLineEdit *edt_cmpParam;
+    QComboBox *cb_resolutionRate;
+    QPushButton *btn_getBattleTemplate;
+    QPushButton *btn_startTimeCount;
+    QPushButton *btn_endTimeCount;
+    QLineEdit *edt_timeCount;
+    QLabel *label_31;
+    QLabel *label_32;
+    QPushButton *btn_getBattleTemplate_2;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
         MainWindow->setEnabled(true);
-        MainWindow->resize(932, 714);
+        MainWindow->resize(932, 756);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         btn_start = new QPushButton(centralWidget);
         btn_start->setObjectName(QString::fromUtf8("btn_start"));
-        btn_start->setGeometry(QRect(840, 680, 81, 28));
+        btn_start->setGeometry(QRect(840, 720, 81, 28));
         btn_stop = new QPushButton(centralWidget);
         btn_stop->setObjectName(QString::fromUtf8("btn_stop"));
-        btn_stop->setGeometry(QRect(750, 680, 81, 28));
+        btn_stop->setGeometry(QRect(750, 720, 81, 28));
         list_tip = new QListWidget(centralWidget);
         list_tip->setObjectName(QString::fromUtf8("list_tip"));
         list_tip->setGeometry(QRect(10, 160, 331, 141));
@@ -133,6 +140,7 @@ public:
         edt_wndName2->setObjectName(QString::fromUtf8("edt_wndName2"));
         edt_wndName2->setGeometry(QRect(90, 40, 211, 21));
         cb_inputType = new QComboBox(centralWidget);
+        cb_inputType->addItem(QString());
         cb_inputType->addItem(QString());
         cb_inputType->addItem(QString());
         cb_inputType->addItem(QString());
@@ -165,7 +173,7 @@ public:
         btn_addInput->setGeometry(QRect(670, 280, 81, 28));
         label_6 = new QLabel(centralWidget);
         label_6->setObjectName(QString::fromUtf8("label_6"));
-        label_6->setGeometry(QRect(740, 10, 81, 21));
+        label_6->setGeometry(QRect(740, 10, 51, 21));
         edt_delay = new QLineEdit(centralWidget);
         edt_delay->setObjectName(QString::fromUtf8("edt_delay"));
         edt_delay->setGeometry(QRect(740, 30, 71, 21));
@@ -195,10 +203,15 @@ public:
         edt_y2->setGeometry(QRect(550, 80, 81, 21));
         label_11 = new QLabel(centralWidget);
         label_11->setObjectName(QString::fromUtf8("label_11"));
-        label_11->setGeometry(QRect(650, 210, 61, 21));
+        label_11->setGeometry(QRect(650, 210, 71, 21));
+        QFont font;
+        font.setBold(true);
+        font.setWeight(75);
+        label_11->setFont(font);
         edt_repeat = new QLineEdit(centralWidget);
         edt_repeat->setObjectName(QString::fromUtf8("edt_repeat"));
         edt_repeat->setGeometry(QRect(650, 230, 61, 21));
+        edt_repeat->setFont(font);
         btn_save = new QPushButton(centralWidget);
         btn_save->setObjectName(QString::fromUtf8("btn_save"));
         btn_save->setGeometry(QRect(850, 220, 71, 28));
@@ -208,9 +221,6 @@ public:
         label_12 = new QLabel(centralWidget);
         label_12->setObjectName(QString::fromUtf8("label_12"));
         label_12->setGeometry(QRect(650, 160, 241, 20));
-        btn_updateSelectInpu = new QPushButton(centralWidget);
-        btn_updateSelectInpu->setObjectName(QString::fromUtf8("btn_updateSelectInpu"));
-        btn_updateSelectInpu->setGeometry(QRect(530, 680, 101, 28));
         label_14 = new QLabel(centralWidget);
         label_14->setObjectName(QString::fromUtf8("label_14"));
         label_14->setGeometry(QRect(650, 110, 61, 21));
@@ -231,22 +241,28 @@ public:
         edt_cmpPic->setGeometry(QRect(350, 280, 71, 21));
         label_17 = new QLabel(centralWidget);
         label_17->setObjectName(QString::fromUtf8("label_17"));
-        label_17->setGeometry(QRect(450, 210, 61, 21));
+        label_17->setGeometry(QRect(450, 210, 71, 21));
+        label_17->setFont(font);
         edt_findPicOvertime = new QLineEdit(centralWidget);
         edt_findPicOvertime->setObjectName(QString::fromUtf8("edt_findPicOvertime"));
         edt_findPicOvertime->setGeometry(QRect(450, 230, 71, 21));
+        edt_findPicOvertime->setFont(font);
         label_18 = new QLabel(centralWidget);
         label_18->setObjectName(QString::fromUtf8("label_18"));
-        label_18->setGeometry(QRect(350, 110, 91, 21));
+        label_18->setGeometry(QRect(350, 110, 101, 21));
+        label_18->setFont(font);
         edt_succeedJump = new QLineEdit(centralWidget);
         edt_succeedJump->setObjectName(QString::fromUtf8("edt_succeedJump"));
         edt_succeedJump->setGeometry(QRect(350, 130, 71, 21));
+        edt_succeedJump->setFont(font);
         label_19 = new QLabel(centralWidget);
         label_19->setObjectName(QString::fromUtf8("label_19"));
-        label_19->setGeometry(QRect(350, 159, 91, 21));
+        label_19->setGeometry(QRect(350, 159, 101, 21));
+        label_19->setFont(font);
         edt_overtimeJump = new QLineEdit(centralWidget);
         edt_overtimeJump->setObjectName(QString::fromUtf8("edt_overtimeJump"));
         edt_overtimeJump->setGeometry(QRect(350, 180, 71, 20));
+        edt_overtimeJump->setFont(font);
         label_20 = new QLabel(centralWidget);
         label_20->setObjectName(QString::fromUtf8("label_20"));
         label_20->setGeometry(QRect(450, 260, 111, 21));
@@ -292,10 +308,10 @@ public:
         label_24->setGeometry(QRect(20, 70, 61, 21));
         edt_comment = new QLineEdit(centralWidget);
         edt_comment->setObjectName(QString::fromUtf8("edt_comment"));
-        edt_comment->setGeometry(QRect(90, 70, 331, 21));
+        edt_comment->setGeometry(QRect(90, 70, 251, 21));
         btn_updateAllInput = new QPushButton(centralWidget);
         btn_updateAllInput->setObjectName(QString::fromUtf8("btn_updateAllInput"));
-        btn_updateAllInput->setGeometry(QRect(640, 680, 101, 28));
+        btn_updateAllInput->setGeometry(QRect(640, 720, 101, 28));
         label_25 = new QLabel(centralWidget);
         label_25->setObjectName(QString::fromUtf8("label_25"));
         label_25->setGeometry(QRect(310, 10, 51, 21));
@@ -328,7 +344,7 @@ public:
         edt_mac->setGeometry(QRect(130, 100, 141, 21));
         tv_inputVec = new QTableView(centralWidget);
         tv_inputVec->setObjectName(QString::fromUtf8("tv_inputVec"));
-        tv_inputVec->setGeometry(QRect(10, 310, 911, 361));
+        tv_inputVec->setGeometry(QRect(10, 310, 911, 401));
         label_13 = new QLabel(centralWidget);
         label_13->setObjectName(QString::fromUtf8("label_13"));
         label_13->setGeometry(QRect(840, 10, 61, 21));
@@ -342,6 +358,32 @@ public:
         edt_cmpParam = new QLineEdit(centralWidget);
         edt_cmpParam->setObjectName(QString::fromUtf8("edt_cmpParam"));
         edt_cmpParam->setGeometry(QRect(840, 30, 71, 21));
+        cb_resolutionRate = new QComboBox(centralWidget);
+        cb_resolutionRate->addItem(QString());
+        cb_resolutionRate->addItem(QString());
+        cb_resolutionRate->setObjectName(QString::fromUtf8("cb_resolutionRate"));
+        cb_resolutionRate->setGeometry(QRect(360, 70, 61, 22));
+        btn_getBattleTemplate = new QPushButton(centralWidget);
+        btn_getBattleTemplate->setObjectName(QString::fromUtf8("btn_getBattleTemplate"));
+        btn_getBattleTemplate->setGeometry(QRect(10, 720, 81, 28));
+        btn_startTimeCount = new QPushButton(centralWidget);
+        btn_startTimeCount->setObjectName(QString::fromUtf8("btn_startTimeCount"));
+        btn_startTimeCount->setGeometry(QRect(286, 720, 81, 28));
+        btn_endTimeCount = new QPushButton(centralWidget);
+        btn_endTimeCount->setObjectName(QString::fromUtf8("btn_endTimeCount"));
+        btn_endTimeCount->setGeometry(QRect(376, 720, 81, 28));
+        edt_timeCount = new QLineEdit(centralWidget);
+        edt_timeCount->setObjectName(QString::fromUtf8("edt_timeCount"));
+        edt_timeCount->setGeometry(QRect(234, 720, 31, 28));
+        label_31 = new QLabel(centralWidget);
+        label_31->setObjectName(QString::fromUtf8("label_31"));
+        label_31->setGeometry(QRect(270, 725, 16, 21));
+        label_32 = new QLabel(centralWidget);
+        label_32->setObjectName(QString::fromUtf8("label_32"));
+        label_32->setGeometry(QRect(200, 724, 31, 21));
+        btn_getBattleTemplate_2 = new QPushButton(centralWidget);
+        btn_getBattleTemplate_2->setObjectName(QString::fromUtf8("btn_getBattleTemplate_2"));
+        btn_getBattleTemplate_2->setGeometry(QRect(100, 720, 81, 28));
         MainWindow->setCentralWidget(centralWidget);
 
         retranslateUi(MainWindow);
@@ -349,7 +391,6 @@ public:
         QObject::connect(btn_stop, SIGNAL(clicked()), MainWindow, SLOT(OnBtnStopClick()));
         QObject::connect(btn_addInput, SIGNAL(clicked()), MainWindow, SLOT(OnBtnAddInput()));
         QObject::connect(btn_save, SIGNAL(clicked()), MainWindow, SLOT(OnBtnSaveClick()));
-        QObject::connect(btn_updateSelectInpu, SIGNAL(clicked()), MainWindow, SLOT(OnBtnUpdateSelectInputClick()));
         QObject::connect(btn_insertInput, SIGNAL(clicked()), MainWindow, SLOT(OnBtnInsertInputClick()));
         QObject::connect(btn_delAllInput_2, SIGNAL(clicked()), MainWindow, SLOT(OnBtnClearTipInfo()));
         QObject::connect(btn_openFileDialog, SIGNAL(clicked()), MainWindow, SLOT(OnBtnOpenFileDialog()));
@@ -357,6 +398,12 @@ public:
         QObject::connect(btn_updateAllInput, SIGNAL(clicked()), MainWindow, SLOT(OnBtnUpdateAllInput()));
         QObject::connect(btn_lisence, SIGNAL(clicked()), MainWindow, SLOT(OnBtnLisence()));
         QObject::connect(btn_lisenceInfo, SIGNAL(clicked()), MainWindow, SLOT(OnBtnLisenceInfo()));
+        QObject::connect(edt_wndWidth, SIGNAL(returnPressed()), MainWindow, SLOT(OnReturnPressedResolutionRateX()));
+        QObject::connect(edt_wndHeight, SIGNAL(returnPressed()), MainWindow, SLOT(OnReturnPressedResolutionRateY()));
+        QObject::connect(btn_getBattleTemplate, SIGNAL(clicked()), MainWindow, SLOT(OnBtnGetBattleTemplate()));
+        QObject::connect(btn_startTimeCount, SIGNAL(clicked()), MainWindow, SLOT(OnBtnStartTimeCount()));
+        QObject::connect(btn_endTimeCount, SIGNAL(clicked()), MainWindow, SLOT(OnBtnEndTimeCount()));
+        QObject::connect(btn_getBattleTemplate_2, SIGNAL(clicked()), MainWindow, SLOT(OnBtnGetBattleTemplate2()));
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -376,6 +423,7 @@ public:
         cb_inputType->setItemText(3, QApplication::translate("MainWindow", "\345\201\234\346\255\242\350\204\232\346\234\254", nullptr));
         cb_inputType->setItemText(4, QApplication::translate("MainWindow", "\350\276\223\345\207\272\346\227\245\345\277\227", nullptr));
         cb_inputType->setItemText(5, QApplication::translate("MainWindow", "\345\221\275\344\273\244\350\267\263\350\275\254", nullptr));
+        cb_inputType->setItemText(6, QApplication::translate("MainWindow", "\347\255\211\345\276\205", nullptr));
 
         label_3->setText(QApplication::translate("MainWindow", "\350\276\223\345\205\245\347\261\273\345\236\213", nullptr));
         label_4->setText(QApplication::translate("MainWindow", "\346\223\215\344\275\234\347\261\273\345\236\213", nullptr));
@@ -387,7 +435,7 @@ public:
         label_5->setText(QApplication::translate("MainWindow", "\350\231\232\346\213\237\346\214\211\351\224\256\345\200\274", nullptr));
         edt_vk->setText(QApplication::translate("MainWindow", "G", nullptr));
         btn_addInput->setText(QApplication::translate("MainWindow", "\346\267\273\345\212\240\350\276\223\345\205\245", nullptr));
-        label_6->setText(QApplication::translate("MainWindow", "\345\273\266\350\277\237\357\274\210\346\257\253\347\247\222\357\274\211", nullptr));
+        label_6->setText(QApplication::translate("MainWindow", "\345\273\266\350\277\237ms", nullptr));
         edt_delay->setText(QApplication::translate("MainWindow", "100", nullptr));
         label_7->setText(QApplication::translate("MainWindow", "\351\274\240\346\240\207X", nullptr));
         edt_x->setText(QApplication::translate("MainWindow", "1", nullptr));
@@ -402,7 +450,6 @@ public:
         btn_save->setText(QApplication::translate("MainWindow", "\344\277\235\345\255\230\351\205\215\347\275\256", nullptr));
         edt_saveName->setText(QString());
         label_12->setText(QApplication::translate("MainWindow", "\346\226\207\344\273\266\344\275\215\347\275\256\357\274\232\351\273\230\350\256\244\344\277\235\345\255\230\345\234\250D:/QtSave\344\270\213", nullptr));
-        btn_updateSelectInpu->setText(QApplication::translate("MainWindow", "\346\233\264\346\226\260\351\200\211\344\270\255\345\221\275\344\273\244", nullptr));
         label_14->setText(QApplication::translate("MainWindow", "\345\233\276\347\211\207\350\267\257\345\276\204", nullptr));
         edt_picPath->setText(QString());
         label_15->setText(QApplication::translate("MainWindow", "\345\257\271\346\257\224\347\233\270\344\274\274\345\272\246", nullptr));
@@ -439,8 +486,8 @@ public:
         btn_updateAllInput->setText(QApplication::translate("MainWindow", "\346\233\264\346\226\260\346\211\200\346\234\211\345\221\275\344\273\244", nullptr));
         label_25->setText(QApplication::translate("MainWindow", "\347\252\227\345\217\243\345\256\275", nullptr));
         label_26->setText(QApplication::translate("MainWindow", "\347\252\227\345\217\243\351\253\230", nullptr));
-        edt_wndWidth->setText(QApplication::translate("MainWindow", "888", nullptr));
-        edt_wndHeight->setText(QApplication::translate("MainWindow", "499", nullptr));
+        edt_wndWidth->setText(QApplication::translate("MainWindow", "960", nullptr));
+        edt_wndHeight->setText(QApplication::translate("MainWindow", "540", nullptr));
         btn_lisence->setText(QApplication::translate("MainWindow", "\347\224\237\346\210\220\350\256\270\345\217\257", nullptr));
         edt_month->setText(QApplication::translate("MainWindow", "0", nullptr));
         label_29->setText(QApplication::translate("MainWindow", "\344\270\252\346\234\210", nullptr));
@@ -451,6 +498,16 @@ public:
         edt_outputParam->setText(QApplication::translate("MainWindow", "0", nullptr));
         label_27->setText(QApplication::translate("MainWindow", "\350\276\223\345\207\272\345\217\202\346\225\260", nullptr));
         edt_cmpParam->setText(QApplication::translate("MainWindow", "0", nullptr));
+        cb_resolutionRate->setItemText(0, QApplication::translate("MainWindow", "16:9", nullptr));
+        cb_resolutionRate->setItemText(1, QApplication::translate("MainWindow", "16:10", nullptr));
+
+        btn_getBattleTemplate->setText(QApplication::translate("MainWindow", "\346\210\230\346\226\227\346\250\241\347\211\2101", nullptr));
+        btn_startTimeCount->setText(QApplication::translate("MainWindow", "\345\274\200\345\247\213\350\256\241\346\227\266", nullptr));
+        btn_endTimeCount->setText(QApplication::translate("MainWindow", "\347\273\223\346\235\237\350\256\241\346\227\266", nullptr));
+        edt_timeCount->setText(QApplication::translate("MainWindow", "999", nullptr));
+        label_31->setText(QApplication::translate("MainWindow", "\347\247\222", nullptr));
+        label_32->setText(QApplication::translate("MainWindow", "\347\255\211\345\276\205", nullptr));
+        btn_getBattleTemplate_2->setText(QApplication::translate("MainWindow", "\346\210\230\346\226\227\346\250\241\347\211\2102", nullptr));
     } // retranslateUi
 
 };

@@ -26,6 +26,12 @@ OutputDebugStringA(cTmp);\
 #define DEFAULT_PIC_PATH ("./QtSave/zz/")
 #define DEFAULT_MODULE_PATH ("./QtSave/Module/")
 
+enum ResolutionRateType
+{
+	Rate169,//default
+	Rate1610
+};
+
 struct CSize
 {
 	int			x;
