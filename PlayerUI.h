@@ -74,6 +74,71 @@ enum ZZ_Cmp_Param
 	Map_Daily,
 };
 
+class PlayerUI;
+class ThreadMapStatus : public QThread
+{
+	Q_OBJECT
+		void run() override;
+public:
+	ThreadMapStatus( QObject *parent = nullptr )
+		:QThread( parent )
+		, m_parent( ( PlayerUI* )parent )
+	{}
+signals:
+	void resultReady( const QString &s );
+
+private:
+	PlayerUI										*m_parent;
+};
+
+class ThreadMapRecognize : public QThread
+{
+	Q_OBJECT
+		void run() override;
+public:
+	ThreadMapRecognize( QObject *parent = nullptr )
+		:QThread( parent )
+		, m_parent( ( PlayerUI* )parent )
+	{}
+signals:
+	void resultReady( const QString &s );
+
+private:
+	PlayerUI										*m_parent;
+};
+
+class ThreadNextStep : public QThread
+{
+	Q_OBJECT
+		void run() override;
+public:
+	ThreadNextStep( QObject *parent = nullptr )
+		:QThread( parent )
+		, m_parent( ( PlayerUI* )parent )
+	{}
+signals:
+	void resultReady( const QString &s );
+
+private:
+	PlayerUI										*m_parent;
+};
+
+class ThreadMapPosSelect : public QThread
+{
+	Q_OBJECT
+		void run() override;
+public:
+	ThreadMapPosSelect( QObject *parent = nullptr )
+		:QThread( parent )
+		, m_parent( ( PlayerUI* )parent )
+	{}
+signals:
+	void resultReady( const QString &s );
+
+private:
+	PlayerUI										*m_parent;
+};
+
 class MainWindow;
 class PlayerUI : public QWidget
 {
@@ -98,6 +163,10 @@ public:
 		return m_bRunThreadFlag;
 	}
 
+	inline bool GetPauseThreadFlag() {
+		return m_bPauseThreadFlag;
+	}
+
 public slots:
 	void handleResults(const QString &);
 signals:
@@ -119,6 +188,7 @@ private slots:
 	void OnBtnStartAuto();
 
 private:
+	bool											m_bInitFlag;
 	Ui::PlayerUI									*m_ui;
 	MainWindow										*m_mainWnd;
 	std::unordered_map<ZZ_Specific, QString>		m_specificLevelScriptMap;
@@ -150,7 +220,9 @@ private:
 	QTimer											m_updateScriptTimer;
 	bool											m_bInBattleFlag;
 	bool											m_bRunThreadFlag;
+	bool											m_bPauseThreadFlag;
 	//此inputVec专门用于识别目前的游戏状态，比如在大厅，在机库，在准备战斗，正在战斗中等
+	ThreadMapStatus									m_threadMapStatus;
 	std::vector<InputData>							m_mapStatusInputVec;
 	int												m_mapStatusCmpParam;
 	int												m_mapStatusOutputParam;
@@ -158,27 +230,14 @@ private:
 	int												m_lastStatusParam;
 
 	//此inputVec专门用于开启挂机后来点击下一步，开始战斗，以及战斗结算还有跳过对话，跳过错误用，就不用一直在其他脚本中重复写了
+	ThreadNextStep									m_threadNextStep;
 	std::vector<InputData>							m_nextStepInputVec;
 
 	//此inputVec专门用于根据挂机设置和获取到的游戏状态来自动切换于各个脚本之间（比如切换找赏金图片，找每日图片，找特定fb图标）
+	ThreadMapPosSelect								m_threadMapPosSelect;
 	std::vector<InputData>							m_mapPosSelectInputVec;
 
 	//此inputVec专门用于侦测所有地图（加对比参数忽略特定地图）
+	ThreadMapRecognize								m_threadMapRecognize;
 	std::vector<InputData>							m_mapRecognizeInputVec;
-};
-
-class Worker1 : public QThread
-{
-	Q_OBJECT
-		void run() override;
-public:
-	Worker1(QObject *parent)
-		:QThread(parent)
-		, m_parent((PlayerUI*)parent)
-	{}
-signals:
-	void resultReady(const QString &s);
-
-private:
-	PlayerUI										*m_parent;
 };

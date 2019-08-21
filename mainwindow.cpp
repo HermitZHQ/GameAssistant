@@ -111,6 +111,11 @@ MainWindow::MainWindow(QWidget *parent) :
 	}
 
 
+	m_logTimer.connect( &m_logTimer, &QTimer::timeout, this, &MainWindow::LogTimerFunc );
+	m_logTimer.start( 50 );
+	m_msgBoxTimer.connect( &m_msgBoxTimer, &QTimer::timeout, this, &MainWindow::MessageBoxTimerFunc );
+	m_msgBoxTimer.start( 500 );
+
 #ifdef DEV_VER
 	m_ui->setupUi(this);
 	m_ui->edt_mac->setText(m_macClient);
@@ -138,7 +143,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	setParent(&m_bkgUI);
 	setVisible(false);
 	m_playerUI.setParent(&m_bkgUI);
-	m_playerUI.Init();
 	m_playerUI.show();
 	m_bkgUI.setGeometry(m_playerUI.geometry());
 #endif
@@ -720,11 +724,27 @@ void MainWindow::OnBtnClearTipInfo()
 
 void MainWindow::ShowMessageBox(const char *content)
 {
+	m_msgBoxInfoList.push_back( Q8( content ) );
+	if ( m_msgBoxInfoList.size() > 10 )
+	{
+		return;
+	}
+}
+
+void MainWindow::MessageBoxTimerFunc()
+{
+	if ( m_msgBoxInfoList.size() == 0 )
+	{
+		return;
+	}
+
 	QMessageBox mb;
-	mb.setWindowTitle("Info");
-	mb.setText(QString::fromLocal8Bit(content));
-	mb.setDefaultButton(QMessageBox::Ok);
+	mb.setWindowTitle( "Info" );
+	mb.setText( m_msgBoxInfoList[0] );
+	mb.setDefaultButton( QMessageBox::Ok );
 	mb.exec();
+
+	m_msgBoxInfoList.erase( m_msgBoxInfoList.begin() );
 }
 
 bool MainWindow::ShowConfirmBox(const char *str)
@@ -746,28 +766,39 @@ bool MainWindow::ShowConfirmBox(const char *str)
 
 void MainWindow::AddTipInfo(const char *str, bool bConvertFlag)
 {
-	if (strcmp(str, "delay") == 0)
+	m_logList.push_back( QTime::currentTime().toString().append( ":" ).append( bConvertFlag ? Q8( str ) : str ) );
+	if ( m_logList.size() > 500 )
+	{
+		m_logList.clear();
+	}
+}
+
+void MainWindow::LogTimerFunc()
+{
+	if ( m_logList.size() == 0 )
 	{
 		return;
 	}
 
 #ifdef DEV_VER
-	if (m_ui->list_tip->count() > 200)
+	if ( m_ui->list_tip->count() > 200 )
 	{
 		m_ui->list_tip->clear();
 	}
 
-	m_ui->list_tip->addItem((bConvertFlag ? (QTime::currentTime().toString().append(":").append(QString::fromLocal8Bit(str))) : QTime::currentTime().toString().append(":").append(str)));
+	m_ui->list_tip->addItem( m_logList[0] );
 	m_ui->list_tip->scrollToBottom();
 #else
-	if (m_playerUI.GetUI()->list_tip->count() > 200)
+	if ( m_playerUI.GetUI()->list_tip->count() > 200 )
 	{
 		m_playerUI.GetUI()->list_tip->clear();
 	}
 
-	m_playerUI.GetUI()->list_tip->addItem((bConvertFlag ? (QTime::currentTime().toString().append(":").append(QString::fromLocal8Bit(str))) : QTime::currentTime().toString().append(":").append(str)));
+	m_playerUI.GetUI()->list_tip->addItem( m_logList[0] );
 	m_playerUI.GetUI()->list_tip->scrollToBottom();
 #endif
+
+	m_logList.erase( m_logList.begin() );
 }
 
 void MainWindow::OnBtnLisence()
@@ -2016,6 +2047,11 @@ void MainWindow::InitGameWindow()
 
 void MainWindow::UpdateGameWindowSize()
 {
+	if ( nullptr == m_hGameWnd )
+	{
+		return;
+	}
+
 	RECT rect;
 	GetWindowRect(m_hGameWnd, &rect);
 	m_gameWndSize.x = rect.right - rect.left;

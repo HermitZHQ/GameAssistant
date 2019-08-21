@@ -165,8 +165,10 @@ public slots:
 	void OnBtnClearTipInfo();
 
 	void ShowMessageBox(const char *content);
+	void MessageBoxTimerFunc();
 	bool ShowConfirmBox(const char *str);
 	void AddTipInfo(const char *str, bool bConvertFlag = true);
+	void LogTimerFunc();
 
 	//lisence
 	void OnBtnLisence();
@@ -236,6 +238,10 @@ private:
 	QTimer						m_delayTimer;
 	QTimer						m_captureUpdateTimer;
 	QTimer						m_checkGameWndSizeTimer;
+	QTimer						m_logTimer;
+	QTimer						m_msgBoxTimer;
+	QList<QString>				m_logList;
+	QList<QString>				m_msgBoxInfoList;
 	long						m_year;
 	long						m_month;
 	long						m_day;

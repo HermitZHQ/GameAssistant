@@ -6,6 +6,13 @@
 PlayerUI::PlayerUI(MainWindow *wnd) :
 	m_ui(new Ui::PlayerUI)
 	, m_mainWnd(wnd)
+	, m_threadMapStatus(this)
+	, m_threadMapRecognize(this)
+	, m_threadMapPosSelect(this)
+	, m_threadNextStep(this)
+	, m_bRunThreadFlag(false)
+	, m_bPauseThreadFlag(false)
+
 	, m_specificLevelScriptMap({
 		{Nefud_1E, QString(DEFAULT_PATH).append("zz_map_nefud-1e")},
 		{Hecate_1E, QString(DEFAULT_PATH).append("zz_map_hecate-1e")},
@@ -28,6 +35,7 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	, m_mapStatusOutputParam(0)
 	, m_lastStatusParam(-1)
 	, m_bInBattleFlag(false)
+	, m_bInitFlag(false)
 {
 	m_ui->setupUi(this);
 }
@@ -35,17 +43,55 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 PlayerUI::~PlayerUI()
 {
 	delete m_ui;
+
+	m_bRunThreadFlag = false;
+	m_bPauseThreadFlag = true;
+	m_threadMapStatus.quit();
+	m_threadMapStatus.wait();
+
+	m_threadMapRecognize.quit();
+	m_threadMapRecognize.wait();
+
+	m_threadMapPosSelect.quit();
+	m_threadMapPosSelect.wait();
+
+	m_threadNextStep.quit();
+	m_threadNextStep.wait();
 }
 
 void PlayerUI::Init()
 {
+	if ( m_bInitFlag )
+	{
+		return;
+	}
+
 	//链接对应timer的函数
 // 	m_updateScriptTimer.connect(&m_updateScriptTimer, &QTimer::timeout, this, &PlayerUI::UpdateAllScript);
 
 	//预先初始化不会变化的inputVec
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("map_status_recognize").c_str(), m_mapStatusInputVec);
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("next_step").c_str(), m_nextStepInputVec);
-	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("zz_map_recognize").c_str(), m_mapRecognizeInputVec);
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "zz_map_recognize" ).c_str(), m_mapRecognizeInputVec );
+
+	m_bPauseThreadFlag = true;
+	connect( &m_threadMapStatus, &ThreadMapStatus::resultReady, this, &PlayerUI::handleResults );
+	connect( &m_threadMapStatus, &ThreadMapStatus::finished, &m_threadMapStatus, &QObject::deleteLater );
+	m_threadMapStatus.start();
+
+	connect( &m_threadMapRecognize, &ThreadMapRecognize::resultReady, this, &PlayerUI::handleResults );
+	connect( &m_threadMapRecognize, &ThreadMapRecognize::finished, &m_threadMapRecognize, &QObject::deleteLater );
+	m_threadMapRecognize.start();
+
+	connect( &m_threadMapPosSelect, &ThreadMapPosSelect::resultReady, this, &PlayerUI::handleResults );
+	connect( &m_threadMapPosSelect, &ThreadMapPosSelect::finished, &m_threadMapPosSelect, &QObject::deleteLater );
+	m_threadMapPosSelect.start();
+
+	connect( &m_threadNextStep, &ThreadNextStep::resultReady, this, &PlayerUI::handleResults );
+	connect( &m_threadNextStep, &ThreadNextStep::finished, &m_threadNextStep, &QObject::deleteLater );
+	m_threadNextStep.start();
+
+	m_bInitFlag = true;
 }
 
 void PlayerUI::UpdateAllScript()
@@ -197,7 +243,9 @@ void PlayerUI::UpdateMapStatusInputDataVector(int cmpParam)
 			break;
 
 		//查询图片是否超时
-		if (input.findPicOvertime != -1 && InputType::Pic == input.type && (GetTickCount() - input.startTime > (DWORD)(input.findPicOvertime + input.delay)))
+		DWORD dwTime = GetTickCount() - input.startTime > ( DWORD )( input.findPicOvertime + input.delay );
+// 		m_mainWnd->AddTipInfo( std::string("cost time:").append(std::to_string(dwTime)).c_str() );
+		if (input.findPicOvertime != -1 && InputType::Pic == input.type && ( dwTime ))
 		{
 			input.bFindPicOvertimeFlag = true;
 			//判断超时指令跳转
@@ -356,6 +404,7 @@ void PlayerUI::UpdateNormalInputDataVector(int cmpParam, std::vector<InputData> 
 		{
 			inputVec.clear();
 			m_mainWnd->AddTipInfo("脚本已运行完毕，请手动选择其他脚本执行");
+			return;
 		}
 		break;
 		case Log:
@@ -423,9 +472,7 @@ void PlayerUI::UpdateNormalInputDataVector(int cmpParam, std::vector<InputData> 
 
 void PlayerUI::StopScritp()
 {
-	m_updateScriptTimer.stop();
-	m_bRunThreadFlag = false;
-
+	m_bPauseThreadFlag = true;
 	m_mapStatusOutputParam = 0;
 	m_lastStatusParam = -1;
 
@@ -437,6 +484,8 @@ void PlayerUI::StopScritp()
 
 void PlayerUI::StartScript()
 {
+	Init();
+
 	//start时重新获取一次挂机设置的延迟
 	m_emergencySetting.interval = m_ui->edt_emergencyInterval->text().toInt();
 	m_devSetting.interval = m_ui->edt_devInterval->text().toInt();
@@ -449,10 +498,8 @@ void PlayerUI::StartScript()
 	m_recruitSetting.StartAutoHandle();
 
 	m_bRunThreadFlag = true;
-	Worker1 *workerThread = new Worker1(this);
-	connect(workerThread, &Worker1::resultReady, this, &PlayerUI::handleResults);
-	connect(workerThread, &Worker1::finished, workerThread, &QObject::deleteLater);
-	workerThread->start();
+	m_bPauseThreadFlag = false;
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "zz_map_recognize" ).c_str(), m_mapRecognizeInputVec );
 } 
 
 void PlayerUI::OnBtnStop()
@@ -467,14 +514,71 @@ void PlayerUI::OnBtnStartAuto()
 }
 
 
-void Worker1::run()
+void ThreadMapStatus::run()
 {
 	QString result;
 	/* ... here is the expensive or blocking operation ... */
 	while (m_parent->GetRunThreadFlag())
 	{
-		m_parent->UpdateMapStatusRecognizeScript();
+		while (!m_parent->GetPauseThreadFlag())
+		{
+			m_parent->UpdateMapStatusRecognizeScript();
+// 			sleep( 1 );
+		}
+// 		sleep( 1 );
 	}
 
 	emit resultReady(result);
+}
+
+void ThreadMapRecognize::run()
+{
+	QString result;
+	/* ... here is the expensive or blocking operation ... */
+	while ( m_parent->GetRunThreadFlag() )
+	{
+		while (!m_parent->GetPauseThreadFlag())
+		{
+			m_parent->UpdateAllMapRecognizeAndBattleScript();
+// 			sleep( 1 );
+		}
+// 		sleep( 1 );
+	}
+
+	emit resultReady( result );
+}
+
+void ThreadNextStep::run()
+{
+	QString result;
+	/* ... here is the expensive or blocking operation ... */
+	while ( m_parent->GetRunThreadFlag() )
+	{
+		while (!m_parent->GetPauseThreadFlag())
+		{
+			m_parent->UpdateNextStepScript();
+// 			sleep( 1 );
+		}
+// 		sleep( 1 );
+	}
+
+	emit resultReady( result );
+}
+
+void ThreadMapPosSelect::run()
+{
+	QString result;
+	/* ... here is the expensive or blocking operation ... */
+	while ( m_parent->GetRunThreadFlag() )
+	{
+		while (!m_parent->GetPauseThreadFlag())
+		{
+			m_parent->UpdateMapPositionSelectScript();
+
+// 			sleep( 1 );
+		}
+// 		sleep( 1 );
+	}
+
+	emit resultReady( result );
 }

@@ -67,9 +67,6 @@
     <ClCompile Include="BkgUI.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerUI.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="InputDataModel.cpp">
       <Filter>Model</Filter>
     </ClCompile>
@@ -78,6 +75,9 @@
     </ClCompile>
     <ClCompile Include="CaptureInputDataMgr.cpp">
       <Filter>CaptureInputData</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerUI.cpp">
+      <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
