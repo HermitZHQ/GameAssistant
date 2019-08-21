@@ -3,6 +3,7 @@
 #include "QString"
 #include "PreDef.h"
 #include "Input.h"
+#include "QThread"
 
 namespace Ui {
 	class PlayerUI;
@@ -39,6 +40,7 @@ enum ZZ_Dev
 //相同范围内的枚举连续写，这样比较的时候可以写成范围比较
 enum ZZ_Map_Param
 {
+	//------非战斗中情况
 	Lobby = 1,//大厅
 	Dev,//开发
 	Team,//机库
@@ -49,12 +51,17 @@ enum ZZ_Map_Param
 	Battle_A2,
 	Battle_A3,
 	Battle_A4,
-	Battle_deploy = 11,//部署阶段
-	Battle_deployed = 12,//部署完成阶段（敌人开始行动，但是未接触没有真正进入战斗）
+	Evelyn_Story = 11,//个人剧情
+	StartQuestUI,//停止在开始任务的图标上（一般是刚刚从一场战斗退出）
+
+	//------战斗中的情况
+	Battle_deploy = 100,//部署阶段
+	Battle_deployed,//部署完成阶段（敌人开始行动，但是未接触没有真正进入战斗）
 	Battle_prepare,//战斗准备阶段（双方接触，但是未点击开始战斗时）
 	Battle,//真正在战斗中
-	Battle_end = 15,//整场战斗结束的结算界面
-	State_failed,//关卡失败界面
+	Battle_end,//整场战斗结束的结算界面
+	State_failed = 105,//关卡失败界面
+	Escort_failed,//货送失败
 };
 
 //参数从1开始，0为默认值，不进行处理
@@ -71,6 +78,7 @@ class MainWindow;
 class PlayerUI : public QWidget
 {
 	Q_OBJECT
+	QThread workerThread1;
 public:
 	PlayerUI(MainWindow *wnd);
 	~PlayerUI();
@@ -79,27 +87,35 @@ public:
 
 	void Init();
 
+	void UpdateAllScript();
 	void UpdateMapStatusRecognizeScript();
 	void UpdateNextStepScript();
 	void UpdateMapPositionSelectScript();
 	//根据用户设置，传入对比参数，忽略不需要对比的地图（这样我们就可以把所有的地图对比都放在一个脚本了，之前加的对比参数就有用了）
 	void UpdateAllMapRecognizeAndBattleScript();
 
+	inline bool GetRunThreadFlag() {
+		return m_bRunThreadFlag;
+	}
+
+public slots:
+	void handleResults(const QString &);
+signals:
+	void operate(const QString &);
+
 protected:
-	void UpdateMapRecognizeInputDataVector(int cmpParam);
+	void UpdateMapStatusInputDataVector(int cmpParam);
 	void UpdateNormalInputDataVector(int cmpParam, std::vector<InputData> &inputVec);
 	void StopScritp();
 	void StartScript();
 
+	inline bool NotInBattleFlag() {
+		return (m_mapStatusOutputParam >= ZZ_Map_Param::Lobby
+			&& m_mapStatusOutputParam <= ZZ_Map_Param::StartQuestUI);
+	}
+
 private slots:
 	void OnBtnStop();
-	void OnBtnA4Reward();
-	void OnBtnDaily();
-	void OnBtnNextStep();
-	void OnBtnDelegate();
-	void OnBtnDev();
-	void OnBtnRecruit();
-	void OnBtnSpecific();
 	void OnBtnStartAuto();
 
 private:
@@ -109,8 +125,32 @@ private:
 	std::unordered_map<ZZ_Delegate, QString>		m_specificDelegateScriptMap;
 	std::unordered_map<ZZ_Dev, QString>				m_specificDevScriptMap;
 
+	//具体游戏相关挂机设置
+	//间隔都以分钟计数
+	struct SettingInfo 
+	{
+		int						interval;
+		bool					bShouldExecFlag;
+		bool					bFinishedFlag;
+
+		void StartAutoHandle() 
+		{
+			bShouldExecFlag = false;
+			bFinishedFlag = false;
+			QTimer::singleShot(interval * (60 * 1000), [&]() {
+				bShouldExecFlag = true;
+			});
+		}
+	};
+	SettingInfo										m_emergencySetting;
+	SettingInfo										m_devSetting;
+	SettingInfo										m_delegateSetting;
+	SettingInfo										m_recruitSetting;
+
+	QTimer											m_updateScriptTimer;
+	bool											m_bInBattleFlag;
+	bool											m_bRunThreadFlag;
 	//此inputVec专门用于识别目前的游戏状态，比如在大厅，在机库，在准备战斗，正在战斗中等
-	QTimer											m_mapStatusTimer;
 	std::vector<InputData>							m_mapStatusInputVec;
 	int												m_mapStatusCmpParam;
 	int												m_mapStatusOutputParam;
@@ -118,17 +158,27 @@ private:
 	int												m_lastStatusParam;
 
 	//此inputVec专门用于开启挂机后来点击下一步，开始战斗，以及战斗结算还有跳过对话，跳过错误用，就不用一直在其他脚本中重复写了
-	QTimer											m_nextStepTimer;
 	std::vector<InputData>							m_nextStepInputVec;
-	int												m_nextStepCmpParam;
-	int												m_nextStepOutputParam;
 
 	//此inputVec专门用于根据挂机设置和获取到的游戏状态来自动切换于各个脚本之间（比如切换找赏金图片，找每日图片，找特定fb图标）
-	QTimer											m_mapPosSelectTimer;
 	std::vector<InputData>							m_mapPosSelectInputVec;
 
 	//此inputVec专门用于侦测所有地图（加对比参数忽略特定地图）
-	QTimer											m_mapRecognizeTimer;
 	std::vector<InputData>							m_mapRecognizeInputVec;
 };
 
+class Worker1 : public QThread
+{
+	Q_OBJECT
+		void run() override;
+public:
+	Worker1(QObject *parent)
+		:QThread(parent)
+		, m_parent((PlayerUI*)parent)
+	{}
+signals:
+	void resultReady(const QString &s);
+
+private:
+	PlayerUI										*m_parent;
+};

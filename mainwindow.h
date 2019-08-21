@@ -136,6 +136,10 @@ public:
 	void InsertClickOperation(int x, int y);
 	void InsertDragOperation(int x, int y, int x2, int y2);
 
+	PlayerUI& GetPlayerUI() {
+		return m_playerUI;
+	}
+
 public slots:
 	void PostMsgThread(int cmpParam = -1);
 

@@ -27,6 +27,7 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	, m_mapStatusCmpParam(-1)
 	, m_mapStatusOutputParam(0)
 	, m_lastStatusParam(-1)
+	, m_bInBattleFlag(false)
 {
 	m_ui->setupUi(this);
 }
@@ -39,10 +40,7 @@ PlayerUI::~PlayerUI()
 void PlayerUI::Init()
 {
 	//链接对应timer的函数
-	m_mapStatusTimer.connect(&m_mapStatusTimer, &QTimer::timeout, this, &PlayerUI::UpdateMapStatusRecognizeScript);
-	m_nextStepTimer.connect(&m_nextStepTimer, &QTimer::timeout, this, &PlayerUI::UpdateNextStepScript);
-	m_mapPosSelectTimer.connect(&m_mapPosSelectTimer, &QTimer::timeout, this, &PlayerUI::UpdateMapPositionSelectScript);
-	m_mapRecognizeTimer.connect(&m_mapRecognizeTimer, &QTimer::timeout, this, &PlayerUI::UpdateAllMapRecognizeAndBattleScript);
+// 	m_updateScriptTimer.connect(&m_updateScriptTimer, &QTimer::timeout, this, &PlayerUI::UpdateAllScript);
 
 	//预先初始化不会变化的inputVec
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("map_status_recognize").c_str(), m_mapStatusInputVec);
@@ -50,39 +48,41 @@ void PlayerUI::Init()
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("zz_map_recognize").c_str(), m_mapRecognizeInputVec);
 }
 
+void PlayerUI::UpdateAllScript()
+{
+// 	DWORD time = GetTickCount();
+	UpdateMapStatusRecognizeScript();
+	UpdateMapPositionSelectScript();
+	UpdateAllMapRecognizeAndBattleScript();
+	UpdateNextStepScript();
+// 	m_mainWnd->AddTipInfo(std::string("整个更新耗时：").append(std::to_string(GetTickCount() - time)).c_str());
+}
+
 void PlayerUI::UpdateMapStatusRecognizeScript()
 {
-	UpdateMapRecognizeInputDataVector(m_mapStatusCmpParam);
+	UpdateMapStatusInputDataVector(m_mapStatusCmpParam);
 
 	//根据状态开始和关闭对应的timer执行脚本，提高效率，减少错误点击
 	if (m_mapStatusOutputParam >= ZZ_Map_Param::Battle_deploy
 		&& m_mapStatusOutputParam <= ZZ_Map_Param::Battle_end)
 	{
-		if (!m_mapRecognizeTimer.isActive())
+		if (!m_bInBattleFlag)
 		{
+			m_bInBattleFlag = true;
+
 			//因为战斗脚本完成后，现在都会停止，不会跳转回地图查找，这样处理比较简单，否则还涉及到跳转回地图查找后又进入战斗脚本的问题，具体游戏这边的脚本更新都有所改动，停止脚本不再停止timer，而是把inputVec清空，所以当我们需要再次开启地图识别的时候，我们需要先加载识别文件（因为这时候vec是空）
 			m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("zz_map_recognize").c_str(), m_mapRecognizeInputVec);
-			m_mapRecognizeTimer.start(2);
-			m_mainWnd->AddTipInfo("已进入战斗场景");
+			m_mainWnd->AddTipInfo("已进入战斗场景--------");
 		}
 
-		if (m_mapPosSelectTimer.isActive())
-		{
-			m_mapPosSelectTimer.stop();
-		}
 	}
-	else if (m_mapStatusOutputParam >= ZZ_Map_Param::Lobby
-		&& m_mapStatusOutputParam <= ZZ_Map_Param::Battle_A4)
+	else if (NotInBattleFlag())
 	{
-		if (m_mapRecognizeTimer.isActive())
+		if (m_bInBattleFlag)
 		{
-			m_mapRecognizeTimer.stop();
-			m_mainWnd->AddTipInfo("已从战斗场景退出");
-		}
+			m_bInBattleFlag = false;
 
-		if (!m_mapPosSelectTimer.isActive())
-		{
-			m_mapPosSelectTimer.start(2);
+			m_mainWnd->AddTipInfo("已从战斗场景退出--------");
 		}
 	}
 }
@@ -91,7 +91,7 @@ void PlayerUI::UpdateNextStepScript()
 {
 	if (m_nextStepInputVec.size())
 	{
-		UpdateNormalInputDataVector(m_nextStepCmpParam, m_nextStepInputVec);
+		UpdateNormalInputDataVector(-1, m_nextStepInputVec);
 	}
 }
 
@@ -109,10 +109,9 @@ void PlayerUI::UpdateMapPositionSelectScript()
 		{
 			if (ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam)
 			{
-				m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("zz_battle_findIcon_a4_reward").c_str(), m_mapPosSelectInputVec);
+				m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("to_battle_main_reward_firstIcon").c_str(), m_mapPosSelectInputVec);
 			}
-			else if (m_mapStatusOutputParam >= ZZ_Map_Param::Lobby
-				&& m_mapStatusOutputParam <= ZZ_Map_Param::Battle_A4
+			else if (NotInBattleFlag()
 				&& m_mapStatusOutputParam != ZZ_Map_Param::Battle_Main)
 			{
 				m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("to_battle_main").c_str(), m_mapPosSelectInputVec);
@@ -142,7 +141,12 @@ void PlayerUI::UpdateAllMapRecognizeAndBattleScript()
 	}
 }
 
-void PlayerUI::UpdateMapRecognizeInputDataVector(int cmpParam)
+void PlayerUI::handleResults(const QString &)
+{
+
+}
+
+void PlayerUI::UpdateMapStatusInputDataVector(int cmpParam)
 {
 	if (m_mapStatusInputVec.size() == 0)
 	{
@@ -419,9 +423,9 @@ void PlayerUI::UpdateNormalInputDataVector(int cmpParam, std::vector<InputData> 
 
 void PlayerUI::StopScritp()
 {
-	m_mapStatusTimer.stop();
-	m_nextStepTimer.stop();
-	m_mapPosSelectTimer.stop();
+	m_updateScriptTimer.stop();
+	m_bRunThreadFlag = false;
+
 	m_mapStatusOutputParam = 0;
 	m_lastStatusParam = -1;
 
@@ -433,9 +437,22 @@ void PlayerUI::StopScritp()
 
 void PlayerUI::StartScript()
 {
-	m_mapStatusTimer.start(5);
-	m_nextStepTimer.start(10);
-	m_mapPosSelectTimer.start(3);
+	//start时重新获取一次挂机设置的延迟
+	m_emergencySetting.interval = m_ui->edt_emergencyInterval->text().toInt();
+	m_devSetting.interval = m_ui->edt_devInterval->text().toInt();
+	m_delegateSetting.interval = m_ui->edt_delegateInterval->text().toInt();
+	m_recruitSetting.interval = m_ui->edt_recruitInterval->text().toInt();
+
+	m_emergencySetting.StartAutoHandle();
+	m_devSetting.StartAutoHandle();
+	m_delegateSetting.StartAutoHandle();
+	m_recruitSetting.StartAutoHandle();
+
+	m_bRunThreadFlag = true;
+	Worker1 *workerThread = new Worker1(this);
+	connect(workerThread, &Worker1::resultReady, this, &PlayerUI::handleResults);
+	connect(workerThread, &Worker1::finished, workerThread, &QObject::deleteLater);
+	workerThread->start();
 } 
 
 void PlayerUI::OnBtnStop()
@@ -443,87 +460,21 @@ void PlayerUI::OnBtnStop()
 	StopScritp();
 }
 
-void PlayerUI::OnBtnA4Reward()
-{
-	StopScritp();
-
-	int index = m_ui->cmb_delegate->currentIndex();
-	switch (index)
-	{
-	case A4:
-	{
-		m_mainWnd->LoadScriptModuleFile(std::string(DEFAULT_PATH).append("zz_battle_findIcon_a4_reward").c_str());
-	}
-		break;
-	default:
-		break;
-	}
-
-	StartScript();
-}
-
-void PlayerUI::OnBtnDaily()
-{
-	StopScritp();
-	m_mainWnd->LoadScriptModuleFile(std::string(DEFAULT_PATH).append("zz_battle_findIcon_daily").c_str());
-	StartScript();
-}
-
-void PlayerUI::OnBtnNextStep()
-{
-	StopScritp();
-	m_mainWnd->LoadScriptModuleFile(std::string(DEFAULT_PATH).append("g").c_str());
-	StartScript();
-}
-
-void PlayerUI::OnBtnDelegate()
-{
-	StopScritp();
-
-	int index = m_ui->cmb_delegate->currentIndex();
-	auto it = m_specificDelegateScriptMap.find((ZZ_Delegate)index);
-	if (it != m_specificDelegateScriptMap.end())
-	{
-		m_mainWnd->LoadScriptModuleFile(it->second.toStdString().c_str());
-		StartScript();
-	}
-}
-
-void PlayerUI::OnBtnDev()
-{
-	StopScritp();
-
-	int index = m_ui->cmb_dev->currentIndex();
-	auto it = m_specificDevScriptMap.find((ZZ_Dev)index);
-	if (it != m_specificDevScriptMap.end())
-	{
-		m_mainWnd->LoadScriptModuleFile(it->second.toStdString().c_str());
-		StartScript();
-	}
-}
-
-void PlayerUI::OnBtnRecruit()
-{
-	StopScritp();
-	m_mainWnd->LoadScriptModuleFile(std::string(DEFAULT_PATH).append("recruit").c_str());
-	StartScript();
-}
-
-void PlayerUI::OnBtnSpecific()
-{
-	StopScritp();
-
-	int index = m_ui->cmb_specific->currentIndex();
-	auto it = m_specificLevelScriptMap.find((ZZ_Specific)index);
-	if (it != m_specificLevelScriptMap.end())
-	{
-		m_mainWnd->LoadScriptModuleFile(it->second.toStdString().c_str());
-		StartScript();
-	}
-}
-
 void PlayerUI::OnBtnStartAuto()
 {
 	StopScritp();
 	StartScript();
+}
+
+
+void Worker1::run()
+{
+	QString result;
+	/* ... here is the expensive or blocking operation ... */
+	while (m_parent->GetRunThreadFlag())
+	{
+		m_parent->UpdateMapStatusRecognizeScript();
+	}
+
+	emit resultReady(result);
 }

@@ -113,7 +113,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #ifdef DEV_VER
 	m_ui->setupUi(this);
-// 	m_playerUI.Init();
 	m_ui->edt_mac->setText(m_macClient);
 	CheckLisence();
 	setParent(&m_bkgUI);
@@ -351,7 +350,7 @@ void MainWindow::InsertComparePicOperation(int x, int y, int x2, int y2)
 		m_ui->cb_inputType->setCurrentIndex(InputType::Pic);
 		m_ui->edt_comment->setText(Q8("¶Ô±ÈÍ¼Æ¬"));
 		m_ui->edt_delay->setText(QString::number(10));
-		m_ui->edt_cmpPic->setText(QString::number(0.8));
+		m_ui->edt_cmpPic->setText(QString::number(0.77));
 		m_ui->edt_findPicOvertime->setText(QString::number(10));
 
 		int index = model->selectedIndexes()[0].row();
