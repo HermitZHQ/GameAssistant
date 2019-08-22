@@ -251,7 +251,10 @@ void MainWindow::PostMsgThread(int cmpParam)
 		}
 
 		//查询图片是否超时---放在执行之后，这样保证至少先执行一次对比才会超时
-		if (input.findPicOvertime != -1 && InputType::Pic == input.type && (GetTickCount() - input.startTime > (DWORD)(input.findPicOvertime + input.delay)))
+		if (input.findPicOvertime != -1 
+			&& InputType::Pic == input.type 
+			&& (GetTickCount() - input.startTime > (DWORD)(input.findPicOvertime + input.delay))
+			&& !input.bFindPicFlag )
 		{
 			input.bFindPicOvertimeFlag = true;
 			//判断超时指令跳转
@@ -2041,6 +2044,7 @@ void MainWindow::InitGameWindow()
 	if (nullptr != m_hGameWnd)
 	{
 		UpdateGameWindowSize();
+		::SetWindowPos( m_curSimWndInfo.parentWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
 
 		//检测游戏本体窗口是否已经设置到了指定大小
 		//暂时放弃自动调整窗口大小了，问题太多，一时半会儿改不好，让玩家自己保证游戏窗口的分辨率为960，540，以后都统一用这个了

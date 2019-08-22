@@ -263,7 +263,10 @@ void PlayerUI::UpdateMapStatusInputDataVector(int cmpParam)
 
 		//查询图片是否超时---放在执行之后，这样保证至少先执行一次对比才会超时
 		dwTime = GetTickCount() - input.startTime;
-		if (input.findPicOvertime != -1 && InputType::Pic == input.type && (dwTime > (DWORD)(input.findPicOvertime + input.delay)))
+		if ( input.findPicOvertime != -1
+			&& InputType::Pic == input.type
+			&& ( GetTickCount() - input.startTime > ( DWORD )( input.findPicOvertime + input.delay ) )
+			&& !input.bFindPicFlag )
 		{
 // 			m_mainWnd->AddTipInfo(std::string("cost time:").append(std::to_string(dwTime)).c_str());
 			input.bFindPicOvertimeFlag = true;
@@ -404,7 +407,10 @@ void PlayerUI::UpdateNormalInputDataVector(int cmpParam, std::vector<InputData> 
 		}
 
 		//查询图片是否超时---放在执行之后，这样保证至少先执行一次对比才会超时
-		if (input.findPicOvertime != -1 && InputType::Pic == input.type && (GetTickCount() - input.startTime > (DWORD)(input.findPicOvertime + input.delay)))
+		if ( input.findPicOvertime != -1
+			&& InputType::Pic == input.type
+			&& ( GetTickCount() - input.startTime > ( DWORD )( input.findPicOvertime + input.delay ) )
+			&& !input.bFindPicFlag )
 		{
 			input.bFindPicOvertimeFlag = true;
 			//判断超时指令跳转
