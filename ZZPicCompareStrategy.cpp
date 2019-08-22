@@ -101,7 +101,7 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 	//-----------------------compare func
 	float fBaseScaleFactor = 2.0f;
 	double rOffsetRate = 0, gOffsetRate = 0, bOffsetRate = 0;
-	int kpSize1 = 0, kpSize2 = 0;
+	int kpSize1 = 0, kpSize2 = 0, matchedSize = 0;
 
 	auto compareFunc = [&](Mat srcImg, Mat cmpImg)->double {
 		Mat img1_rgb = imread(input.picPath);
@@ -201,8 +201,8 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 		}
 
 		//比较关键点的个数差异，同一张图的差异不可能过大
-		auto kpSize1 = kpts1.size();
-		auto kpSize2 = kpts2.size();
+		kpSize1 = kpts1.size();
+		kpSize2 = kpts2.size();
 		double sizeRate = 1;
 		if (kpSize1 != kpSize2)
 		{
@@ -216,7 +216,7 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 			}
 
 			//特征点比例异常，退出
-			if (sizeRate > 3.0)
+			if (sizeRate > 2.5)
 			{
 // 				m_mainWnd->AddTipInfo(std::string("特征点比例异常 ").append("s1:").append(std::to_string(kpts1.size())).append(" s2:").append(std::to_string(kpts2.size())).c_str());
 				return 0.0;
@@ -243,6 +243,7 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 		vector<KeyPoint> inliers1, inliers2;
 
 		double rate = (double)matched1.size() / ((kpts1.size() + kpts2.size()) / 2.0);
+		matchedSize = matched1.size();
 #ifdef DEV_VER
 		if (rate > 1.0)
 		{
@@ -283,7 +284,7 @@ m_ui->edt_rate->setText(Left2Precision(rate).c_str());
 		}
 
 #ifdef DEV_VER
-		m_mainWnd->AddTipInfo(std::string("cmp[").append(Left2Precision(rate)).append("|").append(std::to_string(GetTickCount() - dwTime)).append("|").append( std::to_string( kpSize1 ) ).append("-").append( std::to_string( kpSize2 ) ).append("]-").append(input.picPath).append("_").append(Left2Precision(rOffsetRate)).append("_").append(Left2Precision(gOffsetRate)).append("_").append(Left2Precision(bOffsetRate)).c_str());
+		m_mainWnd->AddTipInfo(std::string("cmp[").append(Left2Precision(rate)).append("|").append(std::to_string(GetTickCount() - dwTime)).append("|").append( std::to_string( kpSize1 ) ).append(":").append( std::to_string( kpSize2 ) ).append("-").append(std::to_string(matchedSize)).append("]-").append(input.picPath).append("_").append(Left2Precision(rOffsetRate)).append("_").append(Left2Precision(gOffsetRate)).append("_").append(Left2Precision(bOffsetRate)).c_str());
 #endif
 		m_mainWnd->AddTipInfo(std::string(input.comment).append("-成功").c_str());
 	}
