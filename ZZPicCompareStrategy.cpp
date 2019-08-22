@@ -135,7 +135,7 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 		gOffsetRate = std::abs((1.0 - gRate));
 		bOffsetRate = std::abs((1.0 - bRate));
 
-		const double cmpOffsetRate = 0.3;
+		const double cmpOffsetRate = 0.2;
 		if (rOffsetRate > cmpOffsetRate || gOffsetRate > cmpOffsetRate || bOffsetRate > cmpOffsetRate)
 		{
 // 			m_mainWnd->AddTipInfo(std::string("rgb over offset:").append(input.picPath).c_str());
@@ -192,11 +192,35 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 			{
 				strPicName = strPicName.substr( pos );
 			}
-// 			cv::imwrite("C:\\Users\\cdzha\\Desktop\\curImg_size0.png", img2);
+
 #ifdef DEV_VER
 			m_mainWnd->AddTipInfo(std::string("key point too low[").append(std::to_string(kpts1.size())).append("|").append( std::to_string( kpts2.size() ) ).append("]-").append( strPicName ).c_str());
 #endif // _DEBUG
+
 			return 0.0;
+		}
+
+		//比较关键点的个数差异，同一张图的差异不可能过大
+		auto kpSize1 = kpts1.size();
+		auto kpSize2 = kpts2.size();
+		double sizeRate = 1;
+		if (kpSize1 != kpSize2)
+		{
+			if (kpSize1 > kpSize2)
+			{
+				sizeRate = (double)kpSize1 / (double)kpSize2;
+			}
+			else
+			{
+				sizeRate = (double)kpSize2 / (double)kpSize1;
+			}
+
+			//特征点比例异常，退出
+			if (sizeRate > 3.0)
+			{
+// 				m_mainWnd->AddTipInfo(std::string("特征点比例异常 ").append("s1:").append(std::to_string(kpts1.size())).append(" s2:").append(std::to_string(kpts2.size())).c_str());
+				return 0.0;
+			}
 		}
 
 		BFMatcher matcher(NORM_HAMMING);

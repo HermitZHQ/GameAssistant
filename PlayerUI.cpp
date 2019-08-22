@@ -10,8 +10,11 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	, m_threadMapRecognize(this)
 	, m_threadMapPosSelect(this)
 	, m_threadNextStep(this)
-	, m_bRunThreadFlag(false)
-	, m_bPauseThreadFlag(false)
+	, m_bRunThreadFlag(true)
+	, m_bPauseMapStatusFlag(true)
+	, m_bPauseMapRecognizeFlag(true)
+	, m_bPauseMapPosSelectFlag(true)
+	, m_bPauseNextStepFlag(true)
 
 	, m_specificLevelScriptMap({
 		{Nefud_1E, QString(DEFAULT_PATH).append("zz_map_nefud-1e")},
@@ -45,7 +48,7 @@ PlayerUI::~PlayerUI()
 	delete m_ui;
 
 	m_bRunThreadFlag = false;
-	m_bPauseThreadFlag = true;
+	m_bPauseMapStatusFlag = true;
 	m_threadMapStatus.quit();
 	m_threadMapStatus.wait();
 
@@ -66,15 +69,6 @@ void PlayerUI::Init()
 		return;
 	}
 
-	//链接对应timer的函数
-// 	m_updateScriptTimer.connect(&m_updateScriptTimer, &QTimer::timeout, this, &PlayerUI::UpdateAllScript);
-
-	//预先初始化不会变化的inputVec
-	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("map_status_recognize").c_str(), m_mapStatusInputVec);
-	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("next_step").c_str(), m_nextStepInputVec);
-	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "zz_map_recognize" ).c_str(), m_mapRecognizeInputVec );
-
-	m_bPauseThreadFlag = true;
 	connect( &m_threadMapStatus, &ThreadMapStatus::resultReady, this, &PlayerUI::handleResults );
 	connect( &m_threadMapStatus, &ThreadMapStatus::finished, &m_threadMapStatus, &QObject::deleteLater );
 	m_threadMapStatus.start();
@@ -119,6 +113,10 @@ void PlayerUI::UpdateMapStatusRecognizeScript()
 			//因为战斗脚本完成后，现在都会停止，不会跳转回地图查找，这样处理比较简单，否则还涉及到跳转回地图查找后又进入战斗脚本的问题，具体游戏这边的脚本更新都有所改动，停止脚本不再停止timer，而是把inputVec清空，所以当我们需要再次开启地图识别的时候，我们需要先加载识别文件（因为这时候vec是空）
 			m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("zz_map_recognize").c_str(), m_mapRecognizeInputVec);
 			m_mainWnd->AddTipInfo("已进入战斗场景--------");
+
+			//战斗场景中，暂停跳转地图，开启识别地图，降低cpu消耗
+			m_bPauseMapPosSelectFlag = true;
+			m_bPauseMapRecognizeFlag = false;
 		}
 
 	}
@@ -129,6 +127,10 @@ void PlayerUI::UpdateMapStatusRecognizeScript()
 			m_bInBattleFlag = false;
 
 			m_mainWnd->AddTipInfo("已从战斗场景退出--------");
+
+			//战斗场景中，开启跳转地图，暂停识别地图，降低cpu消耗
+			m_bPauseMapPosSelectFlag = false;
+			m_bPauseMapRecognizeFlag = true;
 		}
 	}
 }
@@ -202,16 +204,7 @@ void PlayerUI::UpdateMapStatusInputDataVector(int cmpParam)
 
 	//获取最新的游戏窗口大小，通过比例来进行鼠标点击，可以保证窗口任意大小都能点击正确
 	m_mainWnd->UpdateGameWindowSize();
-	//强制更新窗口内容，即便窗口最小化
-// 	::SetActiveWindow(m_hWnd);
-// 	InvalidateRect(m_hWnd, nullptr, TRUE);
-// 	RedrawWindow(m_hWnd, nullptr, nullptr, RDW_INVALIDATE);
-// 	PostMessage(m_hWnd, WM_ACTIVATE, 0, 0);
-// 	PostMessage(m_hWnd, WM_ERASEBKGND, 0, 0);
-// 	PostMessage(m_hWnd, WM_PAINT, 0, 0);
 
-	//需要把父窗口设置bottom属性，才不会弹出？？
-// 	::SetWindowPos( m_hParentWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
 	bool bAllFinishedFlag = true;
 	int index = -1;
 	for (auto &input : m_mapStatusInputVec)
@@ -235,28 +228,13 @@ void PlayerUI::UpdateMapStatusInputDataVector(int cmpParam)
 		bAllFinishedFlag = false;
 
 		//判断延迟
+		DWORD dwTime = GetTickCount() - input.startTime;
 		if (GetTickCount() - input.startTime < (DWORD)input.delay)
 			break;
 
 		//等待类型的话，则继续判断是否已到时间
 		if (input.type == Wait && GetTickCount() - input.startTime < (DWORD)(input.waitTime * 1000))
 			break;
-
-		//查询图片是否超时
-		DWORD dwTime = GetTickCount() - input.startTime > ( DWORD )( input.findPicOvertime + input.delay );
-// 		m_mainWnd->AddTipInfo( std::string("cost time:").append(std::to_string(dwTime)).c_str() );
-		if (input.findPicOvertime != -1 && InputType::Pic == input.type && ( dwTime ))
-		{
-			input.bFindPicOvertimeFlag = true;
-			//判断超时指令跳转
-			if (-1 != input.findPicOvertimeJumpIndex)
-			{
-				(0xffff != input.findPicOvertimeJumpIndex) ? m_mainWnd->JumpInput(input.findPicOvertimeJumpIndex, m_mapStatusInputVec) :
-					(m_mainWnd->LoadScriptModuleFileToSpecificInputVec(input.findPicOvertimeJumpModule, m_mapStatusInputVec));
-				break;
-			}
-			continue;
-		}
 
 		switch (input.type)
 		{
@@ -281,6 +259,22 @@ void PlayerUI::UpdateMapStatusInputDataVector(int cmpParam)
 		break;
 		default:
 			break;
+		}
+
+		//查询图片是否超时---放在执行之后，这样保证至少先执行一次对比才会超时
+		dwTime = GetTickCount() - input.startTime;
+		if (input.findPicOvertime != -1 && InputType::Pic == input.type && (dwTime > (DWORD)(input.findPicOvertime + input.delay)))
+		{
+// 			m_mainWnd->AddTipInfo(std::string("cost time:").append(std::to_string(dwTime)).c_str());
+			input.bFindPicOvertimeFlag = true;
+			//判断超时指令跳转
+			if (-1 != input.findPicOvertimeJumpIndex)
+			{
+				(0xffff != input.findPicOvertimeJumpIndex) ? m_mainWnd->JumpInput(input.findPicOvertimeJumpIndex, m_mapStatusInputVec) :
+					(m_mainWnd->LoadScriptModuleFileToSpecificInputVec(input.findPicOvertimeJumpModule, m_mapStatusInputVec));
+				break;
+			}
+			continue;
 		}
 
 		//如果没有找到图片就跳过，继续处理这一项
@@ -337,16 +331,7 @@ void PlayerUI::UpdateNormalInputDataVector(int cmpParam, std::vector<InputData> 
 
 	//获取最新的游戏窗口大小，通过比例来进行鼠标点击，可以保证窗口任意大小都能点击正确
 	m_mainWnd->UpdateGameWindowSize();
-	//强制更新窗口内容，即便窗口最小化
-// 	::SetActiveWindow(m_hWnd);
-// 	InvalidateRect(m_hWnd, nullptr, TRUE);
-// 	RedrawWindow(m_hWnd, nullptr, nullptr, RDW_INVALIDATE);
-// 	PostMessage(m_hWnd, WM_ACTIVATE, 0, 0);
-// 	PostMessage(m_hWnd, WM_ERASEBKGND, 0, 0);
-// 	PostMessage(m_hWnd, WM_PAINT, 0, 0);
 
-	//需要把父窗口设置bottom属性，才不会弹出？？
-// 	::SetWindowPos( m_hParentWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
 	bool bAllFinishedFlag = true;
 	int index = -1;
 	for (auto &input : inputVec)
@@ -374,20 +359,6 @@ void PlayerUI::UpdateNormalInputDataVector(int cmpParam, std::vector<InputData> 
 		//等待类型的话，则继续判断是否已到时间
 		if (input.type == Wait && GetTickCount() - input.startTime < (DWORD)(input.waitTime * 1000))
 			break;
-
-		//查询图片是否超时
-		if (input.findPicOvertime != -1 && InputType::Pic == input.type && (GetTickCount() - input.startTime > (DWORD)(input.findPicOvertime + input.delay)))
-		{
-			input.bFindPicOvertimeFlag = true;
-			//判断超时指令跳转
-			if (-1 != input.findPicOvertimeJumpIndex)
-			{
-				(0xffff != input.findPicOvertimeJumpIndex) ? m_mainWnd->JumpInput(input.findPicOvertimeJumpIndex, inputVec) :
-					(m_mainWnd->LoadScriptModuleFileToSpecificInputVec(input.findPicOvertimeJumpModule, inputVec));
-				break;
-			}
-			continue;
-		}
 
 		switch (input.type)
 		{
@@ -432,6 +403,20 @@ void PlayerUI::UpdateNormalInputDataVector(int cmpParam, std::vector<InputData> 
 			break;
 		}
 
+		//查询图片是否超时---放在执行之后，这样保证至少先执行一次对比才会超时
+		if (input.findPicOvertime != -1 && InputType::Pic == input.type && (GetTickCount() - input.startTime > (DWORD)(input.findPicOvertime + input.delay)))
+		{
+			input.bFindPicOvertimeFlag = true;
+			//判断超时指令跳转
+			if (-1 != input.findPicOvertimeJumpIndex)
+			{
+				(0xffff != input.findPicOvertimeJumpIndex) ? m_mainWnd->JumpInput(input.findPicOvertimeJumpIndex, inputVec) :
+					(m_mainWnd->LoadScriptModuleFileToSpecificInputVec(input.findPicOvertimeJumpModule, inputVec));
+				break;
+			}
+			continue;
+		}
+
 		//如果没有找到图片就跳过，继续处理这一项
 		if (InputType::Pic == input.type && !input.bFindPicFlag)
 		{
@@ -472,7 +457,11 @@ void PlayerUI::UpdateNormalInputDataVector(int cmpParam, std::vector<InputData> 
 
 void PlayerUI::StopScritp()
 {
-	m_bPauseThreadFlag = true;
+	m_bPauseMapStatusFlag = true;
+	m_bPauseMapRecognizeFlag = true;
+	m_bPauseMapPosSelectFlag = true;
+	m_bPauseNextStepFlag = true;
+
 	m_mapStatusOutputParam = 0;
 	m_lastStatusParam = -1;
 
@@ -497,9 +486,14 @@ void PlayerUI::StartScript()
 	m_delegateSetting.StartAutoHandle();
 	m_recruitSetting.StartAutoHandle();
 
-	m_bRunThreadFlag = true;
-	m_bPauseThreadFlag = false;
-	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "zz_map_recognize" ).c_str(), m_mapRecognizeInputVec );
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("map_status_recognize").c_str(), m_mapStatusInputVec);
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("next_step").c_str(), m_nextStepInputVec);
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("zz_map_recognize").c_str(), m_mapRecognizeInputVec);
+
+	m_bPauseMapStatusFlag = false;
+	m_bPauseMapRecognizeFlag = false;
+	m_bPauseMapPosSelectFlag = false;
+	m_bPauseNextStepFlag = false;
 } 
 
 void PlayerUI::OnBtnStop()
@@ -520,12 +514,14 @@ void ThreadMapStatus::run()
 	/* ... here is the expensive or blocking operation ... */
 	while (m_parent->GetRunThreadFlag())
 	{
-		while (!m_parent->GetPauseThreadFlag())
+		while (!m_parent->GetPauseMapStatusFlag())
 		{
 			m_parent->UpdateMapStatusRecognizeScript();
-// 			sleep( 1 );
+// 			m_parent->UpdateAllScript();
+			msleep( 100 );
 		}
-// 		sleep( 1 );
+
+		msleep( 1000 );
 	}
 
 	emit resultReady(result);
@@ -537,12 +533,13 @@ void ThreadMapRecognize::run()
 	/* ... here is the expensive or blocking operation ... */
 	while ( m_parent->GetRunThreadFlag() )
 	{
-		while (!m_parent->GetPauseThreadFlag())
+		while (!m_parent->GetPauseMapRecognizeFlag())
 		{
 			m_parent->UpdateAllMapRecognizeAndBattleScript();
-// 			sleep( 1 );
+			msleep( 1 );
 		}
-// 		sleep( 1 );
+
+		msleep( 1000 );
 	}
 
 	emit resultReady( result );
@@ -554,12 +551,13 @@ void ThreadNextStep::run()
 	/* ... here is the expensive or blocking operation ... */
 	while ( m_parent->GetRunThreadFlag() )
 	{
-		while (!m_parent->GetPauseThreadFlag())
+		while (!m_parent->GetPauseNextStepFlag())
 		{
 			m_parent->UpdateNextStepScript();
-// 			sleep( 1 );
+			msleep( 100 );
 		}
-// 		sleep( 1 );
+
+		msleep( 1000 );
 	}
 
 	emit resultReady( result );
@@ -571,13 +569,14 @@ void ThreadMapPosSelect::run()
 	/* ... here is the expensive or blocking operation ... */
 	while ( m_parent->GetRunThreadFlag() )
 	{
-		while (!m_parent->GetPauseThreadFlag())
+		while (!m_parent->GetPauseMapPosSelectFlag())
 		{
 			m_parent->UpdateMapPositionSelectScript();
 
-// 			sleep( 1 );
+			msleep( 50 );
 		}
-// 		sleep( 1 );
+
+		msleep( 1000 );
 	}
 
 	emit resultReady( result );

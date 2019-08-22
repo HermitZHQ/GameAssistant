@@ -15,6 +15,7 @@
 #include "InputDataModel.h"
 #include "ItemDelegate.h"
 #include "QMenu"
+#include "QMutex"
 
 namespace Ui {
 class MainWindow;
@@ -242,6 +243,8 @@ private:
 	QTimer						m_msgBoxTimer;
 	QList<QString>				m_logList;
 	QList<QString>				m_msgBoxInfoList;
+	QMutex						m_lockLog;
+	QMutex						m_lockMsgbox;
 	long						m_year;
 	long						m_month;
 	long						m_day;

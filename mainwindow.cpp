@@ -110,9 +110,8 @@ MainWindow::MainWindow(QWidget *parent) :
 		return;
 	}
 
-
 	m_logTimer.connect( &m_logTimer, &QTimer::timeout, this, &MainWindow::LogTimerFunc );
-	m_logTimer.start( 50 );
+	m_logTimer.start( 20 );
 	m_msgBoxTimer.connect( &m_msgBoxTimer, &QTimer::timeout, this, &MainWindow::MessageBoxTimerFunc );
 	m_msgBoxTimer.start( 500 );
 
@@ -162,6 +161,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::PostMsgThread(int cmpParam)
 {
+	cmpParam = -1;
 	//---------------------------------下面的代码应该只在DevVer执行
 #ifdef DEV_VER
 	if (m_inputVec.size() == 0)
@@ -173,16 +173,7 @@ void MainWindow::PostMsgThread(int cmpParam)
 
 	//获取最新的游戏窗口大小，通过比例来进行鼠标点击，可以保证窗口任意大小都能点击正确
 	UpdateGameWindowSize();
-	//强制更新窗口内容，即便窗口最小化
-// 	::SetActiveWindow(m_hWnd);
-// 	InvalidateRect(m_hWnd, nullptr, TRUE);
-// 	RedrawWindow(m_hWnd, nullptr, nullptr, RDW_INVALIDATE);
-// 	PostMessage(m_hWnd, WM_ACTIVATE, 0, 0);
-// 	PostMessage(m_hWnd, WM_ERASEBKGND, 0, 0);
-// 	PostMessage(m_hWnd, WM_PAINT, 0, 0);
 
-	//需要把父窗口设置bottom属性，才不会弹出？？
-// 	::SetWindowPos( m_hParentWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
 	bool bAllFinishedFlag = true;
 	int index = -1;
 	for (auto &input : m_inputVec)
@@ -216,21 +207,6 @@ void MainWindow::PostMsgThread(int cmpParam)
 		//等待类型的话，则继续判断是否已到时间
 		if (input.type == Wait && GetTickCount() - input.startTime < (DWORD)(input.waitTime * 1000))
 			break;
-
-
-		//查询图片是否超时
-		if (input.findPicOvertime != -1 && InputType::Pic == input.type && (GetTickCount() - input.startTime > (DWORD)(input.findPicOvertime + input.delay)))
-		{
-			input.bFindPicOvertimeFlag = true;
-			//判断超时指令跳转
-			if (-1 != input.findPicOvertimeJumpIndex)
-			{
-				(0xffff != input.findPicOvertimeJumpIndex) ? JumpInput(input.findPicOvertimeJumpIndex, m_inputVec) :
-					(LoadScriptModuleFile(input.findPicOvertimeJumpModule));
-				break;
-			}
-			continue;
-		}
 
 		switch (input.type)
 		{
@@ -272,6 +248,20 @@ void MainWindow::PostMsgThread(int cmpParam)
 		break;
 		default:
 			break;
+		}
+
+		//查询图片是否超时---放在执行之后，这样保证至少先执行一次对比才会超时
+		if (input.findPicOvertime != -1 && InputType::Pic == input.type && (GetTickCount() - input.startTime > (DWORD)(input.findPicOvertime + input.delay)))
+		{
+			input.bFindPicOvertimeFlag = true;
+			//判断超时指令跳转
+			if (-1 != input.findPicOvertimeJumpIndex)
+			{
+				(0xffff != input.findPicOvertimeJumpIndex) ? JumpInput(input.findPicOvertimeJumpIndex, m_inputVec) :
+					(LoadScriptModuleFile(input.findPicOvertimeJumpModule));
+				break;
+			}
+			continue;
 		}
 
 		//如果没有找到图片就跳过，继续处理这一项
@@ -724,11 +714,13 @@ void MainWindow::OnBtnClearTipInfo()
 
 void MainWindow::ShowMessageBox(const char *content)
 {
+	m_lockMsgbox.lock();
 	m_msgBoxInfoList.push_back( Q8( content ) );
 	if ( m_msgBoxInfoList.size() > 10 )
 	{
 		return;
 	}
+	m_lockMsgbox.unlock();
 }
 
 void MainWindow::MessageBoxTimerFunc()
@@ -740,11 +732,15 @@ void MainWindow::MessageBoxTimerFunc()
 
 	QMessageBox mb;
 	mb.setWindowTitle( "Info" );
-	mb.setText( m_msgBoxInfoList[0] );
+
+	m_lockMsgbox.lock();
+	mb.setText(m_msgBoxInfoList[0]);
+	m_msgBoxInfoList.erase(m_msgBoxInfoList.begin());
+	m_lockMsgbox.unlock();
+
 	mb.setDefaultButton( QMessageBox::Ok );
 	mb.exec();
 
-	m_msgBoxInfoList.erase( m_msgBoxInfoList.begin() );
 }
 
 bool MainWindow::ShowConfirmBox(const char *str)
@@ -766,11 +762,13 @@ bool MainWindow::ShowConfirmBox(const char *str)
 
 void MainWindow::AddTipInfo(const char *str, bool bConvertFlag)
 {
+	m_lockLog.lock();
 	m_logList.push_back( QTime::currentTime().toString().append( ":" ).append( bConvertFlag ? Q8( str ) : str ) );
 	if ( m_logList.size() > 500 )
 	{
 		m_logList.clear();
 	}
+	m_lockLog.unlock();
 }
 
 void MainWindow::LogTimerFunc()
@@ -786,7 +784,11 @@ void MainWindow::LogTimerFunc()
 		m_ui->list_tip->clear();
 	}
 
-	m_ui->list_tip->addItem( m_logList[0] );
+	m_lockLog.lock();
+	m_ui->list_tip->addItem(m_logList[0]);
+	m_logList.erase(m_logList.begin());
+	m_lockLog.unlock();
+
 	m_ui->list_tip->scrollToBottom();
 #else
 	if ( m_playerUI.GetUI()->list_tip->count() > 200 )
@@ -794,11 +796,13 @@ void MainWindow::LogTimerFunc()
 		m_playerUI.GetUI()->list_tip->clear();
 	}
 
-	m_playerUI.GetUI()->list_tip->addItem( m_logList[0] );
+	m_lockLog.lock();
+	m_playerUI.GetUI()->list_tip->addItem(m_logList[0]);
+	m_logList.erase(m_logList.begin());
+	m_lockLog.unlock();
+
 	m_playerUI.GetUI()->list_tip->scrollToBottom();
 #endif
-
-	m_logList.erase( m_logList.begin() );
 }
 
 void MainWindow::OnBtnLisence()

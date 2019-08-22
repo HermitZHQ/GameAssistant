@@ -67,11 +67,12 @@ enum ZZ_Map_Param
 //参数从1开始，0为默认值，不进行处理
 enum ZZ_Cmp_Param
 {
-	Map_Reward_A1 = 1,
-	Map_Reward_A2,
-	Map_Reward_A3,
-	Map_Reward_A4,
-	Map_Daily,
+	//使用16进制的0x1，0x2，0x4，0x8，0x10，0x20，0x40，0x80....循环做标记，这样不会重复
+	Map_Reward = 0x1,
+	Map_Daily = 0x2,
+	Map_Evelyn = 0x4,
+	Map_Wolt = 0x8,//薇欧蕾特地图标记
+	Map_Maomao = 0x10,//喵喵副本
 };
 
 class PlayerUI;
@@ -163,8 +164,20 @@ public:
 		return m_bRunThreadFlag;
 	}
 
-	inline bool GetPauseThreadFlag() {
-		return m_bPauseThreadFlag;
+	inline bool GetPauseMapStatusFlag() {
+		return m_bPauseMapStatusFlag;
+	}
+
+	inline bool GetPauseMapRecognizeFlag() {
+		return m_bPauseMapRecognizeFlag;
+	}
+
+	inline bool GetPauseMapPosSelectFlag() {
+		return m_bPauseMapPosSelectFlag;
+	}
+
+	inline bool GetPauseNextStepFlag() {
+		return m_bPauseNextStepFlag;
 	}
 
 public slots:
@@ -218,9 +231,14 @@ private:
 	SettingInfo										m_recruitSetting;
 
 	QTimer											m_updateScriptTimer;
+
 	bool											m_bInBattleFlag;
 	bool											m_bRunThreadFlag;
-	bool											m_bPauseThreadFlag;
+	bool											m_bPauseMapStatusFlag;
+	bool											m_bPauseMapRecognizeFlag;
+	bool											m_bPauseMapPosSelectFlag;
+	bool											m_bPauseNextStepFlag;
+
 	//此inputVec专门用于识别目前的游戏状态，比如在大厅，在机库，在准备战斗，正在战斗中等
 	ThreadMapStatus									m_threadMapStatus;
 	std::vector<InputData>							m_mapStatusInputVec;
