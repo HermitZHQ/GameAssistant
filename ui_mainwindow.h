@@ -108,6 +108,7 @@ public:
     QLabel *label_31;
     QLabel *label_32;
     QPushButton *btn_getBattleTemplate_2;
+    QPushButton *btn_openMapTemplate;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -384,6 +385,9 @@ public:
         btn_getBattleTemplate_2 = new QPushButton(centralWidget);
         btn_getBattleTemplate_2->setObjectName(QString::fromUtf8("btn_getBattleTemplate_2"));
         btn_getBattleTemplate_2->setGeometry(QRect(100, 720, 81, 28));
+        btn_openMapTemplate = new QPushButton(centralWidget);
+        btn_openMapTemplate->setObjectName(QString::fromUtf8("btn_openMapTemplate"));
+        btn_openMapTemplate->setGeometry(QRect(760, 220, 81, 28));
         MainWindow->setCentralWidget(centralWidget);
 
         retranslateUi(MainWindow);
@@ -404,6 +408,7 @@ public:
         QObject::connect(btn_startTimeCount, SIGNAL(clicked()), MainWindow, SLOT(OnBtnStartTimeCount()));
         QObject::connect(btn_endTimeCount, SIGNAL(clicked()), MainWindow, SLOT(OnBtnEndTimeCount()));
         QObject::connect(btn_getBattleTemplate_2, SIGNAL(clicked()), MainWindow, SLOT(OnBtnGetBattleTemplate2()));
+        QObject::connect(btn_openMapTemplate, SIGNAL(clicked()), MainWindow, SLOT(OnBtnOpenMapTemplate()));
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -508,6 +513,7 @@ public:
         label_31->setText(QApplication::translate("MainWindow", "\347\247\222", nullptr));
         label_32->setText(QApplication::translate("MainWindow", "\347\255\211\345\276\205", nullptr));
         btn_getBattleTemplate_2->setText(QApplication::translate("MainWindow", "\346\210\230\346\226\227\346\250\241\347\211\2102", nullptr));
+        btn_openMapTemplate->setText(QApplication::translate("MainWindow", "\346\211\223\345\274\200\345\234\260\345\233\276\346\250\241\347\211\210", nullptr));
     } // retranslateUi
 
 };

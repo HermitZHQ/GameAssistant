@@ -1170,6 +1170,19 @@
      <string>战斗模版2</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="btn_openMapTemplate">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>220</y>
+      <width>81</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>打开地图模版</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
@@ -1447,6 +1460,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btn_openMapTemplate</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnBtnOpenMapTemplate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>799</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>798</x>
+     <y>253</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>OnBtnStartClick()</slot>
@@ -1486,5 +1515,6 @@
   <slot>OnBtnStartTimeCount()</slot>
   <slot>OnBtnEndTimeCount()</slot>
   <slot>OnBtnGetBattleTemplate2()</slot>
+  <slot>OnBtnOpenMapTemplate()</slot>
  </slots>
 </ui>

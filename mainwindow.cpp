@@ -111,7 +111,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	}
 
 	m_logTimer.connect( &m_logTimer, &QTimer::timeout, this, &MainWindow::LogTimerFunc );
-	m_logTimer.start( 20 );
+	m_logTimer.start( 5 );
 	m_msgBoxTimer.connect( &m_msgBoxTimer, &QTimer::timeout, this, &MainWindow::MessageBoxTimerFunc );
 	m_msgBoxTimer.start( 500 );
 
@@ -123,6 +123,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_picCompareStrategy->SetUi(m_ui);
 	m_bkgUI.setGeometry(geometry());
 	setWindowTitle("Develop-Ver 1.0.8");
+
+	connect( &m_timer, SIGNAL( timeout() ), this, SLOT( PostMsgThread() ) );
+	m_timer.setInterval( 1 );
 
 	InitTableView();
 	CaptureInputDataMgr::Singleton(this);
@@ -451,8 +454,7 @@ void MainWindow::OnBtnStartClick()
 	// 	std::thread t(&MainWindow::PostMsgThread, this);
 	// 	t.detach();
 
-	connect(&m_timer, SIGNAL(timeout()), this, SLOT(PostMsgThread()));
-	m_timer.setInterval(1);
+
 	// 	m_timer.setSingleShot(true);
 	m_timer.start();
 	AddTipInfo("开始脚本处理......");
@@ -685,6 +687,13 @@ void MainWindow::OnBtnGetBattleTemplate2()
 	LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("module_battle_normal_scale").c_str(), m_copyInputVec);
 
 	AddTipInfo(std::string("已复制战斗模版2:").append("module_battle_normal_scale").c_str());
+}
+
+void MainWindow::OnBtnOpenMapTemplate()
+{
+	LoadScriptModuleFile( std::string( DEFAULT_PATH ).append( "zz_map_recognize" ).c_str() );
+
+	AddTipInfo( std::string( "已打开地图模版:" ).append( "zz_map_recognize" ).c_str() );
 }
 
 void MainWindow::OnBtnStartTimeCount()
@@ -1048,7 +1057,7 @@ void MainWindow::InitTableView()
 	auto actPasteOverwriteInput = m_menu.addAction(Q8("粘贴覆盖行"));
 	auto actDel = m_menu.addAction(Q8("删除"));
 	auto actDelAll = m_menu.addAction(Q8("删除所有"));
-	auto actJump = m_menu.addAction(Q8("跳转命令"));
+	auto actJump = m_menu.addAction(Q8("从这里运行"));
 
 	m_ui->tv_inputVec->setContextMenuPolicy(Qt::CustomContextMenu);
 	//table view connect
@@ -1364,7 +1373,8 @@ void MainWindow::TableViewJump()
 	{
 		auto indexList = model->selectedIndexes();
 
-		JumpInput(indexList[0].row(), m_inputVec);
+		JumpInput( indexList[0].row(), m_inputVec );
+		m_timer.start();
 	}
 }
 
@@ -1559,6 +1569,8 @@ void MainWindow::LoadScriptModuleFile(const char *file)
 
 void MainWindow::LoadScriptModuleFileToSpecificInputVec(const char *file, std::vector<InputData> &inputVec)
 {
+	AddTipInfo( std::string("------>>>开始加载脚本：").append( file ).c_str() );
+
 	std::string strFilePath = file;
 	inputVec.clear();
 

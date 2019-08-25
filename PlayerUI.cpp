@@ -39,6 +39,10 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	, m_lastStatusParam(-1)
 	, m_bInBattleFlag(false)
 	, m_bInitFlag(false)
+	, m_bToBattleMainFlag(false)
+	, m_bToBattleRewardFlag( false )
+	, m_bToBattleDailyFlag(false)
+	, m_bToDev20(false)
 {
 	m_ui->setupUi(this);
 }
@@ -103,8 +107,7 @@ void PlayerUI::UpdateMapStatusRecognizeScript()
 	UpdateMapStatusInputDataVector(m_mapStatusCmpParam);
 
 	//根据状态开始和关闭对应的timer执行脚本，提高效率，减少错误点击
-	if (m_mapStatusOutputParam >= ZZ_Map_Param::Battle_deploy
-		&& m_mapStatusOutputParam <= ZZ_Map_Param::Battle_end)
+	if ( !NotInBattleFlag() )
 	{
 		if (!m_bInBattleFlag)
 		{
@@ -112,7 +115,10 @@ void PlayerUI::UpdateMapStatusRecognizeScript()
 
 			//因为战斗脚本完成后，现在都会停止，不会跳转回地图查找，这样处理比较简单，否则还涉及到跳转回地图查找后又进入战斗脚本的问题，具体游戏这边的脚本更新都有所改动，停止脚本不再停止timer，而是把inputVec清空，所以当我们需要再次开启地图识别的时候，我们需要先加载识别文件（因为这时候vec是空）
 			m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("zz_map_recognize").c_str(), m_mapRecognizeInputVec);
-			m_mainWnd->AddTipInfo("已进入战斗场景--------");
+			m_mainWnd->AddTipInfo( "已进入战斗场景--------" );
+
+			//只要进入了战斗场景则重置所有战斗外的地图选择标记
+			ResetPosSelectFlags();
 
 			//战斗场景中，暂停跳转地图，开启识别地图，降低cpu消耗
 			m_bPauseMapPosSelectFlag = true;
@@ -152,17 +158,53 @@ void PlayerUI::UpdateMapPositionSelectScript()
 	{
 		m_lastStatusParam = m_mapStatusOutputParam;
 
-		//赏金
-		if (m_ui->chk_reward->isChecked())
+		//if从上到下优先级依次递减，赏金最低，也就是其他操作都执行完毕后再执行赏金--------------------------
+
+		if ( m_ui->chk_dev->isChecked() 
+			&& m_devSetting.bShouldExecFlag
+			&& !m_bInBattleFlag )
 		{
-			if (ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam)
+			if ( ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam )
 			{
-				m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("to_battle_main_reward_firstIcon").c_str(), m_mapPosSelectInputVec);
+				GotoDev20();
+			}
+			else if ( NotInBattleFlag()
+				&& m_mapStatusOutputParam != ZZ_Map_Param::Battle_Main
+				&& !m_bToDev20)
+			{
+				GotoBattleMain();
+			}
+			else if ( ZZ_Map_Param::Dev_ing == m_mapStatusOutputParam )
+			{
+				m_devSetting.Reset();
+				ResetPosSelectFlags();
+			}
+		}
+		else if ( m_ui->chk_daily->isChecked() )
+		{
+			if ( ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam )
+			{
+				GotoDailyFirstIcon();
+			}
+			else if ( NotInBattleFlag()
+				&& m_mapStatusOutputParam != ZZ_Map_Param::Battle_Main
+				&& !m_bToBattleDailyFlag)
+			{
+				GotoBattleMain();
+			}
+		}
+		//赏金（优先级低，先进行开发招募等需求）
+		else if (m_ui->chk_reward->isChecked())
+		{
+			if (ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam
+				&& !m_bToBattleRewardFlag)
+			{
+				GotoRewardFirstIcon();
 			}
 			else if (NotInBattleFlag()
-				&& m_mapStatusOutputParam != ZZ_Map_Param::Battle_Main)
+				&& m_mapStatusOutputParam != ZZ_Map_Param::Battle_Main )
 			{
-				m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("to_battle_main").c_str(), m_mapPosSelectInputVec);
+				GotoBattleMain();
 			}
 			else
 			{
@@ -471,6 +513,11 @@ void PlayerUI::StopScritp()
 	m_mapStatusOutputParam = 0;
 	m_lastStatusParam = -1;
 
+	m_emergencySetting.Stop();
+	m_devSetting.Stop();
+	m_delegateSetting.Stop();
+	m_recruitSetting.Stop();
+
 	//设置指定的模拟器类型
 	int index = m_ui->cmb_sim->currentIndex();
 	m_mainWnd->SetSimWndType((SimWndType)index);
@@ -500,7 +547,71 @@ void PlayerUI::StartScript()
 	m_bPauseMapRecognizeFlag = false;
 	m_bPauseMapPosSelectFlag = false;
 	m_bPauseNextStepFlag = false;
+
+	ResetPosSelectFlags();
 } 
+
+void PlayerUI::ResetPosSelectFlags()
+{
+	m_bToBattleMainFlag = false;
+	m_bToBattleRewardFlag = false;
+	m_bToBattleDailyFlag = false;
+	m_bToDev20 = false;
+}
+
+void PlayerUI::GotoBattleMain()
+{
+	if ( m_bToBattleMainFlag
+		|| m_bToBattleRewardFlag
+		|| m_bToBattleDailyFlag )
+	{
+		return;
+	}
+
+	m_bToBattleMainFlag = true;
+	m_bToBattleRewardFlag = false;
+	m_bToBattleDailyFlag = false;
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "to_battle_main" ).c_str(), m_mapPosSelectInputVec );
+}
+
+void PlayerUI::GotoRewardFirstIcon()
+{
+	if ( m_bToBattleRewardFlag )
+	{
+		return;
+	}
+
+	ResetPosSelectFlags();
+	m_bToBattleRewardFlag = true;
+
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "to_battle_main_reward_firstIcon" ).c_str(), m_mapPosSelectInputVec );
+}
+
+void PlayerUI::GotoDailyFirstIcon()
+{
+	if ( m_bToBattleDailyFlag )
+	{
+		return;
+	}
+
+	ResetPosSelectFlags();
+	m_bToBattleDailyFlag = true;
+
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "to_battle_main_daily_firstIcon" ).c_str(), m_mapPosSelectInputVec );
+}
+
+void PlayerUI::GotoDev20()
+{
+	if ( m_bToDev20 )
+	{
+		return;
+	}
+
+	ResetPosSelectFlags();
+	m_bToDev20 = true;
+
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "to_dev20" ).c_str(), m_mapPosSelectInputVec );
+}
 
 void PlayerUI::OnBtnStop()
 {

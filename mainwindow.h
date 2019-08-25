@@ -159,11 +159,14 @@ public slots:
 	void UpdateSelectInputData( int index );
 	void OnBtnInsertInputClick();
 	void InsertInputData(int index);
-	void OnBtnGetBattleTemplate();
-	void OnBtnGetBattleTemplate2();
 	void OnBtnStartTimeCount();
 	void OnBtnEndTimeCount();
 	void OnBtnClearTipInfo();
+
+	//template
+	void OnBtnGetBattleTemplate();
+	void OnBtnGetBattleTemplate2();
+	void OnBtnOpenMapTemplate();
 
 	void ShowMessageBox(const char *content);
 	void MessageBoxTimerFunc();

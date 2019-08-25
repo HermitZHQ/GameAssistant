@@ -53,6 +53,9 @@ enum ZZ_Map_Param
 	Battle_A4,
 	Evelyn_Story = 11,//个人剧情
 	StartQuestUI,//停止在开始任务的图标上（一般是刚刚从一场战斗退出）
+	Battle_Main_1,//只查到第一个匹配
+	Dev_ing,//开发中
+
 
 	//------战斗中的情况
 	Battle_deploy = 100,//部署阶段
@@ -191,9 +194,16 @@ protected:
 	void StopScritp();
 	void StartScript();
 
+	//pos select
+	void ResetPosSelectFlags();
+	void GotoBattleMain();
+	void GotoRewardFirstIcon();
+	void GotoDailyFirstIcon();
+	void GotoDev20();
+
 	inline bool NotInBattleFlag() {
-		return (m_mapStatusOutputParam >= ZZ_Map_Param::Lobby
-			&& m_mapStatusOutputParam <= ZZ_Map_Param::StartQuestUI);
+		return ( m_mapStatusOutputParam >= ZZ_Map_Param::Lobby
+			&& m_mapStatusOutputParam <= ZZ_Map_Param::Dev_ing );
 	}
 
 private slots:
@@ -215,14 +225,39 @@ private:
 		int						interval;
 		bool					bShouldExecFlag;
 		bool					bFinishedFlag;
+		QTimer					timer;
 
 		void StartAutoHandle() 
 		{
 			bShouldExecFlag = false;
 			bFinishedFlag = false;
-			QTimer::singleShot(interval * (60 * 1000), [&]() {
+			timer.stop();
+
+			timer.connect( &timer, &QTimer::timeout, [&]() {
 				bShouldExecFlag = true;
-			});
+			} );
+			timer.setInterval( interval * ( 60 * 1000 ) );
+			timer.start();
+		}
+
+		void Reset()
+		{
+			bShouldExecFlag = false;
+			bFinishedFlag = false;
+			timer.stop();
+
+			timer.connect( &timer, &QTimer::timeout, [&]() {
+				bShouldExecFlag = true;
+			} );
+			timer.setInterval( interval * ( 60 * 1000 ) );
+			timer.start();
+		}
+
+		void Stop()
+		{
+			bShouldExecFlag = false;
+			bFinishedFlag = false;
+			timer.stop();
 		}
 	};
 	SettingInfo										m_emergencySetting;
@@ -238,6 +273,12 @@ private:
 	bool											m_bPauseMapRecognizeFlag;
 	bool											m_bPauseMapPosSelectFlag;
 	bool											m_bPauseNextStepFlag;
+
+	//流程控制标记
+	bool											m_bToBattleMainFlag;//是否已跳转到战斗主界面的标记（任务列表收起状态）
+	bool											m_bToBattleRewardFlag;//进入赏金任务标记（直到进入战斗中才算完全进入）
+	bool											m_bToBattleDailyFlag;//进入日常标记
+	bool											m_bToDev20;
 
 	//此inputVec专门用于识别目前的游戏状态，比如在大厅，在机库，在准备战斗，正在战斗中等
 	ThreadMapStatus									m_threadMapStatus;
