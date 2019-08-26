@@ -167,6 +167,7 @@ public slots:
 	void OnBtnGetBattleTemplate();
 	void OnBtnGetBattleTemplate2();
 	void OnBtnOpenMapTemplate();
+	void OnSearchEnterPressed();
 
 	void ShowMessageBox(const char *content);
 	void MessageBoxTimerFunc();

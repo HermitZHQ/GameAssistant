@@ -199,6 +199,7 @@ protected:
 	void GotoBattleMain();
 	void GotoRewardFirstIcon();
 	void GotoDailyFirstIcon();
+	void GotoEmergency();
 	void GotoDev20();
 
 	inline bool NotInBattleFlag() {
@@ -283,6 +284,7 @@ private:
 	bool											m_bToBattleMainFlag;//是否已跳转到战斗主界面的标记（任务列表收起状态）
 	bool											m_bToBattleRewardFlag;//进入赏金任务标记（直到进入战斗中才算完全进入）
 	bool											m_bToBattleDailyFlag;//进入日常标记
+	bool											m_bToBattleEmergencyFlag;
 	bool											m_bToDev20;
 
 	//此inputVec专门用于识别目前的游戏状态，比如在大厅，在机库，在准备战斗，正在战斗中等

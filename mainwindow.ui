@@ -510,7 +510,7 @@
    <widget class="QLabel" name="label_16">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>450</x>
       <y>260</y>
       <width>61</width>
       <height>21</height>
@@ -523,7 +523,7 @@
    <widget class="QLineEdit" name="edt_cmpPic">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>450</x>
       <y>280</y>
       <width>71</width>
       <height>21</height>
@@ -650,9 +650,9 @@
    <widget class="QLabel" name="label_20">
     <property name="geometry">
      <rect>
-      <x>450</x>
+      <x>550</x>
       <y>260</y>
-      <width>111</width>
+      <width>101</width>
       <height>21</height>
      </rect>
     </property>
@@ -663,7 +663,7 @@
    <widget class="QLineEdit" name="edt_costTime">
     <property name="geometry">
      <rect>
-      <x>450</x>
+      <x>550</x>
       <y>280</y>
       <width>101</width>
       <height>21</height>
@@ -1183,6 +1183,32 @@
      <string>打开地图模版</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_28">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>260</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>查询名称</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edt_search">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>280</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
@@ -1476,6 +1502,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>edt_search</sender>
+   <signal>returnPressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnSearchEnterPressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>402</x>
+     <y>289</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>431</x>
+     <y>291</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>OnBtnStartClick()</slot>
@@ -1516,5 +1558,6 @@
   <slot>OnBtnEndTimeCount()</slot>
   <slot>OnBtnGetBattleTemplate2()</slot>
   <slot>OnBtnOpenMapTemplate()</slot>
+  <slot>OnSearchEnterPressed()</slot>
  </slots>
 </ui>

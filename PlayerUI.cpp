@@ -43,6 +43,7 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	, m_bToBattleRewardFlag( false )
 	, m_bToBattleDailyFlag(false)
 	, m_bToDev20(false)
+	, m_bToBattleEmergencyFlag(false)
 {
 	m_ui->setupUi(this);
 }
@@ -162,7 +163,7 @@ void PlayerUI::UpdateMapPositionSelectScript()
 
 		if ( m_ui->chk_dev->isChecked() 
 			&& m_devSetting.bShouldExecFlag
-			&& !m_bInBattleFlag )
+			&& !m_bInBattleFlag )//开发----
 		{
 			if ( ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam )
 			{
@@ -180,7 +181,23 @@ void PlayerUI::UpdateMapPositionSelectScript()
 				ResetPosSelectFlags();
 			}
 		}
-		else if ( m_ui->chk_daily->isChecked() )
+		else if ( m_ui->chk_emergency->isChecked()//紧急任务----
+			&& m_emergencySetting.bShouldExecFlag
+			&& !m_bInBattleFlag )
+		{
+			if ( ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam )
+			{
+				GotoEmergency();
+				m_emergencySetting.Reset();
+			}
+			else if ( NotInBattleFlag()
+				&& m_mapStatusOutputParam != ZZ_Map_Param::Battle_Main
+				&& !m_bToBattleEmergencyFlag )
+			{
+				GotoBattleMain();
+			}
+		}
+		else if ( m_ui->chk_daily->isChecked() )//每日任务----
 		{
 			if ( ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam )
 			{
@@ -194,7 +211,7 @@ void PlayerUI::UpdateMapPositionSelectScript()
 			}
 		}
 		//赏金（优先级低，先进行开发招募等需求）
-		else if (m_ui->chk_reward->isChecked())
+		else if (m_ui->chk_reward->isChecked())//赏金任务----
 		{
 			if (ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam
 				&& !m_bToBattleRewardFlag)
@@ -556,6 +573,7 @@ void PlayerUI::ResetPosSelectFlags()
 	m_bToBattleMainFlag = false;
 	m_bToBattleRewardFlag = false;
 	m_bToBattleDailyFlag = false;
+	m_bToBattleEmergencyFlag = false;
 	m_bToDev20 = false;
 }
 
@@ -598,6 +616,19 @@ void PlayerUI::GotoDailyFirstIcon()
 	m_bToBattleDailyFlag = true;
 
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "to_battle_main_daily_firstIcon" ).c_str(), m_mapPosSelectInputVec );
+}
+
+void PlayerUI::GotoEmergency()
+{
+	if ( m_bToBattleEmergencyFlag )
+	{
+		return;
+	}
+
+	ResetPosSelectFlags();
+	m_bToBattleEmergencyFlag = true;
+
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "to_battle_main_emergency" ).c_str(), m_mapPosSelectInputVec );
 }
 
 void PlayerUI::GotoDev20()

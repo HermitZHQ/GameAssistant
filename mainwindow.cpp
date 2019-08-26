@@ -696,6 +696,21 @@ void MainWindow::OnBtnOpenMapTemplate()
 	AddTipInfo( std::string( "已打开地图模版:" ).append( "zz_map_recognize" ).c_str() );
 }
 
+void MainWindow::OnSearchEnterPressed()
+{
+	auto strSearch = m_ui->edt_search->text();
+
+	auto size = m_inputVec.size();
+	for (int i = 0; i < size; ++i)
+	{
+		if ( NULL != strstr( m_inputVec[i].comment, strSearch.toStdString().c_str() ) )
+		{
+			SetTableViewIndex( i );
+			break;
+		}
+	}
+}
+
 void MainWindow::OnBtnStartTimeCount()
 {
 	m_waitTime = GetTickCount();
