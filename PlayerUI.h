@@ -209,6 +209,11 @@ protected:
 private slots:
 	void OnBtnStop();
 	void OnBtnStartAuto();
+	void OnBtnToggleBattleOptions();
+	void OnBtnToggleNoneBattleOptions();
+
+	//----»î¶¯
+	void OnBtnHuodong1();
 
 private:
 	bool											m_bInitFlag;

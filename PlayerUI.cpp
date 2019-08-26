@@ -625,6 +625,30 @@ void PlayerUI::OnBtnStartAuto()
 }
 
 
+void PlayerUI::OnBtnToggleBattleOptions()
+{
+	m_ui->chk_emergency->toggle();
+	m_ui->chk_daily->toggle();
+	m_ui->chk_reward->toggle();
+}
+
+void PlayerUI::OnBtnToggleNoneBattleOptions()
+{
+	m_ui->chk_delegate->toggle();
+	m_ui->chk_dev->toggle();
+	m_ui->chk_recruit->toggle();
+}
+
+void PlayerUI::OnBtnHuodong1()
+{
+	Init();
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("huodong_t_1_5").c_str(), m_nextStepInputVec);
+
+	m_bPauseNextStepFlag = false;
+
+	ResetPosSelectFlags();
+}
+
 void ThreadMapStatus::run()
 {
 	QString result;
