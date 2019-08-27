@@ -17,22 +17,17 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	, m_bPauseNextStepFlag(true)
 
 	, m_specificLevelScriptMap({
-		{Nefud_1E, QString(DEFAULT_PATH).append("zz_map_nefud-1e")},
-		{Hecate_1E, QString(DEFAULT_PATH).append("zz_map_hecate-1e")},
-		{WOLT_50, QString(DEFAULT_PATH).append("zz_map_fb_wolt50")},
-		{WOLT_60, QString(DEFAULT_PATH).append("zz_map_fb_wolt60")},
-		{Evelyn_50, QString(DEFAULT_PATH).append("zz_map_fb_evelyn_50")},
-		{Evelyn_60, QString(DEFAULT_PATH).append("zz_map_fb_evelyn_60")},
+		{WOLT_60, QString("to_battle_main_wolt60")},
 		})
 
 	, m_specificDelegateScriptMap({
-		{Slowest, QString(DEFAULT_PATH).append("delegate_slowest")},
+		{Slowest, QString("delegate_slowest")},
 		})
 
 	, m_specificDevScriptMap({
-		{Limit, QString(DEFAULT_PATH).append("dev_limit")},
-		{Normal10, QString(DEFAULT_PATH).append("dev_normal_10")},
-		{Normal20, QString(DEFAULT_PATH).append("dev_normal_20")},
+		{Limit, QString("dev_limit")},
+		{Normal10, QString("dev_normal_10")},
+		{Normal20, QString("dev_normal_20")},
 		})
 	, m_mapStatusCmpParam(-1)
 	, m_mapStatusOutputParam(0)
@@ -44,6 +39,8 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	, m_bToBattleDailyFlag(false)
 	, m_bToDev20(false)
 	, m_bToBattleEmergencyFlag(false)
+	, m_bToBattleFbFlag(false)
+	, m_bFbFinishedFlag(false)
 {
 	m_ui->setupUi(this);
 }
@@ -107,6 +104,12 @@ void PlayerUI::UpdateMapStatusRecognizeScript()
 {
 	UpdateMapStatusInputDataVector(m_mapStatusCmpParam);
 
+	//0的时候还没有识别出任何状态，直接退出
+	if ( 0 == m_mapStatusOutputParam )
+	{
+		return;
+	}
+
 	//根据状态开始和关闭对应的timer执行脚本，提高效率，减少错误点击
 	if ( !NotInBattleFlag() )
 	{
@@ -124,6 +127,12 @@ void PlayerUI::UpdateMapStatusRecognizeScript()
 			//战斗场景中，暂停跳转地图，开启识别地图，降低cpu消耗
 			m_bPauseMapPosSelectFlag = true;
 			m_bPauseMapRecognizeFlag = false;
+
+			//重置时间检查
+			if ( m_emergencySetting.bShouldExecFlag )
+			{
+				m_emergencySetting.Reset();
+			}
 		}
 
 	}
@@ -181,6 +190,21 @@ void PlayerUI::UpdateMapPositionSelectScript()
 				ResetPosSelectFlags();
 			}
 		}
+		else if ( m_ui->chk_fb->isChecked()//副本任务----
+			&& !m_bFbFinishedFlag
+			&& !m_bInBattleFlag )
+		{
+			if ( ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam )
+			{
+				GotoFb();
+			}
+			else if ( NotInBattleFlag()
+				&& m_mapStatusOutputParam != ZZ_Map_Param::Battle_Main
+				&& !m_bToBattleFbFlag )
+			{
+				GotoBattleMain();
+			}
+		}
 		else if ( m_ui->chk_emergency->isChecked()//紧急任务----
 			&& m_emergencySetting.bShouldExecFlag
 			&& !m_bInBattleFlag )
@@ -188,7 +212,6 @@ void PlayerUI::UpdateMapPositionSelectScript()
 			if ( ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam )
 			{
 				GotoEmergency();
-				m_emergencySetting.Reset();
 			}
 			else if ( NotInBattleFlag()
 				&& m_mapStatusOutputParam != ZZ_Map_Param::Battle_Main
@@ -551,10 +574,23 @@ void PlayerUI::StartScript()
 	m_delegateSetting.interval = m_ui->edt_delegateInterval->text().toInt();
 	m_recruitSetting.interval = m_ui->edt_recruitInterval->text().toInt();
 
-	m_emergencySetting.StartAutoHandle();
-	m_devSetting.StartAutoHandle();
-	m_delegateSetting.StartAutoHandle();
-	m_recruitSetting.StartAutoHandle();
+	//定时设置
+	if (m_ui->chk_emergency->isChecked())
+	{
+		m_emergencySetting.StartAutoHandle();
+	}
+	if ( m_ui->chk_dev->isChecked() )
+	{
+		m_devSetting.StartAutoHandle();
+	}
+	if ( m_ui->chk_delegate->isChecked() )
+	{
+		m_delegateSetting.StartAutoHandle();
+	}
+	if ( m_ui->chk_recruit->isChecked() )
+	{
+		m_recruitSetting.StartAutoHandle();
+	}
 
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("map_status_recognize").c_str(), m_mapStatusInputVec);
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("next_step").c_str(), m_nextStepInputVec);
@@ -574,6 +610,8 @@ void PlayerUI::ResetPosSelectFlags()
 	m_bToBattleRewardFlag = false;
 	m_bToBattleDailyFlag = false;
 	m_bToBattleEmergencyFlag = false;
+	m_bToBattleFbFlag = false;
+
 	m_bToDev20 = false;
 }
 
@@ -629,6 +667,20 @@ void PlayerUI::GotoEmergency()
 	m_bToBattleEmergencyFlag = true;
 
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "to_battle_main_emergency" ).c_str(), m_mapPosSelectInputVec );
+}
+
+void PlayerUI::GotoFb()
+{
+	if ( m_bToBattleFbFlag )
+	{
+		return;
+	}
+
+	ResetPosSelectFlags();
+	m_bToBattleFbFlag = true;
+
+	int index = m_ui->cmb_fb->currentIndex();
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( m_specificLevelScriptMap[ZZ_Specific(index)].toStdString() ).c_str(), m_mapPosSelectInputVec );
 }
 
 void PlayerUI::GotoDev20()

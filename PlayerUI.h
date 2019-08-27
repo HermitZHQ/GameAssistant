@@ -21,12 +21,7 @@ enum ZZ_Delegate
 
 enum ZZ_Specific
 {
-	Nefud_1E,
-	Hecate_1E,
-	WOLT_50,//薇欧蕾特副本
 	WOLT_60,//薇欧蕾特副本
-	Evelyn_50,//伊芙琳50级副本
-	Evelyn_60,//伊芙琳60级副本
 };
 
 enum ZZ_Dev
@@ -200,6 +195,8 @@ protected:
 	void GotoRewardFirstIcon();
 	void GotoDailyFirstIcon();
 	void GotoEmergency();
+	void GotoFb();
+
 	void GotoDev20();
 
 	inline bool NotInBattleFlag() {
@@ -241,6 +238,7 @@ private:
 
 			timer.connect( &timer, &QTimer::timeout, [&]() {
 				bShouldExecFlag = true;
+				timer.stop();
 			} );
 			timer.setInterval( interval * ( 60 * 1000 ) );
 			timer.start();
@@ -254,6 +252,7 @@ private:
 
 			timer.connect( &timer, &QTimer::timeout, [&]() {
 				bShouldExecFlag = true;
+				timer.stop();
 			} );
 			timer.setInterval( interval * ( 60 * 1000 ) );
 			timer.start();
@@ -285,6 +284,9 @@ private:
 	bool											m_bToBattleRewardFlag;//进入赏金任务标记（直到进入战斗中才算完全进入）
 	bool											m_bToBattleDailyFlag;//进入日常标记
 	bool											m_bToBattleEmergencyFlag;
+	bool											m_bToBattleFbFlag;
+	bool											m_bFbFinishedFlag;
+
 	bool											m_bToDev20;
 
 	//此inputVec专门用于识别目前的游戏状态，比如在大厅，在机库，在准备战斗，正在战斗中等

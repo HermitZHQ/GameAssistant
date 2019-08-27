@@ -46,18 +46,20 @@ public:
     QCheckBox *chk_recruit;
     QLabel *label_9;
     QLineEdit *edt_recruitInterval;
-    QPushButton *btn_noneBattle_toggle;
     QGroupBox *groupBox_2;
     QCheckBox *chk_daily;
     QCheckBox *chk_reward;
     QLabel *label_6;
     QLineEdit *edt_emergencyInterval;
     QCheckBox *chk_emergency;
-    QPushButton *btn_battle_toggle;
+    QCheckBox *chk_fb;
+    QComboBox *cmb_fb;
     QGroupBox *groupBox_3;
     QTextEdit *textEdit;
     QPushButton *btn_huodong1;
     QLabel *label_10;
+    QPushButton *btn_noneBattle_toggle;
+    QPushButton *btn_battle_toggle;
 
     void setupUi(QWidget *PlayerUI)
     {
@@ -100,7 +102,7 @@ public:
         btn_startAuto->setGeometry(QRect(10, 596, 271, 51));
         groupBox = new QGroupBox(PlayerUI);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(10, 170, 251, 211));
+        groupBox->setGeometry(QRect(10, 210, 191, 171));
         chk_delegate = new QCheckBox(groupBox);
         chk_delegate->setObjectName(QString::fromUtf8("chk_delegate"));
         chk_delegate->setGeometry(QRect(10, 100, 91, 21));
@@ -127,7 +129,7 @@ public:
         cmb_delegate = new QComboBox(groupBox);
         cmb_delegate->addItem(QString());
         cmb_delegate->setObjectName(QString::fromUtf8("cmb_delegate"));
-        cmb_delegate->setGeometry(QRect(10, 77, 81, 20));
+        cmb_delegate->setGeometry(QRect(10, 77, 50, 20));
         cmb_delegate->setLayoutDirection(Qt::LeftToRight);
         cmb_delegate->setAutoFillBackground(true);
         cmb_delegate->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -147,36 +149,38 @@ public:
         edt_recruitInterval = new QLineEdit(groupBox);
         edt_recruitInterval->setObjectName(QString::fromUtf8("edt_recruitInterval"));
         edt_recruitInterval->setGeometry(QRect(106, 140, 31, 21));
-        btn_noneBattle_toggle = new QPushButton(groupBox);
-        btn_noneBattle_toggle->setObjectName(QString::fromUtf8("btn_noneBattle_toggle"));
-        btn_noneBattle_toggle->setGeometry(QRect(180, 180, 71, 28));
         groupBox_2 = new QGroupBox(PlayerUI);
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        groupBox_2->setGeometry(QRect(10, 10, 251, 151));
+        groupBox_2->setGeometry(QRect(10, 10, 221, 171));
         chk_daily = new QCheckBox(groupBox_2);
         chk_daily->setObjectName(QString::fromUtf8("chk_daily"));
-        chk_daily->setGeometry(QRect(10, 60, 201, 21));
+        chk_daily->setGeometry(QRect(10, 50, 71, 21));
         chk_daily->setChecked(true);
         chk_reward = new QCheckBox(groupBox_2);
         chk_reward->setObjectName(QString::fromUtf8("chk_reward"));
-        chk_reward->setGeometry(QRect(10, 90, 201, 21));
+        chk_reward->setGeometry(QRect(10, 80, 201, 21));
         chk_reward->setChecked(true);
         label_6 = new QLabel(groupBox_2);
         label_6->setObjectName(QString::fromUtf8("label_6"));
-        label_6->setGeometry(QRect(164, 33, 71, 16));
+        label_6->setGeometry(QRect(140, 23, 71, 16));
         edt_emergencyInterval = new QLineEdit(groupBox_2);
         edt_emergencyInterval->setObjectName(QString::fromUtf8("edt_emergencyInterval"));
-        edt_emergencyInterval->setGeometry(QRect(130, 31, 31, 21));
+        edt_emergencyInterval->setGeometry(QRect(106, 21, 31, 21));
         chk_emergency = new QCheckBox(groupBox_2);
         chk_emergency->setObjectName(QString::fromUtf8("chk_emergency"));
-        chk_emergency->setGeometry(QRect(10, 30, 121, 21));
+        chk_emergency->setGeometry(QRect(10, 20, 121, 21));
         chk_emergency->setChecked(true);
-        btn_battle_toggle = new QPushButton(groupBox_2);
-        btn_battle_toggle->setObjectName(QString::fromUtf8("btn_battle_toggle"));
-        btn_battle_toggle->setGeometry(QRect(179, 120, 71, 28));
+        chk_fb = new QCheckBox(groupBox_2);
+        chk_fb->setObjectName(QString::fromUtf8("chk_fb"));
+        chk_fb->setGeometry(QRect(10, 110, 141, 21));
+        chk_fb->setChecked(true);
+        cmb_fb = new QComboBox(groupBox_2);
+        cmb_fb->addItem(QString());
+        cmb_fb->setObjectName(QString::fromUtf8("cmb_fb"));
+        cmb_fb->setGeometry(QRect(10, 140, 151, 22));
         groupBox_3 = new QGroupBox(PlayerUI);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
-        groupBox_3->setGeometry(QRect(350, 90, 271, 201));
+        groupBox_3->setGeometry(QRect(350, 110, 271, 201));
         textEdit = new QTextEdit(groupBox_3);
         textEdit->setObjectName(QString::fromUtf8("textEdit"));
         textEdit->setGeometry(QRect(10, 20, 251, 61));
@@ -186,6 +190,12 @@ public:
         label_10 = new QLabel(groupBox_3);
         label_10->setObjectName(QString::fromUtf8("label_10"));
         label_10->setGeometry(QRect(150, 90, 111, 16));
+        btn_noneBattle_toggle = new QPushButton(PlayerUI);
+        btn_noneBattle_toggle->setObjectName(QString::fromUtf8("btn_noneBattle_toggle"));
+        btn_noneBattle_toggle->setGeometry(QRect(210, 220, 61, 28));
+        btn_battle_toggle = new QPushButton(PlayerUI);
+        btn_battle_toggle->setObjectName(QString::fromUtf8("btn_battle_toggle"));
+        btn_battle_toggle->setGeometry(QRect(240, 20, 61, 28));
 
         retranslateUi(PlayerUI);
         QObject::connect(pushButton_2, SIGNAL(clicked()), PlayerUI, SLOT(OnBtnStop()));
@@ -222,14 +232,15 @@ public:
         chk_recruit->setText(QApplication::translate("PlayerUI", "\350\207\252\345\212\250\346\213\233\345\213\237", nullptr));
         label_9->setText(QApplication::translate("PlayerUI", "\345\210\206\351\222\237\344\270\200\346\254\241", nullptr));
         edt_recruitInterval->setText(QApplication::translate("PlayerUI", "240", nullptr));
-        btn_noneBattle_toggle->setText(QApplication::translate("PlayerUI", "\345\217\215\351\200\211\351\200\211\351\241\271", nullptr));
         groupBox_2->setTitle(QApplication::translate("PlayerUI", "\346\210\230\346\226\227", nullptr));
         chk_daily->setText(QApplication::translate("PlayerUI", "\346\227\245\345\270\270\346\214\202\346\234\272", nullptr));
         chk_reward->setText(QApplication::translate("PlayerUI", "\350\265\217\351\207\221\346\214\202\346\234\272\357\274\210\346\227\240\351\231\220\346\254\241\346\225\260\357\274\211", nullptr));
         label_6->setText(QApplication::translate("PlayerUI", "\345\210\206\351\222\237\346\243\200\346\237\245\344\270\200\346\254\241", nullptr));
         edt_emergencyInterval->setText(QApplication::translate("PlayerUI", "30", nullptr));
         chk_emergency->setText(QApplication::translate("PlayerUI", "\350\207\252\345\212\250\347\264\247\346\200\245\344\273\273\345\212\241", nullptr));
-        btn_battle_toggle->setText(QApplication::translate("PlayerUI", "\345\217\215\351\200\211\351\200\211\351\241\271", nullptr));
+        chk_fb->setText(QApplication::translate("PlayerUI", "\345\211\257\346\234\254\346\214\202\346\234\272\357\274\210\351\253\230\344\274\230\345\205\210\347\272\247\357\274\211", nullptr));
+        cmb_fb->setItemText(0, QApplication::translate("PlayerUI", "\350\226\207\346\254\247\350\225\276\347\211\27160", nullptr));
+
         groupBox_3->setTitle(QApplication::translate("PlayerUI", "\346\264\273\345\212\250", nullptr));
         textEdit->setHtml(QApplication::translate("PlayerUI", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -238,6 +249,8 @@ public:
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">\346\264\273\345\212\250\347\232\204\344\274\230\345\205\210\347\272\247\344\270\272\346\234\200\351\253\230\357\274\214\346\211\247\350\241\214\346\264\273\345\212\250\346\227\266\344\270\215\345\206\215\346\211\247\350\241\214\345\205\266\344\273\226\350\204\232\346\234\254\357\274\214\350\213\245\346\264\273\345\212\250\345\267\262\347\273\223\346\235\237\350\257\267\345\213\277\345\206\215\350\277\220\350\241\214\346\264\273\345\212\250\350\204\232\346\234\254</p></body></html>", nullptr));
         btn_huodong1->setText(QApplication::translate("PlayerUI", "\345\274\200\345\247\213t-1-5\350\204\232\346\234\254", nullptr));
         label_10->setText(QApplication::translate("PlayerUI", "\345\234\250\346\216\242\347\264\242\347\225\214\351\235\242\350\277\220\350\241\214", nullptr));
+        btn_noneBattle_toggle->setText(QApplication::translate("PlayerUI", "\345\217\215\351\200\211\351\200\211\351\241\271", nullptr));
+        btn_battle_toggle->setText(QApplication::translate("PlayerUI", "\345\217\215\351\200\211\351\200\211\351\241\271", nullptr));
     } // retranslateUi
 
 };
