@@ -146,8 +146,8 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>86</width>
-      <height>20</height>
+      <width>91</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="layoutDirection">
@@ -206,8 +206,8 @@
      <rect>
       <x>10</x>
       <y>77</y>
-      <width>81</width>
-      <height>20</height>
+      <width>91</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="layoutDirection">
@@ -411,7 +411,7 @@
    <property name="geometry">
     <rect>
      <x>350</x>
-     <y>90</y>
+     <y>110</y>
      <width>271</width>
      <height>201</height>
     </rect>
