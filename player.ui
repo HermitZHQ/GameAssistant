@@ -122,7 +122,7 @@
      <string>自动委托</string>
     </property>
     <property name="checked">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QCheckBox" name="chk_dev">
@@ -138,7 +138,7 @@
      <string>自动开发</string>
     </property>
     <property name="checked">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QComboBox" name="cmb_dev">
@@ -146,8 +146,8 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>106</width>
-      <height>21</height>
+      <width>86</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="layoutDirection">
@@ -206,8 +206,8 @@
      <rect>
       <x>10</x>
       <y>77</y>
-      <width>81</width>
-      <height>21</height>
+      <width>50</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="layoutDirection">
@@ -264,7 +264,7 @@
      <string>自动招募</string>
     </property>
     <property name="checked">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLabel" name="label_9">
@@ -410,6 +410,11 @@
       <string>薇欧蕾特60</string>
      </property>
     </item>
+    <item>
+     <property name="text">
+      <string>猫猫60</string>
+     </property>
+    </item>
    </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_3">
@@ -471,27 +476,27 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="btn_noneBattle_toggle">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>240</x>
      <y>220</y>
-     <width>71</width>
+     <width>41</width>
      <height>28</height>
     </rect>
    </property>
    <property name="text">
-    <string>反选选项</string>
+    <string>反选</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btn_battle_toggle">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>240</x>
      <y>20</y>
-     <width>71</width>
+     <width>41</width>
      <height>28</height>
     </rect>
    </property>
    <property name="text">
-    <string>反选选项</string>
+    <string>反选</string>
    </property>
   </widget>
  </widget>

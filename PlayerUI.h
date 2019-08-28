@@ -4,6 +4,7 @@
 #include "PreDef.h"
 #include "Input.h"
 #include "QThread"
+#include "QMenu"
 
 namespace Ui {
 	class PlayerUI;
@@ -22,6 +23,7 @@ enum ZZ_Delegate
 enum ZZ_Specific
 {
 	WOLT_60,//薇欧蕾特副本
+	MAOMAO_60,
 };
 
 enum ZZ_Dev
@@ -50,6 +52,7 @@ enum ZZ_Map_Param
 	StartQuestUI,//停止在开始任务的图标上（一般是刚刚从一场战斗退出）
 	Battle_Main_1,//只查到第一个匹配
 	Dev_ing,//开发中
+	Fb_Count_0,//副本次数不足
 
 
 	//------战斗中的情况
@@ -180,6 +183,8 @@ public:
 
 public slots:
 	void handleResults(const QString &);
+	void ClearTipInfo();
+
 signals:
 	void operate(const QString &);
 
@@ -201,7 +206,7 @@ protected:
 
 	inline bool NotInBattleFlag() {
 		return ( m_mapStatusOutputParam >= ZZ_Map_Param::Lobby
-			&& m_mapStatusOutputParam <= ZZ_Map_Param::Dev_ing );
+			&& m_mapStatusOutputParam <= ZZ_Map_Param::Fb_Count_0 );
 	}
 
 private slots:
@@ -217,6 +222,8 @@ private:
 	bool											m_bInitFlag;
 	Ui::PlayerUI									*m_ui;
 	MainWindow										*m_mainWnd;
+	QMenu											m_menu;
+
 	std::unordered_map<ZZ_Specific, QString>		m_specificLevelScriptMap;
 	std::unordered_map<ZZ_Delegate, QString>		m_specificDelegateScriptMap;
 	std::unordered_map<ZZ_Dev, QString>				m_specificDevScriptMap;

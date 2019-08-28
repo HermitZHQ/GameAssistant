@@ -17,7 +17,8 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	, m_bPauseNextStepFlag(true)
 
 	, m_specificLevelScriptMap({
-		{WOLT_60, QString("to_battle_main_wolt60")},
+		{WOLT_60, QString( "to_battle_main_wolt60" )},
+		{ MAOMAO_60, QString( "to_battle_main_maomao60" ) },
 		})
 
 	, m_specificDelegateScriptMap({
@@ -43,6 +44,19 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	, m_bFbFinishedFlag(false)
 {
 	m_ui->setupUi(this);
+
+	auto actClearInfo = m_menu.addAction( Q8( "清除信息" ) );
+
+	m_ui->list_tip->setContextMenuPolicy( Qt::CustomContextMenu );
+	//table view connect
+	m_ui->list_tip->connect( m_ui->list_tip, &QListView::customContextMenuRequested, [&]( const QPoint &pt ) {
+		auto pos = m_ui->list_tip->mapToGlobal( pt );
+		m_menu.move( pos );
+		m_menu.show();
+	} );
+
+	//menu connect
+	m_menu.connect( actClearInfo, &QAction::triggered, this, &PlayerUI::ClearTipInfo );
 }
 
 PlayerUI::~PlayerUI()
@@ -276,6 +290,11 @@ void PlayerUI::handleResults(const QString &)
 
 }
 
+void PlayerUI::ClearTipInfo()
+{
+	m_ui->list_tip->clear();
+}
+
 void PlayerUI::UpdateMapStatusInputDataVector(int cmpParam)
 {
 	if (m_mapStatusInputVec.size() == 0)
@@ -372,13 +391,22 @@ void PlayerUI::UpdateMapStatusInputDataVector(int cmpParam)
 		{
 			m_mapStatusOutputParam = input.outputParam;
 
-			(0xffff != input.findPicSucceedJumpIndex) ? m_mainWnd->JumpInput(input.findPicSucceedJumpIndex, m_mapStatusInputVec) :
-				m_mainWnd->LoadScriptModuleFileToSpecificInputVec(input.findPicSucceedJumpModule, m_mapStatusInputVec);
-			break;
+			//原理上这里不会触发break，因为地图状态识别脚本中不存在跳转模块的设置
+// 			(0xffff != input.findPicSucceedJumpIndex) ? m_mainWnd->JumpInput(input.findPicSucceedJumpIndex, m_mapStatusInputVec) :
+// 				m_mainWnd->LoadScriptModuleFileToSpecificInputVec(input.findPicSucceedJumpModule, m_mapStatusInputVec);
+// 			break;
 		}
 		else if (InputType::Pic == input.type && input.bFindPicFlag)
 		{
 			m_mapStatusOutputParam = input.outputParam;
+		}
+
+		//如果参数为副本次数不足，则马上设置副本完成标记为真，并且把定位脚本转到battle_main，已重新执行新的指令
+		if ( ZZ_Map_Param::Fb_Count_0 == m_mapStatusOutputParam )
+		{
+			m_bFbFinishedFlag = true;
+			m_ui->chk_fb->setChecked( false );
+			GotoBattleMain();
 		}
 
 		//处理完后，如果已重复次数等于需要重复的次数，就标记为处理完毕（目前重复次数不对图片对比流程生效）
@@ -624,9 +652,8 @@ void PlayerUI::GotoBattleMain()
 		return;
 	}
 
+	ResetPosSelectFlags();
 	m_bToBattleMainFlag = true;
-	m_bToBattleRewardFlag = false;
-	m_bToBattleDailyFlag = false;
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "to_battle_main" ).c_str(), m_mapPosSelectInputVec );
 }
 
