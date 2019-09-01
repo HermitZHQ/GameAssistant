@@ -5,6 +5,7 @@
 #include "Input.h"
 #include "QThread"
 #include "QMenu"
+#include <mutex>
 
 namespace Ui {
 	class PlayerUI;
@@ -24,13 +25,22 @@ enum ZZ_Specific
 {
 	WOLT_60,//薇欧蕾特副本
 	MAOMAO_60,
+	Evelyn_60_1,
+	Evelyn_60_2,
+	Evelyn_60_3,
 };
 
 enum ZZ_Dev
 {
-	Limit,
-	Normal10,
 	Normal20,
+	Normal10,
+	Limit,
+};
+
+enum ZZ_Huodong
+{
+	t_1_5,
+	t_2_5,
 };
 
 //参数从1开始，0为默认值，不进行处理
@@ -53,6 +63,7 @@ enum ZZ_Map_Param
 	Battle_Main_1,//只查到第一个匹配
 	Dev_ing,//开发中
 	Fb_Count_0,//副本次数不足
+	Daily_Count_0,//每次打完
 
 
 	//------战斗中的情况
@@ -189,7 +200,8 @@ signals:
 	void operate(const QString &);
 
 protected:
-	void UpdateMapStatusInputDataVector(int cmpParam);
+	void UpdateMapStatusInputDataVector( int cmpParam );
+	void UpdateMapRecognizeAndBattleInputDataVector( int cmpParam );
 	void UpdateNormalInputDataVector(int cmpParam, std::vector<InputData> &inputVec);
 	void StopScritp();
 	void StartScript();
@@ -197,16 +209,17 @@ protected:
 	//pos select
 	void ResetPosSelectFlags();
 	void GotoBattleMain();
+	void ForceGotoBattleMain();
 	void GotoRewardFirstIcon();
 	void GotoDailyFirstIcon();
 	void GotoEmergency();
 	void GotoFb();
 
-	void GotoDev20();
+	void GotoDev();
 
 	inline bool NotInBattleFlag() {
 		return ( m_mapStatusOutputParam >= ZZ_Map_Param::Lobby
-			&& m_mapStatusOutputParam <= ZZ_Map_Param::Fb_Count_0 );
+			&& m_mapStatusOutputParam <= ZZ_Map_Param::Daily_Count_0 );
 	}
 
 private slots:
@@ -214,6 +227,7 @@ private slots:
 	void OnBtnStartAuto();
 	void OnBtnToggleBattleOptions();
 	void OnBtnToggleNoneBattleOptions();
+	void UpdateMainThreadTimerReset();
 
 	//----活动
 	void OnBtnHuodong1();
@@ -227,48 +241,82 @@ private:
 	std::unordered_map<ZZ_Specific, QString>		m_specificLevelScriptMap;
 	std::unordered_map<ZZ_Delegate, QString>		m_specificDelegateScriptMap;
 	std::unordered_map<ZZ_Dev, QString>				m_specificDevScriptMap;
+	std::unordered_map<ZZ_Huodong, QString>			m_specificHuodongScriptMap;
+
+	struct TimerInfo 
+	{
+		QTimer										timer;
+		int											interval;
+		bool										bResetFlag;
+
+		TimerInfo()
+			:bResetFlag(false)
+		{}
+
+		void SetResetFlag()
+		{
+			bResetFlag = true;
+		}
+
+		void CheckReset()
+		{
+			if ( bResetFlag )
+			{
+				bResetFlag = false;
+
+				timer.start( interval );
+			}
+		}
+	};
 
 	//具体游戏相关挂机设置
 	//间隔都以分钟计数
-	struct SettingInfo 
+	struct SettingInfo
 	{
+	public:
 		int						interval;
 		bool					bShouldExecFlag;
-		bool					bFinishedFlag;
+		bool					bResetFlag;
 		QTimer					timer;
+
+		SettingInfo()
+			:bResetFlag(false)
+			, bShouldExecFlag(false)
+		{
+			timer.connect( &timer, &QTimer::timeout, [&]() {
+
+				bShouldExecFlag = true;
+			} );
+		}
 
 		void StartAutoHandle() 
 		{
 			bShouldExecFlag = false;
-			bFinishedFlag = false;
-			timer.stop();
+			bResetFlag = false;
 
-			timer.connect( &timer, &QTimer::timeout, [&]() {
-				bShouldExecFlag = true;
-				timer.stop();
-			} );
-			timer.setInterval( interval * ( 60 * 1000 ) );
-			timer.start();
+			timer.start( interval * ( 60 * 1000 ) );
 		}
 
-		void Reset()
+		void SetResetFlag()
 		{
-			bShouldExecFlag = false;
-			bFinishedFlag = false;
-			timer.stop();
+			bResetFlag = true;
+		}
 
-			timer.connect( &timer, &QTimer::timeout, [&]() {
-				bShouldExecFlag = true;
-				timer.stop();
-			} );
-			timer.setInterval( interval * ( 60 * 1000 ) );
-			timer.start();
+		void CheckReset()
+		{
+			if ( bResetFlag )
+			{
+				bShouldExecFlag = false;
+				bResetFlag = false;
+
+				timer.start( interval * ( 60 * 1000 ) );
+			}
 		}
 
 		void Stop()
 		{
 			bShouldExecFlag = false;
-			bFinishedFlag = false;
+			bResetFlag = false;
 			timer.stop();
 		}
 	};
@@ -277,7 +325,10 @@ private:
 	SettingInfo										m_delegateSetting;
 	SettingInfo										m_recruitSetting;
 
-	QTimer											m_updateScriptTimer;
+	TimerInfo										m_checkNoneBattleBlockTimer;
+
+	QTimer											m_mainThreadResetTimer;
+	std::mutex										m_loadScriptMutex;
 
 	bool											m_bInBattleFlag;
 	bool											m_bRunThreadFlag;
@@ -292,9 +343,11 @@ private:
 	bool											m_bToBattleDailyFlag;//进入日常标记
 	bool											m_bToBattleEmergencyFlag;
 	bool											m_bToBattleFbFlag;
-	bool											m_bFbFinishedFlag;
 
-	bool											m_bToDev20;
+	bool											m_bFbFinishedFlag;//检查fb次数用尽
+	bool											m_bDailyFinishedFlag;//每日已经打完
+
+	bool											m_bToDev;
 
 	//此inputVec专门用于识别目前的游戏状态，比如在大厅，在机库，在准备战斗，正在战斗中等
 	ThreadMapStatus									m_threadMapStatus;

@@ -43,13 +43,15 @@ std::unordered_map<OpType, QString> OpTypeStrMap = {
 	{OpType::Click, Q8("点击")},
 	{OpType::Press, Q8("按住")},
 	{OpType::Move, Q8("移动")},
-	{OpType::Release, Q8("释放")},
+	{OpType::Release, Q8( "释放" )},
+	{ OpType::Wheel, Q8( "滚轮" ) },
 };
 std::unordered_map<std::string, OpType> StrOpTypeMap = {
 	{ ( "点击" ), OpType::Click },
 	{ ( "按住" ), OpType::Press },
 	{ ( "移动" ), OpType::Move },
 	{ ( "释放" ), OpType::Release },
+	{ ( "滚轮" ), OpType::Wheel },
 };
 
 QStringList g_horizontalHeaderLables({
@@ -1963,6 +1965,15 @@ void MainWindow::HandleMouseInput(InputData &input)
 	{
 		//move的时候默认鼠标左键按下
 		PostMessage(m_hGameWnd, WM_MOUSEMOVE, MK_LBUTTON, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
+	}
+	break;
+	case Wheel:
+	{
+		//move的时候默认鼠标左键按下
+// 		::SetFocus( m_hGameWnd );
+		POINT pt{ m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate };
+		::ClientToScreen( m_hGameWnd, &pt );
+		PostMessage( m_hGameWnd, WM_MOUSEWHEEL, MAKELONG( MK_CONTROL, -1200 ), MAKELONG( pt.x, pt.y ) );
 	}
 	break;
 	default:

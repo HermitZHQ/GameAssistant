@@ -163,6 +163,7 @@ public:
         cb_opType->addItem(QString());
         cb_opType->addItem(QString());
         cb_opType->addItem(QString());
+        cb_opType->addItem(QString());
         cb_opType->setObjectName(QString::fromUtf8("cb_opType"));
         cb_opType->setGeometry(QRect(550, 30, 81, 22));
         label_5 = new QLabel(centralWidget);
@@ -445,6 +446,7 @@ public:
         cb_opType->setItemText(1, QApplication::translate("MainWindow", "\346\214\211\344\275\217", nullptr));
         cb_opType->setItemText(2, QApplication::translate("MainWindow", "\347\247\273\345\212\250", nullptr));
         cb_opType->setItemText(3, QApplication::translate("MainWindow", "\351\207\212\346\224\276", nullptr));
+        cb_opType->setItemText(4, QApplication::translate("MainWindow", "\346\273\232\350\275\256", nullptr));
 
         label_5->setText(QApplication::translate("MainWindow", "\350\231\232\346\213\237\346\214\211\351\224\256\345\200\274", nullptr));
         edt_vk->setText(QApplication::translate("MainWindow", "G", nullptr));

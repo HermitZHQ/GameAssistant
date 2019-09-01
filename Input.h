@@ -21,7 +21,8 @@ enum OpType
 	Click,
 	Press,
 	Move,
-	Release
+	Release,
+	Wheel,
 };
 
 struct InputData 

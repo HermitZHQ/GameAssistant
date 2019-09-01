@@ -208,6 +208,11 @@
       <string>释放</string>
      </property>
     </item>
+    <item>
+     <property name="text">
+      <string>滚轮</string>
+     </property>
+    </item>
    </widget>
    <widget class="QLabel" name="label_5">
     <property name="geometry">

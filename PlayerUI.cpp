@@ -19,6 +19,9 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	, m_specificLevelScriptMap({
 		{WOLT_60, QString( "to_battle_main_wolt60" )},
 		{ MAOMAO_60, QString( "to_battle_main_maomao60" ) },
+		{ Evelyn_60_1, QString( "to_battle_main_evelyn60_1" ) },
+		{ Evelyn_60_2, QString( "to_battle_main_evelyn60_2" ) },
+		{ Evelyn_60_3, QString( "to_battle_main_evelyn60_3" ) },
 		})
 
 	, m_specificDelegateScriptMap({
@@ -26,10 +29,16 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 		})
 
 	, m_specificDevScriptMap({
-		{Limit, QString("dev_limit")},
-		{Normal10, QString("dev_normal_10")},
-		{Normal20, QString("dev_normal_20")},
+		{Limit, QString("to_dev")},
+		{Normal10, QString("to_dev10")},
+		{Normal20, QString("to_dev20")},
 		})
+
+	, m_specificHuodongScriptMap( {
+		{ t_1_5, QString( "huodong_t_1_5" ) },
+		{ t_2_5, QString( "huodong_t_2_5" ) },
+	})
+
 	, m_mapStatusCmpParam(-1)
 	, m_mapStatusOutputParam(0)
 	, m_lastStatusParam(-1)
@@ -38,12 +47,26 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	, m_bToBattleMainFlag(false)
 	, m_bToBattleRewardFlag( false )
 	, m_bToBattleDailyFlag(false)
-	, m_bToDev20(false)
+	, m_bToDev(false)
 	, m_bToBattleEmergencyFlag(false)
 	, m_bToBattleFbFlag(false)
-	, m_bFbFinishedFlag(false)
+
+	, m_bFbFinishedFlag(false), m_bDailyFinishedFlag(false)
 {
 	m_ui->setupUi(this);
+
+	m_mainThreadResetTimer.connect( &m_mainThreadResetTimer, &QTimer::timeout, this, &PlayerUI::UpdateMainThreadTimerReset );
+	m_mainThreadResetTimer.start( 50 );
+
+	m_checkNoneBattleBlockTimer.interval = 120000;
+	m_checkNoneBattleBlockTimer.timer.connect( &m_checkNoneBattleBlockTimer.timer, &QTimer::timeout, [&]() {
+
+		if ( NotInBattleFlag() )
+		{
+			ForceGotoBattleMain();
+			m_mainWnd->AddTipInfo( "---->似乎卡界面了，尝试回到战斗主界面中...<----" );
+		}
+	} );
 
 	auto actClearInfo = m_menu.addAction( Q8( "清除信息" ) );
 
@@ -132,6 +155,7 @@ void PlayerUI::UpdateMapStatusRecognizeScript()
 			m_bInBattleFlag = true;
 
 			//因为战斗脚本完成后，现在都会停止，不会跳转回地图查找，这样处理比较简单，否则还涉及到跳转回地图查找后又进入战斗脚本的问题，具体游戏这边的脚本更新都有所改动，停止脚本不再停止timer，而是把inputVec清空，所以当我们需要再次开启地图识别的时候，我们需要先加载识别文件（因为这时候vec是空）
+			std::lock_guard<std::mutex> lock( m_loadScriptMutex );
 			m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("zz_map_recognize").c_str(), m_mapRecognizeInputVec);
 			m_mainWnd->AddTipInfo( "已进入战斗场景--------" );
 
@@ -145,7 +169,7 @@ void PlayerUI::UpdateMapStatusRecognizeScript()
 			//重置时间检查
 			if ( m_emergencySetting.bShouldExecFlag )
 			{
-				m_emergencySetting.Reset();
+				m_emergencySetting.SetResetFlag();
 			}
 		}
 
@@ -181,6 +205,7 @@ void PlayerUI::UpdateMapPositionSelectScript()
 	if (m_lastStatusParam != m_mapStatusOutputParam)
 	{
 		m_lastStatusParam = m_mapStatusOutputParam;
+		m_checkNoneBattleBlockTimer.SetResetFlag();
 
 		//if从上到下优先级依次递减，赏金最低，也就是其他操作都执行完毕后再执行赏金--------------------------
 
@@ -190,33 +215,18 @@ void PlayerUI::UpdateMapPositionSelectScript()
 		{
 			if ( ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam )
 			{
-				GotoDev20();
+				GotoDev();
 			}
 			else if ( NotInBattleFlag()
 				&& m_mapStatusOutputParam != ZZ_Map_Param::Battle_Main
-				&& !m_bToDev20)
+				&& !m_bToDev)
 			{
 				GotoBattleMain();
 			}
 			else if ( ZZ_Map_Param::Dev_ing == m_mapStatusOutputParam )
 			{
-				m_devSetting.Reset();
+				m_devSetting.SetResetFlag();
 				ResetPosSelectFlags();
-			}
-		}
-		else if ( m_ui->chk_fb->isChecked()//副本任务----
-			&& !m_bFbFinishedFlag
-			&& !m_bInBattleFlag )
-		{
-			if ( ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam )
-			{
-				GotoFb();
-			}
-			else if ( NotInBattleFlag()
-				&& m_mapStatusOutputParam != ZZ_Map_Param::Battle_Main
-				&& !m_bToBattleFbFlag )
-			{
-				GotoBattleMain();
 			}
 		}
 		else if ( m_ui->chk_emergency->isChecked()//紧急任务----
@@ -234,7 +244,8 @@ void PlayerUI::UpdateMapPositionSelectScript()
 				GotoBattleMain();
 			}
 		}
-		else if ( m_ui->chk_daily->isChecked() )//每日任务----
+		else if ( m_ui->chk_daily->isChecked() 
+			&& !m_bDailyFinishedFlag)//每日任务----
 		{
 			if ( ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam )
 			{
@@ -243,6 +254,21 @@ void PlayerUI::UpdateMapPositionSelectScript()
 			else if ( NotInBattleFlag()
 				&& m_mapStatusOutputParam != ZZ_Map_Param::Battle_Main
 				&& !m_bToBattleDailyFlag)
+			{
+				GotoBattleMain();
+			}
+		}
+		else if ( m_ui->chk_fb->isChecked()//副本任务----
+			&& !m_bFbFinishedFlag
+			&& !m_bInBattleFlag )
+		{
+			if ( ZZ_Map_Param::Battle_Main == m_mapStatusOutputParam )
+			{
+				GotoFb();
+			}
+			else if ( NotInBattleFlag()
+				&& m_mapStatusOutputParam != ZZ_Map_Param::Battle_Main
+				&& !m_bToBattleFbFlag )
 			{
 				GotoBattleMain();
 			}
@@ -281,7 +307,7 @@ void PlayerUI::UpdateAllMapRecognizeAndBattleScript()
 	if (m_mapRecognizeInputVec.size())
 	{
 		//这里的参数根据用户的勾选变换，目前暂时为-1
-		UpdateNormalInputDataVector(-1, m_mapRecognizeInputVec);
+		UpdateMapRecognizeAndBattleInputDataVector(-1);
 	}
 }
 
@@ -408,6 +434,11 @@ void PlayerUI::UpdateMapStatusInputDataVector(int cmpParam)
 			m_ui->chk_fb->setChecked( false );
 			GotoBattleMain();
 		}
+		else if ( ZZ_Map_Param::Daily_Count_0 == m_mapStatusOutputParam )
+		{
+			m_bDailyFinishedFlag = true;
+			m_ui->chk_daily->setChecked( false );
+		}
 
 		//处理完后，如果已重复次数等于需要重复的次数，就标记为处理完毕（目前重复次数不对图片对比流程生效）
 		input.alreadyRepeatCount += 1;
@@ -431,6 +462,144 @@ void PlayerUI::UpdateMapStatusInputDataVector(int cmpParam)
 	if (bAllFinishedFlag)
 	{
 		m_mainWnd->ResetAllInputFinishFlag(m_mapStatusInputVec);
+	}
+}
+
+void PlayerUI::UpdateMapRecognizeAndBattleInputDataVector( int cmpParam )
+{
+	std::lock_guard<std::mutex> lock( m_loadScriptMutex );
+	if ( m_mapRecognizeInputVec.size() == 0 )
+	{
+		m_mainWnd->AddTipInfo( "脚本中命令数为0，线程退出..." );
+		return;
+	}
+
+	//获取最新的游戏窗口大小，通过比例来进行鼠标点击，可以保证窗口任意大小都能点击正确
+	m_mainWnd->UpdateGameWindowSize();
+
+	bool bAllFinishedFlag = true;
+	int index = -1;
+	for ( auto &input : m_mapRecognizeInputVec )
+	{
+		++index;
+		//判断操作已经完成
+		if ( ( input.bFinishFlag && input.type != Pic )
+			|| ( input.type == Pic && ( input.bFindPicFlag || input.bFindPicOvertimeFlag ) )
+			|| ( -1 != cmpParam && input.cmpParam != cmpParam ) )
+			continue;
+
+		//初始化输入开始时间
+		if ( !input.bInitStartTimeFlag )
+		{
+			input.bInitStartTimeFlag = true;
+			input.startTime = GetTickCount();
+		}
+
+		bAllFinishedFlag = false;
+
+		//判断延迟
+		if ( GetTickCount() - input.startTime < ( DWORD )input.delay )
+			break;
+
+		//等待类型的话，则继续判断是否已到时间
+		if ( input.type == Wait && GetTickCount() - input.startTime < ( DWORD )( input.waitTime * 1000 ) )
+			break;
+
+		switch ( input.type )
+		{
+		case Mouse:
+			m_mainWnd->HandleMouseInput( input );
+			break;
+		case Keyboard:
+			m_mainWnd->HandleKeyboardInput( input );
+			break;
+		case Pic:
+			m_mainWnd->HandleGameImgCompare( input );
+			break;
+		case StopScript:
+		{
+			m_mapRecognizeInputVec.clear();
+			m_mainWnd->AddTipInfo( "脚本已运行完毕，请手动选择其他脚本执行" );
+			return;
+		}
+		break;
+		case Log:
+		{
+			m_mainWnd->AddTipInfo( input.comment );
+		}
+		break;
+		case Jump:
+		{
+			if ( 0xffff == input.findPicSucceedJumpIndex )
+			{
+				m_mainWnd->LoadScriptModuleFileToSpecificInputVec( input.findPicSucceedJumpModule, m_mapRecognizeInputVec );
+				break;
+			}
+			else
+			{
+				if ( -1 != input.findPicSucceedJumpIndex )
+				{
+					m_mainWnd->JumpInput( input.findPicSucceedJumpIndex, m_mapRecognizeInputVec );
+				}
+			}
+		}
+		break;
+		default:
+			break;
+		}
+
+		//查询图片是否超时---放在执行之后，这样保证至少先执行一次对比才会超时
+		if ( input.findPicOvertime != -1
+			&& InputType::Pic == input.type
+			&& ( GetTickCount() - input.startTime > ( DWORD )( input.findPicOvertime + input.delay ) )
+			&& !input.bFindPicFlag )
+		{
+			input.bFindPicOvertimeFlag = true;
+			//判断超时指令跳转
+			if ( -1 != input.findPicOvertimeJumpIndex )
+			{
+				( 0xffff != input.findPicOvertimeJumpIndex ) ? m_mainWnd->JumpInput( input.findPicOvertimeJumpIndex, m_mapRecognizeInputVec ) :
+					( m_mainWnd->LoadScriptModuleFileToSpecificInputVec( input.findPicOvertimeJumpModule, m_mapRecognizeInputVec ) );
+				break;
+			}
+			continue;
+		}
+
+		//如果没有找到图片就跳过，继续处理这一项
+		if ( InputType::Pic == input.type && !input.bFindPicFlag )
+		{
+			break;
+		}
+		//图片对比成功指令跳转
+		else if ( InputType::Pic == input.type && input.bFindPicFlag && -1 != input.findPicSucceedJumpIndex )
+		{
+			( 0xffff != input.findPicSucceedJumpIndex ) ? m_mainWnd->JumpInput( input.findPicSucceedJumpIndex, m_mapRecognizeInputVec ) :
+				m_mainWnd->LoadScriptModuleFileToSpecificInputVec( input.findPicSucceedJumpModule, m_mapRecognizeInputVec );
+			break;
+		}
+
+		//处理完后，如果已重复次数等于需要重复的次数，就标记为处理完毕（目前重复次数不对图片对比流程生效）
+		input.alreadyRepeatCount += 1;
+		if ( input.alreadyRepeatCount >= input.repeatCount )
+		{
+			input.bFinishFlag = true;
+		}
+		else
+		{
+			//没有达到重复次数时，重置开始时间，并判断是否跳转后，break继续判断延迟
+			input.startTime = GetTickCount();
+			//这里借用了找图成功跳转索引的变量，因为找图我们都不会使用多次，我也就不想再多加结构体变量了，目前的多次重复命令都用于延迟上
+			if ( -1 != input.findPicSucceedJumpIndex && 0xffff != input.findPicSucceedJumpIndex )
+			{
+				m_mainWnd->JumpInput( input.findPicSucceedJumpIndex, m_mapRecognizeInputVec );
+			}
+			break;
+		}
+	}
+
+	if ( bAllFinishedFlag )
+	{
+		m_mainWnd->ResetAllInputFinishFlag( m_mapRecognizeInputVec );
 	}
 }
 
@@ -586,6 +755,8 @@ void PlayerUI::StopScritp()
 	m_delegateSetting.Stop();
 	m_recruitSetting.Stop();
 
+	m_checkNoneBattleBlockTimer.timer.stop();
+
 	//设置指定的模拟器类型
 	int index = m_ui->cmb_sim->currentIndex();
 	m_mainWnd->SetSimWndType((SimWndType)index);
@@ -620,6 +791,12 @@ void PlayerUI::StartScript()
 		m_recruitSetting.StartAutoHandle();
 	}
 
+	m_checkNoneBattleBlockTimer.timer.start();
+
+	//重置副本次数用尽标记（因为可能从一般副本选择了剧情副本）
+	m_bFbFinishedFlag = false;
+	m_bDailyFinishedFlag = false;
+
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("map_status_recognize").c_str(), m_mapStatusInputVec);
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("next_step").c_str(), m_nextStepInputVec);
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("zz_map_recognize").c_str(), m_mapRecognizeInputVec);
@@ -640,14 +817,16 @@ void PlayerUI::ResetPosSelectFlags()
 	m_bToBattleEmergencyFlag = false;
 	m_bToBattleFbFlag = false;
 
-	m_bToDev20 = false;
+	m_bToDev = false;
 }
 
 void PlayerUI::GotoBattleMain()
 {
-	if ( m_bToBattleMainFlag
+	if ( m_bToBattleMainFlag 
+		|| m_bToBattleDailyFlag
 		|| m_bToBattleRewardFlag
-		|| m_bToBattleDailyFlag )
+		|| m_bToBattleFbFlag
+		|| m_bToBattleEmergencyFlag)
 	{
 		return;
 	}
@@ -655,6 +834,19 @@ void PlayerUI::GotoBattleMain()
 	ResetPosSelectFlags();
 	m_bToBattleMainFlag = true;
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "to_battle_main" ).c_str(), m_mapPosSelectInputVec );
+}
+
+void PlayerUI::ForceGotoBattleMain()
+{
+	if ( m_bToDev )
+	{
+		return;
+	}
+
+	ResetPosSelectFlags();
+	m_bToBattleMainFlag = true;
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "to_battle_main" ).c_str(), m_mapPosSelectInputVec );
+	m_bPauseMapPosSelectFlag = false;
 }
 
 void PlayerUI::GotoRewardFirstIcon()
@@ -710,17 +902,18 @@ void PlayerUI::GotoFb()
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( m_specificLevelScriptMap[ZZ_Specific(index)].toStdString() ).c_str(), m_mapPosSelectInputVec );
 }
 
-void PlayerUI::GotoDev20()
+void PlayerUI::GotoDev()
 {
-	if ( m_bToDev20 )
+	if ( m_bToDev )
 	{
 		return;
 	}
 
 	ResetPosSelectFlags();
-	m_bToDev20 = true;
+	m_bToDev = true;
 
-	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "to_dev20" ).c_str(), m_mapPosSelectInputVec );
+	int index = m_ui->cmb_dev->currentIndex();
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( m_specificDevScriptMap[ZZ_Dev( index )].toStdString() ).c_str(), m_mapPosSelectInputVec );
 }
 
 void PlayerUI::OnBtnStop()
@@ -749,10 +942,21 @@ void PlayerUI::OnBtnToggleNoneBattleOptions()
 	m_ui->chk_recruit->toggle();
 }
 
+void PlayerUI::UpdateMainThreadTimerReset()
+{
+	m_emergencySetting.CheckReset();
+	m_devSetting.CheckReset();
+	m_delegateSetting.CheckReset();
+	m_recruitSetting.CheckReset();
+	m_checkNoneBattleBlockTimer.CheckReset();
+}
+
 void PlayerUI::OnBtnHuodong1()
 {
 	Init();
-	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append("huodong_t_1_5").c_str(), m_nextStepInputVec);
+
+	int index = m_ui->cmb_huodong->currentIndex();
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec(std::string(DEFAULT_PATH).append( m_specificHuodongScriptMap[ZZ_Huodong( index )].toStdString() ).c_str(), m_nextStepInputVec);
 
 	m_bPauseNextStepFlag = false;
 

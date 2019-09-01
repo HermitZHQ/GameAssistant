@@ -110,6 +110,9 @@
     <string>非战斗</string>
    </property>
    <widget class="QCheckBox" name="chk_delegate">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -161,7 +164,7 @@
     </property>
     <item>
      <property name="text">
-      <string>限时开发</string>
+      <string>普通开发20</string>
      </property>
     </item>
     <item>
@@ -171,7 +174,7 @@
     </item>
     <item>
      <property name="text">
-      <string>普通开发20</string>
+      <string>限时开发</string>
      </property>
     </item>
    </widget>
@@ -202,6 +205,9 @@
     </property>
    </widget>
    <widget class="QComboBox" name="cmb_delegate">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -248,10 +254,13 @@
      </rect>
     </property>
     <property name="text">
-     <string>65</string>
+     <string>70</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="chk_recruit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -332,7 +341,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>赏金挂机（无限次数）</string>
+     <string>赏金挂机</string>
     </property>
     <property name="checked">
      <bool>true</bool>
@@ -361,7 +370,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>30</string>
+     <string>10</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="chk_emergency">
@@ -390,7 +399,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>副本挂机（高优先级）</string>
+     <string>副本挂机</string>
     </property>
     <property name="checked">
      <bool>true</bool>
@@ -413,6 +422,21 @@
     <item>
      <property name="text">
       <string>猫猫60</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>伊芙琳60-1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>伊芙琳60-2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>伊芙琳60-3</string>
      </property>
     </item>
    </widget>
@@ -449,28 +473,48 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="btn_huodong1">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>84</y>
+      <x>60</x>
+      <y>140</y>
       <width>131</width>
       <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>开始t-1-5脚本</string>
+     <string>开始脚本</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_10">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>90</y>
+      <x>70</x>
+      <y>170</y>
       <width>111</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>在探索界面运行</string>
+     <string>在对应活动界面运行</string>
     </property>
+   </widget>
+   <widget class="QComboBox" name="cmb_huodong">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>251</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>t-1-5</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>t-2-5</string>
+     </property>
+    </item>
    </widget>
   </widget>
   <widget class="QPushButton" name="btn_noneBattle_toggle">
