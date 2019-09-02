@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>631</width>
+    <width>582</width>
     <height>653</height>
    </rect>
   </property>
@@ -16,8 +16,8 @@
   <widget class="QPushButton" name="pushButton_2">
    <property name="geometry">
     <rect>
-     <x>350</x>
-     <y>596</y>
+     <x>300</x>
+     <y>600</y>
      <width>271</width>
      <height>51</height>
     </rect>
@@ -31,7 +31,7 @@
     <rect>
      <x>10</x>
      <y>390</y>
-     <width>611</width>
+     <width>561</width>
      <height>201</height>
     </rect>
    </property>
@@ -39,7 +39,7 @@
   <widget class="QWidget" name="verticalLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>350</x>
+     <x>300</x>
      <y>10</y>
      <width>271</width>
      <height>80</height>
@@ -141,7 +141,7 @@
      <string>自动开发</string>
     </property>
     <property name="checked">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QComboBox" name="cmb_dev">
@@ -149,8 +149,8 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>86</width>
-      <height>20</height>
+      <width>106</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="layoutDirection">
@@ -212,8 +212,8 @@
      <rect>
       <x>10</x>
       <y>77</y>
-      <width>50</width>
-      <height>20</height>
+      <width>60</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="layoutDirection">
@@ -254,7 +254,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>70</string>
+     <string>60</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="chk_recruit">
@@ -320,7 +320,7 @@
      <rect>
       <x>10</x>
       <y>50</y>
-      <width>71</width>
+      <width>141</width>
       <height>21</height>
      </rect>
     </property>
@@ -444,7 +444,7 @@
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
-     <x>350</x>
+     <x>300</x>
      <y>110</y>
      <width>271</width>
      <height>201</height>
@@ -486,9 +486,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_10">
     <property name="geometry">
      <rect>
-      <x>70</x>
+      <x>60</x>
       <y>170</y>
-      <width>111</width>
+      <width>151</width>
       <height>16</height>
      </rect>
     </property>
@@ -541,6 +541,19 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>反选</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_11">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>180</y>
+     <width>271</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>日常和副本次数用尽后，会自动取消勾选</string>
    </property>
   </widget>
  </widget>
