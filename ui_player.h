@@ -61,21 +61,22 @@ public:
     QComboBox *cmb_huodong;
     QPushButton *btn_noneBattle_toggle;
     QPushButton *btn_battle_toggle;
+    QLabel *label_11;
 
     void setupUi(QWidget *PlayerUI)
     {
         if (PlayerUI->objectName().isEmpty())
             PlayerUI->setObjectName(QString::fromUtf8("PlayerUI"));
-        PlayerUI->resize(631, 653);
+        PlayerUI->resize(582, 653);
         pushButton_2 = new QPushButton(PlayerUI);
         pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
-        pushButton_2->setGeometry(QRect(350, 596, 271, 51));
+        pushButton_2->setGeometry(QRect(300, 600, 271, 51));
         list_tip = new QListWidget(PlayerUI);
         list_tip->setObjectName(QString::fromUtf8("list_tip"));
-        list_tip->setGeometry(QRect(10, 390, 611, 201));
+        list_tip->setGeometry(QRect(10, 390, 561, 201));
         verticalLayoutWidget_2 = new QWidget(PlayerUI);
         verticalLayoutWidget_2->setObjectName(QString::fromUtf8("verticalLayoutWidget_2"));
-        verticalLayoutWidget_2->setGeometry(QRect(350, 10, 271, 80));
+        verticalLayoutWidget_2->setGeometry(QRect(300, 10, 271, 80));
         verticalLayout_2 = new QVBoxLayout(verticalLayoutWidget_2);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         verticalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -112,13 +113,13 @@ public:
         chk_dev = new QCheckBox(groupBox);
         chk_dev->setObjectName(QString::fromUtf8("chk_dev"));
         chk_dev->setGeometry(QRect(10, 42, 91, 21));
-        chk_dev->setChecked(false);
+        chk_dev->setChecked(true);
         cmb_dev = new QComboBox(groupBox);
         cmb_dev->addItem(QString());
         cmb_dev->addItem(QString());
         cmb_dev->addItem(QString());
         cmb_dev->setObjectName(QString::fromUtf8("cmb_dev"));
-        cmb_dev->setGeometry(QRect(10, 20, 86, 20));
+        cmb_dev->setGeometry(QRect(10, 20, 106, 21));
         cmb_dev->setLayoutDirection(Qt::LeftToRight);
         cmb_dev->setAutoFillBackground(true);
         cmb_dev->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -132,7 +133,7 @@ public:
         cmb_delegate->addItem(QString());
         cmb_delegate->setObjectName(QString::fromUtf8("cmb_delegate"));
         cmb_delegate->setEnabled(false);
-        cmb_delegate->setGeometry(QRect(10, 77, 50, 20));
+        cmb_delegate->setGeometry(QRect(10, 77, 60, 21));
         cmb_delegate->setLayoutDirection(Qt::LeftToRight);
         cmb_delegate->setAutoFillBackground(true);
         cmb_delegate->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -158,7 +159,7 @@ public:
         groupBox_2->setGeometry(QRect(10, 10, 231, 171));
         chk_daily = new QCheckBox(groupBox_2);
         chk_daily->setObjectName(QString::fromUtf8("chk_daily"));
-        chk_daily->setGeometry(QRect(10, 50, 71, 21));
+        chk_daily->setGeometry(QRect(10, 50, 141, 21));
         chk_daily->setChecked(true);
         chk_reward = new QCheckBox(groupBox_2);
         chk_reward->setObjectName(QString::fromUtf8("chk_reward"));
@@ -188,7 +189,7 @@ public:
         cmb_fb->setGeometry(QRect(10, 140, 151, 22));
         groupBox_3 = new QGroupBox(PlayerUI);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
-        groupBox_3->setGeometry(QRect(350, 110, 271, 201));
+        groupBox_3->setGeometry(QRect(300, 110, 271, 201));
         textEdit = new QTextEdit(groupBox_3);
         textEdit->setObjectName(QString::fromUtf8("textEdit"));
         textEdit->setGeometry(QRect(10, 20, 251, 61));
@@ -197,7 +198,7 @@ public:
         btn_huodong1->setGeometry(QRect(60, 140, 131, 28));
         label_10 = new QLabel(groupBox_3);
         label_10->setObjectName(QString::fromUtf8("label_10"));
-        label_10->setGeometry(QRect(70, 170, 111, 16));
+        label_10->setGeometry(QRect(60, 170, 151, 16));
         cmb_huodong = new QComboBox(groupBox_3);
         cmb_huodong->addItem(QString());
         cmb_huodong->addItem(QString());
@@ -209,6 +210,9 @@ public:
         btn_battle_toggle = new QPushButton(PlayerUI);
         btn_battle_toggle->setObjectName(QString::fromUtf8("btn_battle_toggle"));
         btn_battle_toggle->setGeometry(QRect(240, 20, 41, 28));
+        label_11 = new QLabel(PlayerUI);
+        label_11->setObjectName(QString::fromUtf8("label_11"));
+        label_11->setGeometry(QRect(10, 180, 271, 16));
 
         retranslateUi(PlayerUI);
         QObject::connect(pushButton_2, SIGNAL(clicked()), PlayerUI, SLOT(OnBtnStop()));
@@ -241,7 +245,7 @@ public:
         cmb_delegate->setItemText(0, QApplication::translate("PlayerUI", "\346\234\200\346\205\242", nullptr));
 
         edt_delegateInterval->setText(QApplication::translate("PlayerUI", "360", nullptr));
-        edt_devInterval->setText(QApplication::translate("PlayerUI", "70", nullptr));
+        edt_devInterval->setText(QApplication::translate("PlayerUI", "60", nullptr));
         chk_recruit->setText(QApplication::translate("PlayerUI", "\350\207\252\345\212\250\346\213\233\345\213\237", nullptr));
         label_9->setText(QApplication::translate("PlayerUI", "\345\210\206\351\222\237\344\270\200\346\254\241", nullptr));
         edt_recruitInterval->setText(QApplication::translate("PlayerUI", "240", nullptr));
@@ -271,6 +275,7 @@ public:
 
         btn_noneBattle_toggle->setText(QApplication::translate("PlayerUI", "\345\217\215\351\200\211", nullptr));
         btn_battle_toggle->setText(QApplication::translate("PlayerUI", "\345\217\215\351\200\211", nullptr));
+        label_11->setText(QApplication::translate("PlayerUI", "\346\227\245\345\270\270\345\222\214\345\211\257\346\234\254\346\254\241\346\225\260\347\224\250\345\260\275\345\220\216\357\274\214\344\274\232\350\207\252\345\212\250\345\217\226\346\266\210\345\213\276\351\200\211", nullptr));
     } // retranslateUi
 
 };

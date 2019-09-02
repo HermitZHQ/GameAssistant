@@ -210,6 +210,7 @@ protected:
 	void ResetPosSelectFlags();
 	void GotoBattleMain();
 	void ForceGotoBattleMain();
+	void ForceQuitBattle();
 	void GotoRewardFirstIcon();
 	void GotoDailyFirstIcon();
 	void GotoEmergency();
@@ -326,6 +327,7 @@ private:
 	SettingInfo										m_recruitSetting;
 
 	TimerInfo										m_checkNoneBattleBlockTimer;
+	TimerInfo										m_checkBattleBlockTimer;
 
 	QTimer											m_mainThreadResetTimer;
 	std::mutex										m_loadScriptMutex;

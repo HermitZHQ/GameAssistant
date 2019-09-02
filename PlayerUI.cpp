@@ -58,6 +58,7 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	m_mainThreadResetTimer.connect( &m_mainThreadResetTimer, &QTimer::timeout, this, &PlayerUI::UpdateMainThreadTimerReset );
 	m_mainThreadResetTimer.start( 50 );
 
+	//非战斗情况下的阻塞
 	m_checkNoneBattleBlockTimer.interval = 120000;
 	m_checkNoneBattleBlockTimer.timer.connect( &m_checkNoneBattleBlockTimer.timer, &QTimer::timeout, [&]() {
 
@@ -68,8 +69,19 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 		}
 	} );
 
-	auto actClearInfo = m_menu.addAction( Q8( "清除信息" ) );
+	//战斗中的阻塞检查
+	m_checkBattleBlockTimer.interval = 1200000;
+	m_checkBattleBlockTimer.timer.connect( &m_checkBattleBlockTimer.timer, &QTimer::timeout, [&]() {
 
+		if ( !NotInBattleFlag() )
+		{
+			ForceQuitBattle();
+			m_mainWnd->AddTipInfo( "---->似乎卡战斗了，尝试回到战斗主界面中...<----" );
+		}
+	} );
+
+	//提示信息的右键菜单
+	auto actClearInfo = m_menu.addAction( Q8( "清除信息" ) );
 	m_ui->list_tip->setContextMenuPolicy( Qt::CustomContextMenu );
 	//table view connect
 	m_ui->list_tip->connect( m_ui->list_tip, &QListView::customContextMenuRequested, [&]( const QPoint &pt ) {
@@ -77,7 +89,6 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 		m_menu.move( pos );
 		m_menu.show();
 	} );
-
 	//menu connect
 	m_menu.connect( actClearInfo, &QAction::triggered, this, &PlayerUI::ClearTipInfo );
 }
@@ -847,6 +858,11 @@ void PlayerUI::ForceGotoBattleMain()
 	m_bToBattleMainFlag = true;
 	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "to_battle_main" ).c_str(), m_mapPosSelectInputVec );
 	m_bPauseMapPosSelectFlag = false;
+}
+
+void PlayerUI::ForceQuitBattle()
+{
+
 }
 
 void PlayerUI::GotoRewardFirstIcon()

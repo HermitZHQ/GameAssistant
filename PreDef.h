@@ -7,7 +7,7 @@
 #include "QTimer"
 
 #ifdef _DEBUG
-#define DEV_VER
+// #define DEV_VER
 #else
 //Game List
 #define ZZZJ //ÖØ×°Õ½¼§
