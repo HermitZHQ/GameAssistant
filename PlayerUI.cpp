@@ -59,7 +59,7 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	m_mainThreadResetTimer.start( 50 );
 
 	//非战斗情况下的阻塞
-	m_checkNoneBattleBlockTimer.interval = 120000;
+	m_checkNoneBattleBlockTimer.interval = 180000;
 	m_checkNoneBattleBlockTimer.timer.connect( &m_checkNoneBattleBlockTimer.timer, &QTimer::timeout, [&]() {
 
 		if ( NotInBattleFlag() )
@@ -182,6 +182,9 @@ void PlayerUI::UpdateMapStatusRecognizeScript()
 			{
 				m_emergencySetting.SetResetFlag();
 			}
+
+			//开启战斗防卡检测
+			m_checkBattleBlockTimer.SetResetFlag();
 		}
 
 	}

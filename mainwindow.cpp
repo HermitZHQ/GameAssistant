@@ -1971,7 +1971,7 @@ void MainWindow::HandleMouseInput(InputData &input)
 	{
 		//move的时候默认鼠标左键按下
 // 		::SetFocus( m_hGameWnd );
-		POINT pt{ m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate };
+		POINT pt{ (long)(m_gameWndSize.x * input.xRate), (long)(m_gameWndSize.y * input.yRate) };
 		::ClientToScreen( m_hGameWnd, &pt );
 		PostMessage( m_hGameWnd, WM_MOUSEWHEEL, MAKELONG( MK_CONTROL, -1200 ), MAKELONG( pt.x, pt.y ) );
 	}
