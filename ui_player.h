@@ -119,7 +119,7 @@ public:
         cmb_dev->addItem(QString());
         cmb_dev->addItem(QString());
         cmb_dev->setObjectName(QString::fromUtf8("cmb_dev"));
-        cmb_dev->setGeometry(QRect(10, 20, 106, 21));
+        cmb_dev->setGeometry(QRect(10, 20, 86, 20));
         cmb_dev->setLayoutDirection(Qt::LeftToRight);
         cmb_dev->setAutoFillBackground(true);
         cmb_dev->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -133,7 +133,7 @@ public:
         cmb_delegate->addItem(QString());
         cmb_delegate->setObjectName(QString::fromUtf8("cmb_delegate"));
         cmb_delegate->setEnabled(false);
-        cmb_delegate->setGeometry(QRect(10, 77, 60, 21));
+        cmb_delegate->setGeometry(QRect(10, 77, 50, 20));
         cmb_delegate->setLayoutDirection(Qt::LeftToRight);
         cmb_delegate->setAutoFillBackground(true);
         cmb_delegate->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -200,6 +200,8 @@ public:
         label_10->setObjectName(QString::fromUtf8("label_10"));
         label_10->setGeometry(QRect(60, 170, 151, 16));
         cmb_huodong = new QComboBox(groupBox_3);
+        cmb_huodong->addItem(QString());
+        cmb_huodong->addItem(QString());
         cmb_huodong->addItem(QString());
         cmb_huodong->addItem(QString());
         cmb_huodong->setObjectName(QString::fromUtf8("cmb_huodong"));
@@ -272,6 +274,8 @@ public:
         label_10->setText(QApplication::translate("PlayerUI", "\345\234\250\345\257\271\345\272\224\346\264\273\345\212\250\347\225\214\351\235\242\350\277\220\350\241\214", nullptr));
         cmb_huodong->setItemText(0, QApplication::translate("PlayerUI", "t-1-5", nullptr));
         cmb_huodong->setItemText(1, QApplication::translate("PlayerUI", "t-2-5", nullptr));
+        cmb_huodong->setItemText(2, QApplication::translate("PlayerUI", "t-3-5", nullptr));
+        cmb_huodong->setItemText(3, QApplication::translate("PlayerUI", "t-4-5", nullptr));
 
         btn_noneBattle_toggle->setText(QApplication::translate("PlayerUI", "\345\217\215\351\200\211", nullptr));
         btn_battle_toggle->setText(QApplication::translate("PlayerUI", "\345\217\215\351\200\211", nullptr));

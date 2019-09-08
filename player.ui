@@ -149,8 +149,8 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>106</width>
-      <height>21</height>
+      <width>86</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="layoutDirection">
@@ -212,8 +212,8 @@
      <rect>
       <x>10</x>
       <y>77</y>
-      <width>60</width>
-      <height>21</height>
+      <width>50</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="layoutDirection">
@@ -513,6 +513,16 @@ p, li { white-space: pre-wrap; }
     <item>
      <property name="text">
       <string>t-2-5</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>t-3-5</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>t-4-5</string>
      </property>
     </item>
    </widget>

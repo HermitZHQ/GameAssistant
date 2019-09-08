@@ -37,6 +37,8 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	, m_specificHuodongScriptMap( {
 		{ t_1_5, QString( "huodong_t_1_5" ) },
 		{ t_2_5, QString( "huodong_t_2_5" ) },
+		{ t_3_5, QString( "huodong_t_3_5" ) },
+		{ t_4_5, QString( "huodong_t_4_5" ) },
 	})
 
 	, m_mapStatusCmpParam(-1)
