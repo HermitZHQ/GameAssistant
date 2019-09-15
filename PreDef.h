@@ -6,11 +6,15 @@
 #include "QString"
 #include "QTimer"
 
-#ifdef _DEBUG
-// #define DEV_VER
+#ifdef _EDITOR
+#define DEV_VER
 #else
-//Game List
-#define ZZZJ //重装战姬
+
+	#ifdef _DEBUG
+	#else
+	//Game List
+	#define ZZZJ //重装战姬
+	#endif
 
 #endif
 

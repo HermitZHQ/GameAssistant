@@ -79,7 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	, m_itemDelegate(this)
 	, m_simWndInfoMap({
 		{Thunder, SimWndInfo(QString::fromLocal8Bit("雷电模拟器"), {true, true, false}, 2, 2)},
-		{MuMu, SimWndInfo(QString::fromLocal8Bit("重装战姬 - MuMu模拟器"), {false, true, true}, 3, 2)},
+		{MuMu, SimWndInfo(QString::fromLocal8Bit("MuMu模拟器"), {false, true, true}, 3, 2)},
 		})
 	, m_curSimWndInfo(QString::fromLocal8Bit("雷电模拟器"), { true, true, false }, 2, 2)
 {
@@ -330,7 +330,7 @@ BOOL CALLBACK MainWindow::EnumChildProc(_In_ HWND hwnd, _In_ LPARAM lParam)
 
 	char strTmp[MAX_PATH] = { 0 };
 	GetWindowTextA(hwnd, strTmp, MAX_PATH);
-	if (strcmp(strTmp, pInfo->layerWndName[pInfo->curLayer].toLocal8Bit().toStdString().c_str()) == 0)
+	if (strstr(strTmp, pInfo->layerWndName[pInfo->curLayer].toLocal8Bit().toStdString().c_str()) != NULL)
 	{
 		pInfo->layerWnd[pInfo->curLayer] = hwnd;
 		return pInfo->CheckFindFinishe() ? FALSE : TRUE;
@@ -2013,7 +2013,8 @@ void MainWindow::InitGameWindow()
 
 	if (None == m_simWndType)
 	{
-		m_simWndType = Thunder;
+// 		m_simWndType = Thunder;
+		m_simWndType = MuMu;
 	}
 
 	auto it = m_simWndInfoMap.find(m_simWndType);
