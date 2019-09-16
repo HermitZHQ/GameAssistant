@@ -52,6 +52,7 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	, m_bToDev(false)
 	, m_bToBattleEmergencyFlag(false)
 	, m_bToBattleFbFlag(false)
+	, m_bDeployedFlag(false)
 
 	, m_bFbFinishedFlag(false), m_bDailyFinishedFlag(false)
 {
@@ -71,13 +72,14 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 		}
 	} );
 
-	//战斗中的阻塞检查
-	m_checkBattleBlockTimer.interval = 1200000;
+	//战斗中的阻塞检查（4分钟）
+	m_checkBattleBlockTimer.interval = 60000;
 	m_checkBattleBlockTimer.timer.connect( &m_checkBattleBlockTimer.timer, &QTimer::timeout, [&]() {
 
 		if ( !NotInBattleFlag() )
 		{
 			ForceQuitBattle();
+			m_bDeployedFlag = false;
 			m_mainWnd->AddTipInfo( "---->似乎卡战斗了，尝试回到战斗主界面中...<----" );
 		}
 	} );
@@ -184,9 +186,6 @@ void PlayerUI::UpdateMapStatusRecognizeScript()
 			{
 				m_emergencySetting.SetResetFlag();
 			}
-
-			//开启战斗防卡检测
-			m_checkBattleBlockTimer.SetResetFlag();
 		}
 
 	}
@@ -222,6 +221,7 @@ void PlayerUI::UpdateMapPositionSelectScript()
 	{
 		m_lastStatusParam = m_mapStatusOutputParam;
 		m_checkNoneBattleBlockTimer.SetResetFlag();
+		m_checkBattleBlockTimer.SetResetFlag();
 
 		//if从上到下优先级依次递减，赏金最低，也就是其他操作都执行完毕后再执行赏金--------------------------
 
@@ -454,6 +454,12 @@ void PlayerUI::UpdateMapStatusInputDataVector(int cmpParam)
 		{
 			m_bDailyFinishedFlag = true;
 			m_ui->chk_daily->setChecked( false );
+		}
+		else if ( ZZ_Map_Param::Battle_deployed == m_mapStatusOutputParam && !m_bDeployedFlag )
+		{
+			m_bDeployedFlag = true;
+			//开启战斗防卡检测
+			m_checkBattleBlockTimer.SetResetFlag();
 		}
 
 		//处理完后，如果已重复次数等于需要重复的次数，就标记为处理完毕（目前重复次数不对图片对比流程生效）
@@ -867,7 +873,9 @@ void PlayerUI::ForceGotoBattleMain()
 
 void PlayerUI::ForceQuitBattle()
 {
-
+	ResetPosSelectFlags();
+	m_mainWnd->LoadScriptModuleFileToSpecificInputVec( std::string( DEFAULT_PATH ).append( "force_exit" ).c_str(), m_mapPosSelectInputVec );
+	m_bPauseMapPosSelectFlag = false;
 }
 
 void PlayerUI::GotoRewardFirstIcon()
@@ -970,6 +978,7 @@ void PlayerUI::UpdateMainThreadTimerReset()
 	m_delegateSetting.CheckReset();
 	m_recruitSetting.CheckReset();
 	m_checkNoneBattleBlockTimer.CheckReset();
+	m_checkBattleBlockTimer.CheckReset();
 }
 
 void PlayerUI::OnBtnHuodong1()

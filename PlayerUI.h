@@ -350,6 +350,7 @@ private:
 
 	bool											m_bFbFinishedFlag;//检查fb次数用尽
 	bool											m_bDailyFinishedFlag;//每日已经打完
+	bool											m_bDeployedFlag;//部署完毕后的装备（敌人开始移动，但是还没有进入战斗的状态）
 
 	bool											m_bToDev;
 
