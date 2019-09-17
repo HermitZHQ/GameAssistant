@@ -73,7 +73,7 @@ PlayerUI::PlayerUI(MainWindow *wnd) :
 	} );
 
 	//战斗中的阻塞检查（4分钟）
-	m_checkBattleBlockTimer.interval = 60000;
+	m_checkBattleBlockTimer.interval = 300000;
 	m_checkBattleBlockTimer.timer.connect( &m_checkBattleBlockTimer.timer, &QTimer::timeout, [&]() {
 
 		if ( !NotInBattleFlag() )
@@ -221,7 +221,6 @@ void PlayerUI::UpdateMapPositionSelectScript()
 	{
 		m_lastStatusParam = m_mapStatusOutputParam;
 		m_checkNoneBattleBlockTimer.SetResetFlag();
-		m_checkBattleBlockTimer.SetResetFlag();
 
 		//if从上到下优先级依次递减，赏金最低，也就是其他操作都执行完毕后再执行赏金--------------------------
 
@@ -455,10 +454,17 @@ void PlayerUI::UpdateMapStatusInputDataVector(int cmpParam)
 			m_bDailyFinishedFlag = true;
 			m_ui->chk_daily->setChecked( false );
 		}
-		else if ( ZZ_Map_Param::Battle_deployed == m_mapStatusOutputParam && !m_bDeployedFlag )
+		else if ( ZZ_Map_Param::Battle_deployed == m_mapStatusOutputParam )
 		{
-			m_bDeployedFlag = true;
-			//开启战斗防卡检测
+			if (!m_bDeployedFlag)
+			{
+				m_bDeployedFlag = true;
+				//开启战斗防卡检测
+				m_checkBattleBlockTimer.SetResetFlag();
+			}
+		}
+		else
+		{
 			m_checkBattleBlockTimer.SetResetFlag();
 		}
 
@@ -778,6 +784,7 @@ void PlayerUI::StopScritp()
 	m_recruitSetting.Stop();
 
 	m_checkNoneBattleBlockTimer.timer.stop();
+	m_checkBattleBlockTimer.timer.stop();
 
 	//设置指定的模拟器类型
 	int index = m_ui->cmb_sim->currentIndex();
