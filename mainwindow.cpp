@@ -79,7 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	, m_itemDelegate(this)
 	, m_simWndInfoMap({
 		{Thunder, SimWndInfo(QString::fromLocal8Bit("雷电模拟器"), {true, true, false}, 2, 2)},
-		{MuMu, SimWndInfo(QString::fromLocal8Bit("MuMu模拟器"), {false, true, true}, 3, 2)},
+		{MuMu, SimWndInfo(QString::fromLocal8Bit("食物语 - MuMu模拟器"), {false, true, true}, 3, 2)},
 		})
 	, m_curSimWndInfo(QString::fromLocal8Bit("雷电模拟器"), { true, true, false }, 2, 2)
 {

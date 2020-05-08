@@ -101,7 +101,7 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 	//-----------------------compare func
 	float fBaseScaleFactor = 2.0f;
 	double rOffsetRate = 0, gOffsetRate = 0, bOffsetRate = 0;
-	int kpSize1 = 0, kpSize2 = 0, matchedSize = 0;
+	size_t kpSize1 = 0, kpSize2 = 0, matchedSize = 0;
 
 	auto compareFunc = [&](Mat srcImg, Mat cmpImg)->double {
 		Mat img1_rgb = imread(input.picPath);
@@ -135,6 +135,17 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 		gOffsetRate = std::abs((1.0 - gRate));
 		bOffsetRate = std::abs((1.0 - bRate));
 
+		Mat img2;
+		cv::cvtColor(img2_rgb, img2, COLOR_BGR2GRAY);
+		//测试获取图片是否正常，之前我获取的rgb图片中的rgb值就填写反了，而且我获取特征点的img2没有使用灰度图....
+		if (GetDebugFlg())
+		{
+			imwrite("d:/img2_rgb.png", img2_rgb);
+			imwrite("d:/img2.png", img2);
+			imwrite("d:/img1_rgb.png", img1_rgb);
+			imwrite("d:/img1.png", img1);
+		}
+
 		const double cmpOffsetRate = 0.2;
 		if (rOffsetRate > cmpOffsetRate || gOffsetRate > cmpOffsetRate || bOffsetRate > cmpOffsetRate)
 		{
@@ -145,17 +156,6 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 			OutputDebugStringA(cTmp);
 #endif // _DEBUG
 			return 0.0;
-		}
-
-		Mat img2;
-		cv::cvtColor(img2_rgb, img2, COLOR_BGR2GRAY);
-		//测试获取图片是否正常，之前我获取的rgb图片中的rgb值就填写反了，而且我获取特征点的img2没有使用灰度图....
-		if (0)
-		{
-			imwrite("d:/img2_rgb.png", img2_rgb);
-			imwrite("d:/img2.png", img2);
-			imwrite("d:/img1_rgb.png", img1_rgb);
-			imwrite("d:/img1.png", img1);
 		}
 
 		vector<KeyPoint> kpts1, kpts2;
