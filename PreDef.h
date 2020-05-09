@@ -6,7 +6,7 @@
 #include "QString"
 #include "QTimer"
 
-// #define DEV_VER
+#define DEV_VER
 #ifdef _EDITOR
 #define DEV_VER
 #else

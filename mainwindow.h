@@ -163,6 +163,9 @@ public slots:
 	void OnBtnEndTimeCount();
 	void OnBtnClearTipInfo();
 
+	// debug
+	void OnChkEnableDebugPic(bool bEnable);
+
 	//template
 	void OnBtnGetBattleTemplate();
 	void OnBtnGetBattleTemplate2();

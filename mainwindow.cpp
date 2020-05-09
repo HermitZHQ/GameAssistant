@@ -30,9 +30,9 @@ std::unordered_map<InputType, QString> InputTypeStrMap = {
 	{InputType::Wait, Q8("等待")},
 };
 std::unordered_map<std::string, InputType> StrInputTypeMap = {
-	{ ( "鼠标" ), InputType::Mouse},
-	{ ( "键盘" ), InputType::Keyboard},
-	{ ( "图片" ), InputType::Pic},
+	{ ("鼠标"), InputType::Mouse},
+	{ ("键盘"), InputType::Keyboard},
+	{ ("图片"), InputType::Pic},
 	{ ("停止"), InputType::StopScript},
 	{ ("日志"), InputType::Log},
 	{ ("跳转"), InputType::Jump},
@@ -43,15 +43,15 @@ std::unordered_map<OpType, QString> OpTypeStrMap = {
 	{OpType::Click, Q8("点击")},
 	{OpType::Press, Q8("按住")},
 	{OpType::Move, Q8("移动")},
-	{OpType::Release, Q8( "释放" )},
-	{ OpType::Wheel, Q8( "滚轮" ) },
+	{OpType::Release, Q8("释放")},
+	{ OpType::Wheel, Q8("滚轮") },
 };
 std::unordered_map<std::string, OpType> StrOpTypeMap = {
-	{ ( "点击" ), OpType::Click },
-	{ ( "按住" ), OpType::Press },
-	{ ( "移动" ), OpType::Move },
-	{ ( "释放" ), OpType::Release },
-	{ ( "滚轮" ), OpType::Wheel },
+	{ ("点击"), OpType::Click },
+	{ ("按住"), OpType::Press },
+	{ ("移动"), OpType::Move },
+	{ ("释放"), OpType::Release },
+	{ ("滚轮"), OpType::Wheel },
 };
 
 QStringList g_horizontalHeaderLables({
@@ -81,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		{Thunder, SimWndInfo(QString::fromLocal8Bit("雷电模拟器"), {true, true, false}, 2, 2)},
 		{MuMu, SimWndInfo(QString::fromLocal8Bit("食物语 - MuMu模拟器"), {false, true, true}, 3, 2)},
 		})
-	, m_curSimWndInfo(QString::fromLocal8Bit("雷电模拟器"), { true, true, false }, 2, 2)
+		, m_curSimWndInfo(QString::fromLocal8Bit("雷电模拟器"), { true, true, false }, 2, 2)
 {
 	CoUninitialize();
 	/*auto res = */CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
@@ -112,10 +112,10 @@ MainWindow::MainWindow(QWidget *parent) :
 		return;
 	}
 
-	m_logTimer.connect( &m_logTimer, &QTimer::timeout, this, &MainWindow::LogTimerFunc );
-	m_logTimer.start( 5 );
-	m_msgBoxTimer.connect( &m_msgBoxTimer, &QTimer::timeout, this, &MainWindow::MessageBoxTimerFunc );
-	m_msgBoxTimer.start( 500 );
+	m_logTimer.connect(&m_logTimer, &QTimer::timeout, this, &MainWindow::LogTimerFunc);
+	m_logTimer.start(5);
+	m_msgBoxTimer.connect(&m_msgBoxTimer, &QTimer::timeout, this, &MainWindow::MessageBoxTimerFunc);
+	m_msgBoxTimer.start(500);
 
 #ifdef DEV_VER
 	m_ui->setupUi(this);
@@ -126,8 +126,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_bkgUI.setGeometry(geometry());
 	setWindowTitle("Develop-Ver 1.0.8");
 
-	connect( &m_timer, SIGNAL( timeout() ), this, SLOT( PostMsgThread() ) );
-	m_timer.setInterval( 1 );
+	connect(&m_timer, SIGNAL(timeout()), this, SLOT(PostMsgThread()));
+	m_timer.setInterval(1);
 
 	InitTableView();
 	CaptureInputDataMgr::Singleton(this);
@@ -185,7 +185,7 @@ void MainWindow::PostMsgThread(int cmpParam)
 	{
 		++index;
 		//判断操作已经完成或者和对比参数不匹配
-		if ((input.bFinishFlag && input.type != Pic) 
+		if ((input.bFinishFlag && input.type != Pic)
 			|| (input.type == Pic && (input.bFindPicFlag || input.bFindPicOvertimeFlag))
 			|| (-1 != cmpParam && input.cmpParam != cmpParam))
 			continue;
@@ -256,10 +256,10 @@ void MainWindow::PostMsgThread(int cmpParam)
 		}
 
 		//查询图片是否超时---放在执行之后，这样保证至少先执行一次对比才会超时
-		if (input.findPicOvertime != -1 
-			&& InputType::Pic == input.type 
+		if (input.findPicOvertime != -1
+			&& InputType::Pic == input.type
 			&& (GetTickCount() - input.startTime > (DWORD)(input.findPicOvertime + input.delay))
-			&& !input.bFindPicFlag )
+			&& !input.bFindPicFlag)
 		{
 			input.bFindPicOvertimeFlag = true;
 			//判断超时指令跳转
@@ -352,7 +352,7 @@ void MainWindow::InsertComparePicOperation(int x, int y, int x2, int y2)
 		m_ui->cb_inputType->setCurrentIndex(InputType::Pic);
 		m_ui->edt_comment->setText(Q8("对比图片"));
 		m_ui->edt_delay->setText(QString::number(10));
-		m_ui->edt_cmpPic->setText(QString::number(0.77));
+		m_ui->edt_rate->setText(QString::number(0.7));
 		m_ui->edt_findPicOvertime->setText(QString::number(10));
 
 		int index = model->selectedIndexes()[0].row();
@@ -594,55 +594,55 @@ void MainWindow::OnTableViewClick()
 {
 	auto index = m_ui->tv_inputVec->currentIndex();
 	m_ui->edt_insertIndex->setText(QString::number(index.row()));
-	UpdateInputDataUI( index.row() );
+	UpdateInputDataUI(index.row());
 }
 
-void MainWindow::UpdateInputDataUI( int index )
+void MainWindow::UpdateInputDataUI(int index)
 {
 	auto it = m_inputVec.begin();
-	for ( int i = 0; i < m_inputVec.size(); ++i, ++it )
+	for (int i = 0; i < m_inputVec.size(); ++i, ++it)
 	{
-		if ( i != index )
+		if (i != index)
 			continue;
 
 		//把当前input的咨询显示到editbox中
-		m_ui->cb_inputType->setCurrentIndex( it->type );
-		m_ui->cb_opType->setCurrentIndex( it->opType );
-		m_ui->edt_vk->setText( std::string( 1, it->vk ).c_str() );
+		m_ui->cb_inputType->setCurrentIndex(it->type);
+		m_ui->cb_opType->setCurrentIndex(it->opType);
+		m_ui->edt_vk->setText(std::string(1, it->vk).c_str());
 		m_ui->edt_delay->setText(std::to_string(it->delay).c_str());
 		m_ui->edt_timeCount->setText(std::to_string(it->waitTime).c_str());
-		m_ui->edt_comment->setText( QString::fromLocal8Bit( it->comment ) );
+		m_ui->edt_comment->setText(QString::fromLocal8Bit(it->comment));
 		m_ui->edt_repeat->setText(std::to_string(it->repeatCount).c_str());
 		m_ui->edt_cmpParam->setText(std::to_string(it->cmpParam).c_str());
 		m_ui->edt_outputParam->setText(std::to_string(it->outputParam).c_str());
 
-		m_ui->edt_x->setText( std::to_string( it->x ).c_str() );
-		m_ui->edt_y->setText( std::to_string( it->y ).c_str() );
-		m_ui->edt_x2->setText( std::to_string( it->x2 ).c_str() );
-		m_ui->edt_y2->setText( std::to_string( it->y2 ).c_str() );
+		m_ui->edt_x->setText(std::to_string(it->x).c_str());
+		m_ui->edt_y->setText(std::to_string(it->y).c_str());
+		m_ui->edt_x2->setText(std::to_string(it->x2).c_str());
+		m_ui->edt_y2->setText(std::to_string(it->y2).c_str());
 
-		m_ui->edt_rate->setText( std::to_string( it->cmpPicRate ).c_str() );
-		m_ui->edt_picPath->setText( it->picPath );
-		m_ui->edt_findPicOvertime->setText( std::to_string( it->findPicOvertime ).c_str() );
-		m_ui->edt_succeedJump->setText( std::to_string( it->findPicSucceedJumpIndex ).c_str() );
-		m_ui->edt_overtimeJump->setText( std::to_string( it->findPicOvertimeJumpIndex ).c_str() );
-		m_ui->edt_overtimeJumpModule->setText( it->findPicOvertimeJumpModule );
-		m_ui->edt_succeedJumpModule->setText( it->findPicSucceedJumpModule );
-		m_ui->chk_cmpPicClick->setChecked( it->bCmpPicCheckFlag );
+		m_ui->edt_rate->setText(std::to_string(it->cmpPicRate).c_str());
+		m_ui->edt_picPath->setText(Q8(it->picPath));
+		m_ui->edt_findPicOvertime->setText(std::to_string(it->findPicOvertime).c_str());
+		m_ui->edt_succeedJump->setText(std::to_string(it->findPicSucceedJumpIndex).c_str());
+		m_ui->edt_overtimeJump->setText(std::to_string(it->findPicOvertimeJumpIndex).c_str());
+		m_ui->edt_overtimeJumpModule->setText(Q8(it->findPicOvertimeJumpModule));
+		m_ui->edt_succeedJumpModule->setText(Q8(it->findPicSucceedJumpModule));
+		m_ui->chk_cmpPicClick->setChecked(it->bCmpPicCheckFlag);
 
 		break;
 	}
 }
 
-void MainWindow::UpdateSelectInputData( int index )
+void MainWindow::UpdateSelectInputData(int index)
 {
 	auto it = m_inputVec.begin();
-	for ( int i = 0; i < m_inputVec.size(); ++i, ++it )
+	for (int i = 0; i < m_inputVec.size(); ++i, ++it)
 	{
-		if ( i != index )
+		if (i != index)
 			continue;
 
-		GetInputData( *it );
+		GetInputData(*it);
 
 		break;
 	}
@@ -693,9 +693,9 @@ void MainWindow::OnBtnGetBattleTemplate2()
 
 void MainWindow::OnBtnOpenMapTemplate()
 {
-	LoadScriptModuleFile( std::string( DEFAULT_PATH ).append( "zz_map_recognize" ).c_str() );
+	LoadScriptModuleFile(std::string(DEFAULT_PATH).append("zz_map_recognize").c_str());
 
-	AddTipInfo( std::string( "已打开地图模版:" ).append( "zz_map_recognize" ).c_str() );
+	AddTipInfo(std::string("已打开地图模版:").append("zz_map_recognize").c_str());
 }
 
 void MainWindow::OnSearchEnterPressed()
@@ -705,9 +705,9 @@ void MainWindow::OnSearchEnterPressed()
 	auto size = m_inputVec.size();
 	for (int i = 0; i < size; ++i)
 	{
-		if ( NULL != strstr( m_inputVec[i].comment, strSearch.toStdString().c_str() ) )
+		if (NULL != strstr(m_inputVec[i].comment, strSearch.toStdString().c_str()))
 		{
-			SetTableViewIndex( i );
+			SetTableViewIndex(i);
 			break;
 		}
 	}
@@ -741,11 +741,16 @@ void MainWindow::OnBtnClearTipInfo()
 	m_ui->list_tip->clear();
 }
 
+void MainWindow::OnChkEnableDebugPic(bool bEnable)
+{
+	m_picCompareStrategy->SetDebugFlag(bEnable);
+}
+
 void MainWindow::ShowMessageBox(const char *content)
 {
 	m_lockMsgbox.lock();
-	m_msgBoxInfoList.push_back( Q8( content ) );
-	if ( m_msgBoxInfoList.size() > 10 )
+	m_msgBoxInfoList.push_back(Q8(content));
+	if (m_msgBoxInfoList.size() > 10)
 	{
 		return;
 	}
@@ -754,20 +759,20 @@ void MainWindow::ShowMessageBox(const char *content)
 
 void MainWindow::MessageBoxTimerFunc()
 {
-	if ( m_msgBoxInfoList.size() == 0 )
+	if (m_msgBoxInfoList.size() == 0)
 	{
 		return;
 	}
 
 	QMessageBox mb;
-	mb.setWindowTitle( "Info" );
+	mb.setWindowTitle("Info");
 
 	m_lockMsgbox.lock();
 	mb.setText(m_msgBoxInfoList[0]);
 	m_msgBoxInfoList.erase(m_msgBoxInfoList.begin());
 	m_lockMsgbox.unlock();
 
-	mb.setDefaultButton( QMessageBox::Ok );
+	mb.setDefaultButton(QMessageBox::Ok);
 	mb.exec();
 
 }
@@ -792,8 +797,8 @@ bool MainWindow::ShowConfirmBox(const char *str)
 void MainWindow::AddTipInfo(const char *str, bool bConvertFlag)
 {
 	m_lockLog.lock();
-	m_logList.push_back( QTime::currentTime().toString().append( ":" ).append( bConvertFlag ? Q8( str ) : str ) );
-	if ( m_logList.size() > 500 )
+	m_logList.push_back(QTime::currentTime().toString().append(":").append(bConvertFlag ? Q8(str) : str));
+	if (m_logList.size() > 500)
 	{
 		m_logList.clear();
 	}
@@ -802,13 +807,13 @@ void MainWindow::AddTipInfo(const char *str, bool bConvertFlag)
 
 void MainWindow::LogTimerFunc()
 {
-	if ( m_logList.size() == 0 )
+	if (m_logList.size() == 0)
 	{
 		return;
 	}
 
 #ifdef DEV_VER
-	if ( m_ui->list_tip->count() > 200 )
+	if (m_ui->list_tip->count() > 200)
 	{
 		m_ui->list_tip->clear();
 	}
@@ -820,7 +825,7 @@ void MainWindow::LogTimerFunc()
 
 	m_ui->list_tip->scrollToBottom();
 #else
-	if ( m_playerUI.GetUI()->list_tip->count() > 200 )
+	if (m_playerUI.GetUI()->list_tip->count() > 200)
 	{
 		m_playerUI.GetUI()->list_tip->clear();
 	}
@@ -1069,8 +1074,8 @@ void MainWindow::InitTableView()
 	auto actCopy = m_menu.addAction(Q8("复制内容"));
 	auto actPaste = m_menu.addAction(Q8("粘贴内容"));
 	auto actCopyInput = m_menu.addAction(Q8("复制行"));
-	auto actInsertCopyInput = m_menu.addAction( Q8( "插入复制行（上）" ) );
-	auto actInsertCopyInputDown = m_menu.addAction( Q8( "插入复制行（下）" ) );
+	auto actInsertCopyInput = m_menu.addAction(Q8("插入复制行（上）"));
+	auto actInsertCopyInputDown = m_menu.addAction(Q8("插入复制行（下）"));
 	auto actPasteOverwriteInput = m_menu.addAction(Q8("粘贴覆盖行"));
 	auto actDel = m_menu.addAction(Q8("删除"));
 	auto actDelAll = m_menu.addAction(Q8("删除所有"));
@@ -1083,7 +1088,7 @@ void MainWindow::InitTableView()
 		m_menu.move(pos);
 		m_menu.show();
 	});
-	m_ui->tv_inputVec->connect( m_ui->tv_inputVec, &QTableView::clicked, this, &MainWindow::OnTableViewClick );
+	m_ui->tv_inputVec->connect(m_ui->tv_inputVec, &QTableView::clicked, this, &MainWindow::OnTableViewClick);
 
 	//menu connect
 	m_menu.connect(actUpdateDelay, &QAction::triggered, this, &MainWindow::TableViewUpdateDelay);
@@ -1091,8 +1096,8 @@ void MainWindow::InitTableView()
 	m_menu.connect(actCopy, &QAction::triggered, this, &MainWindow::TableViewCopy);
 	m_menu.connect(actPaste, &QAction::triggered, this, &MainWindow::TableViewPaste);
 	m_menu.connect(actCopyInput, &QAction::triggered, this, &MainWindow::TableViewCopyInput);
-	m_menu.connect( actInsertCopyInput, &QAction::triggered, this, &MainWindow::TableViewInsertCopyInput );
-	m_menu.connect( actInsertCopyInputDown, &QAction::triggered, this, &MainWindow::TableViewInsertCopyInputDown );
+	m_menu.connect(actInsertCopyInput, &QAction::triggered, this, &MainWindow::TableViewInsertCopyInput);
+	m_menu.connect(actInsertCopyInputDown, &QAction::triggered, this, &MainWindow::TableViewInsertCopyInputDown);
 	m_menu.connect(actPasteOverwriteInput, &QAction::triggered, this, &MainWindow::TableViewPasteOverwriteInput);
 	m_menu.connect(actDel, &QAction::triggered, this, &MainWindow::TableViewDel);
 	m_menu.connect(actDelAll, &QAction::triggered, this, &MainWindow::OnBtnDelAllInput);
@@ -1153,13 +1158,13 @@ void MainWindow::TableViewPaste()
 				ShowMessageBox("复制的个数和要粘贴的个数不一样");
 				return;
 			}
-	
+
 			for (int i = 0; i < size; ++i)
 			{
 				m_inputDataModel.setData(indexList[i], m_copyList[i]);
 				GetInputDataFromModel(indexList[i].row(), indexList[i].column());
 			}
-		} 
+		}
 		else
 		{
 			for (auto &index : indexList)
@@ -1226,63 +1231,63 @@ void MainWindow::TableViewInsertCopyInput()
 		}
 
 		SetInputDataModel();
-		m_ui->tv_inputVec->setCurrentIndex( m_inputDataModel.index( index - 1, 0 ) );
+		m_ui->tv_inputVec->setCurrentIndex(m_inputDataModel.index(index - 1, 0));
 	}
 }
 
 void MainWindow::TableViewInsertCopyInputDown()
 {
 	auto model = m_ui->tv_inputVec->selectionModel();
-	if ( model->hasSelection() )
+	if (model->hasSelection())
 	{
-		int insertCount = ( int )m_copyInputVec.size();
+		int insertCount = (int)m_copyInputVec.size();
 
 		auto indexList = model->selectedIndexes();
-		if ( indexList.size() > 1 )
+		if (indexList.size() > 1)
 		{
-			ShowMessageBox( "粘贴行时，只能选定一行作为插入索引" );
+			ShowMessageBox("粘贴行时，只能选定一行作为插入索引");
 			return;
 		}
-		else if ( 0 == insertCount )
+		else if (0 == insertCount)
 		{
-			ShowMessageBox( "粘贴内容为空" );
+			ShowMessageBox("粘贴内容为空");
 			return;
 		}
 
 		int index = indexList[0].row();
 		index += 1;//向下插入
 		int alreadyInsertCount = 0;
-		if (index < m_inputVec.size() )
+		if (index < m_inputVec.size())
 		{
-			while ( alreadyInsertCount < insertCount )
+			while (alreadyInsertCount < insertCount)
 			{
 				int i = 0;
-				for ( auto it = m_inputVec.begin(); it != m_inputVec.end(); ++it, ++i )
+				for (auto it = m_inputVec.begin(); it != m_inputVec.end(); ++it, ++i)
 				{
-					if ( i < index )
+					if (i < index)
 					{
 						continue;
 					}
-	
-					m_inputVec.insert( it, m_copyInputVec[alreadyInsertCount] );
+
+					m_inputVec.insert(it, m_copyInputVec[alreadyInsertCount]);
 					++alreadyInsertCount;
 					//连续插入时，需要把index后移
 					++index;
-	
+
 					break;
 				}
 			}
-		} 
+		}
 		else
 		{
 			for (auto &input : m_copyInputVec)
 			{
-				m_inputVec.push_back( input );
+				m_inputVec.push_back(input);
 			}
 		}
 
 		SetInputDataModel();
-		m_ui->tv_inputVec->setCurrentIndex( m_inputDataModel.index( index - 1, 0 ) );
+		m_ui->tv_inputVec->setCurrentIndex(m_inputDataModel.index(index - 1, 0));
 	}
 }
 
@@ -1295,31 +1300,31 @@ void MainWindow::TableViewPasteOverwriteInput()
 		{
 			auto indexList = model->selectedIndexes();
 			int index = indexList[0].row();
-	
+
 			if (indexList.size() != m_copyInputVec.size())
 			{
 				ShowMessageBox("复制的行数和要粘贴覆盖的行数不一致");
 				return;
 			}
-	
+
 			int alreadOverwriteNum = 0;
 			for (auto &index : indexList)
 			{
 				m_inputVec[index.row()] = m_copyInputVec[alreadOverwriteNum++];
 			}
-	
+
 			SetInputDataModel();
 			SetTableViewIndex(index);
 		}
-// 		else
-// 		{
-// 			for (auto &input : m_copyInputVec)
-// 			{
-// 				m_inputVec.push_back(input);
-// 			}
-// 			SetInputDataModel();
-// 		}
-	} 
+		// 		else
+		// 		{
+		// 			for (auto &input : m_copyInputVec)
+		// 			{
+		// 				m_inputVec.push_back(input);
+		// 			}
+		// 			SetInputDataModel();
+		// 		}
+	}
 	else
 	{
 		for (auto &input : m_copyInputVec)
@@ -1369,16 +1374,16 @@ void MainWindow::TableViewDel()
 void MainWindow::TableViewUpdateSingleView()
 {
 	auto model = m_ui->tv_inputVec->selectionModel();
-	if ( model->hasSelection() )
+	if (model->hasSelection())
 	{
 		auto indexList = model->selectedIndexes();
-		if ( indexList.size() != 1 )
+		if (indexList.size() != 1)
 		{
-			ShowMessageBox( "一次只能更新一行数据" );
+			ShowMessageBox("一次只能更新一行数据");
 			return;
 		}
 
-		UpdateSelectInputData( indexList[0].row() );
+		UpdateSelectInputData(indexList[0].row());
 		SetTableViewIndex(indexList[0].row());
 	}
 }
@@ -1390,7 +1395,7 @@ void MainWindow::TableViewJump()
 	{
 		auto indexList = model->selectedIndexes();
 
-		JumpInput( indexList[0].row(), m_inputVec );
+		JumpInput(indexList[0].row(), m_inputVec);
 		m_timer.start();
 	}
 }
@@ -1420,14 +1425,10 @@ void MainWindow::OnBtnSaveClick()
 
 	//按照二进制存储
 	FILE *pFile = nullptr;
-	std::string strFilePath = m_ui->edt_saveName->text().toLocal8Bit().toStdString();
-	auto pos = strFilePath.find("/");
-	if (std::string::npos == pos)
-	{
-		strFilePath = DEFAULT_PATH + strFilePath;
-	}
+	QString strFilePath = m_ui->edt_saveName->text();
+	strFilePath = DEFAULT_PATH + strFilePath;
 
-	QFileInfo file(strFilePath.c_str());
+	QFileInfo file(strFilePath);
 	if (file.exists() && file.isFile())
 	{
 		QMessageBox msgBox;
@@ -1441,10 +1442,23 @@ void MainWindow::OnBtnSaveClick()
 			return;
 		}
 	}
+	else
+	{
+		// 确保路径存在
+		auto index = strFilePath.lastIndexOf("/");
+		auto subPath = strFilePath.left(index);
+		if (!QDir().mkpath(subPath)) {
+			AddTipInfo("生成文件路径失败");
+			return;
+		}
+	}
 
-	fopen_s(&pFile, strFilePath.c_str(), "wb");
+	fopen_s(&pFile, strFilePath.toLocal8Bit(), "wb");
 	if (nullptr == pFile)
+	{
+		AddTipInfo("创建或者打开保存文件失败");
 		return;
+	}
 
 	//先写入两个窗口名(长度+str)
 	int nameLen = (int)m_ui->edt_wndName->text().toLocal8Bit().toStdString().length() + 1;
@@ -1476,16 +1490,17 @@ void MainWindow::OnBtnSaveClick()
 
 void MainWindow::LoadScriptModuleFile(const char *file)
 {
-	std::string strFilePath = file;
+	QString strFilePath;
+	strFilePath = Q8(file);
 	m_inputVec.clear();
 
 	//按照二进制读取
 	FILE *pFile = nullptr;
-	fopen_s(&pFile, strFilePath.c_str(), "rb");
+	fopen_s(&pFile, strFilePath.toLocal8Bit(), "rb");
 	if (nullptr == pFile)
 	{
 		SetInputDataModel();
-		AddTipInfo(std::string("读取输入模块[").append(strFilePath).append("]失败").c_str());
+		AddTipInfo(std::string("读取输入模块[").append(strFilePath.toLocal8Bit()).append("]失败").c_str());
 		return;
 	}
 
@@ -1495,7 +1510,7 @@ void MainWindow::LoadScriptModuleFile(const char *file)
 	char *pStr = new char[nameLen];
 	fread(pStr, 1, nameLen, pFile);
 #ifdef DEV_VER
-	m_ui->edt_wndName->setText(QString::fromLocal8Bit(pStr));
+	m_ui->edt_wndName->setText(Q8(pStr));
 #endif
 	delete[]pStr;
 	pStr = nullptr;
@@ -1504,7 +1519,7 @@ void MainWindow::LoadScriptModuleFile(const char *file)
 	pStr = new char[nameLen];
 	fread(pStr, 1, nameLen, pFile);
 #ifdef DEV_VER
-	m_ui->edt_wndName2->setText(QString::fromLocal8Bit(pStr));
+	m_ui->edt_wndName2->setText(Q8(pStr));
 #endif
 	delete[]pStr;
 	pStr = nullptr;
@@ -1512,7 +1527,7 @@ void MainWindow::LoadScriptModuleFile(const char *file)
 	//然后读取操作数组的大小以及数据
 	int size = 0;
 	fread(&size, sizeof(int), 1, pFile);
-	std::string strTmp;
+	QString strTmp;
 	for (int i = 0; i < size; ++i)
 	{
 		InputData input;
@@ -1521,31 +1536,31 @@ void MainWindow::LoadScriptModuleFile(const char *file)
 // 		input.repeatCount = 1;
 
 		//插入数据前，先把picPath等路径转换到相对路径下
-		strTmp = input.picPath;
-		auto pos = strTmp.find_last_of( "/" );
-		if ( std::string::npos != pos )
+		strTmp = Q8(input.picPath);
+		auto pos = strTmp.indexOf("/QtSave");
+		if (-1 != pos)
 		{
-			strTmp = strTmp.substr( pos + 1 );
-			strTmp = DEFAULT_PIC_PATH + strTmp;
-			strcpy_s( input.picPath, MAX_PATH, strTmp.c_str() );
+			strTmp = strTmp.right(strTmp.length() - pos);
+			strTmp.prepend(".");
+			strcpy_s(input.picPath, MAX_PATH, strTmp.toLocal8Bit().toStdString().c_str());
 		}
 
-		strTmp = input.findPicSucceedJumpModule;
-		pos = strTmp.find_last_of( "/" );
-		if ( std::string::npos != pos )
+		strTmp = Q8(input.findPicSucceedJumpModule);
+		pos = strTmp.indexOf("/QtSave");
+		if (-1 != pos)
 		{
-			strTmp = strTmp.substr( pos + 1 );
-			strTmp = DEFAULT_PATH + strTmp;
-			strcpy_s( input.findPicSucceedJumpModule, MAX_PATH, strTmp.c_str() );
+			strTmp = strTmp.right(strTmp.length() - pos);
+			strTmp.prepend(".");
+			strcpy_s(input.findPicSucceedJumpModule, MAX_PATH, strTmp.toLocal8Bit().toStdString().c_str());
 		}
 
-		strTmp = input.findPicOvertimeJumpModule;
-		pos = strTmp.find_last_of( "/" );
-		if ( std::string::npos != pos )
+		strTmp = Q8(input.findPicOvertimeJumpModule);
+		pos = strTmp.indexOf("/QtSave");
+		if (-1 != pos)
 		{
-			strTmp = strTmp.substr( pos + 1 );
-			strTmp = DEFAULT_PATH + strTmp;
-			strcpy_s( input.findPicOvertimeJumpModule, MAX_PATH, strTmp.c_str() );
+			strTmp = strTmp.right(strTmp.length() - pos);
+			strTmp.prepend(".");
+			strcpy_s(input.findPicOvertimeJumpModule, MAX_PATH, strTmp.toLocal8Bit().toStdString().c_str());
 		}
 
 		m_inputVec.push_back(input);
@@ -1562,15 +1577,15 @@ void MainWindow::LoadScriptModuleFile(const char *file)
 	fclose(pFile);
 
 	//更新保存文件显示的名称，否则容易保存覆盖错误，因为现在有模块跳转功能
-	auto findPos = strFilePath.find_last_of("/");
-	if (std::string::npos != findPos)
+	auto findPos = strFilePath.indexOf("QtSave/");
+	if (-1 != findPos)
 	{
-		strFilePath = strFilePath.substr(findPos + 1);
+		strFilePath = strFilePath.right(strFilePath.length() - findPos - QString("QtSave/").length());
 	}
 
 #ifdef DEV_VER
-	m_ui->edt_saveName->setText(strFilePath.c_str());
-	AddTipInfo(std::string("读取模块[").append(strFilePath).append("]成功，共读取命令").append(std::to_string(size)).append("条").c_str());
+	m_ui->edt_saveName->setText(strFilePath);
+	AddTipInfo(std::string("读取模块[").append(strFilePath.toLocal8Bit()).append("]成功，共读取命令").append(std::to_string(size)).append("条").c_str());
 #endif
 
 	//加载完后重新初始化窗口，因为窗口可能已经变动
@@ -1586,18 +1601,18 @@ void MainWindow::LoadScriptModuleFile(const char *file)
 
 void MainWindow::LoadScriptModuleFileToSpecificInputVec(const char *file, std::vector<InputData> &inputVec)
 {
-	AddTipInfo( std::string("------>>>开始加载脚本：").append( file ).c_str() );
+	AddTipInfo(std::string("------>>>开始加载脚本：").append(file).c_str());
 
-	std::string strFilePath = file;
+	QString strFilePath = Q8(file);
 	inputVec.clear();
 
 	//按照二进制读取
 	FILE *pFile = nullptr;
-	fopen_s(&pFile, strFilePath.c_str(), "rb");
+	fopen_s(&pFile, strFilePath.toLocal8Bit(), "rb");
 	if (nullptr == pFile)
 	{
 		SetInputDataModel();
-		AddTipInfo(std::string("读取输入模块[").append(strFilePath).append("]失败").c_str());
+		AddTipInfo(std::string("读取输入模块[").append(strFilePath.toLocal8Bit()).append("]失败").c_str());
 		return;
 	}
 
@@ -1620,7 +1635,7 @@ void MainWindow::LoadScriptModuleFileToSpecificInputVec(const char *file, std::v
 	//然后读取操作数组的大小以及数据
 	int size = 0;
 	fread(&size, sizeof(int), 1, pFile);
-	std::string strTmp;
+	QString strTmp;
 	for (int i = 0; i < size; ++i)
 	{
 		InputData input;
@@ -1629,31 +1644,31 @@ void MainWindow::LoadScriptModuleFileToSpecificInputVec(const char *file, std::v
 // 		input.repeatCount = 1;
 
 		//插入数据前，先把picPath等路径转换到相对路径下
-		strTmp = input.picPath;
-		auto pos = strTmp.find_last_of("/");
-		if (std::string::npos != pos)
+		strTmp = Q8(input.picPath);
+		auto pos = strTmp.indexOf("/QtSave");
+		if (-1 != pos)
 		{
-			strTmp = strTmp.substr(pos + 1);
-			strTmp = DEFAULT_PIC_PATH + strTmp;
-			strcpy_s(input.picPath, MAX_PATH, strTmp.c_str());
+			strTmp = strTmp.right(strTmp.length() - pos);
+			strTmp.prepend(".");
+			strcpy_s(input.picPath, MAX_PATH, strTmp.toLocal8Bit().toStdString().c_str());
 		}
 
-		strTmp = input.findPicSucceedJumpModule;
-		pos = strTmp.find_last_of("/");
-		if (std::string::npos != pos)
+		strTmp = Q8(input.findPicSucceedJumpModule);
+		pos = strTmp.indexOf("/QtSave");
+		if (-1 != pos)
 		{
-			strTmp = strTmp.substr(pos + 1);
-			strTmp = DEFAULT_PATH + strTmp;
-			strcpy_s(input.findPicSucceedJumpModule, MAX_PATH, strTmp.c_str());
+			strTmp = strTmp.right(strTmp.length() - pos);
+			strTmp.prepend(".");
+			strcpy_s(input.findPicSucceedJumpModule, MAX_PATH, strTmp.toLocal8Bit().toStdString().c_str());
 		}
 
-		strTmp = input.findPicOvertimeJumpModule;
-		pos = strTmp.find_last_of("/");
-		if (std::string::npos != pos)
+		strTmp = Q8(input.findPicOvertimeJumpModule);
+		pos = strTmp.indexOf("/QtSave");
+		if (-1 != pos)
 		{
-			strTmp = strTmp.substr(pos + 1);
-			strTmp = DEFAULT_PATH + strTmp;
-			strcpy_s(input.findPicOvertimeJumpModule, MAX_PATH, strTmp.c_str());
+			strTmp = strTmp.right(strTmp.length() - pos);
+			strTmp.prepend(".");
+			strcpy_s(input.findPicOvertimeJumpModule, MAX_PATH, strTmp.toLocal8Bit().toStdString().c_str());
 		}
 
 		inputVec.push_back(input);
@@ -1666,7 +1681,7 @@ void MainWindow::LoadScriptModuleFileToSpecificInputVec(const char *file, std::v
 	fclose(pFile);
 
 #ifdef DEV_VER
-	AddTipInfo(std::string("读取模块[").append(strFilePath).append("]成功，共读取命令").append(std::to_string(size)).append("条").c_str());
+	AddTipInfo(std::string("读取模块[").append(strFilePath.toLocal8Bit()).append("]成功，共读取命令").append(std::to_string(size)).append("条").c_str());
 #endif
 
 	//加载完后重新初始化窗口，因为窗口可能已经变动
@@ -1701,82 +1716,82 @@ void MainWindow::SetInputDataModel()
 			switch (j)
 			{
 			case 0:
-				m_inputDataModel.setData( index, Q8( m_inputVec[i].comment ) );
+				m_inputDataModel.setData(index, Q8(m_inputVec[i].comment));
 				break;
 			case 1:
-				m_inputDataModel.setData( index, InputTypeStrMap[( m_inputVec[i].type )] );
+				m_inputDataModel.setData(index, InputTypeStrMap[(m_inputVec[i].type)]);
 				break;
 			case 2:
-				m_inputDataModel.setData( index, OpTypeStrMap[( m_inputVec[i].opType )] );
+				m_inputDataModel.setData(index, OpTypeStrMap[(m_inputVec[i].opType)]);
 				break;
 			case 3:
-				m_inputDataModel.setData( index, std::string( 1, ( m_inputVec[i].vk ) ).c_str() );
+				m_inputDataModel.setData(index, std::string(1, (m_inputVec[i].vk)).c_str());
 				break;
 			case 4:
-				m_inputDataModel.setData( index, m_inputVec[i].delay );
+				m_inputDataModel.setData(index, m_inputVec[i].delay);
 				break;
 			case 5:
-				m_inputDataModel.setData( index, m_inputVec[i].x );
+				m_inputDataModel.setData(index, m_inputVec[i].x);
 				break;
 			case 6:
-				m_inputDataModel.setData( index, m_inputVec[i].y );
+				m_inputDataModel.setData(index, m_inputVec[i].y);
 				break;
 			case 7:
-				m_inputDataModel.setData( index, m_inputVec[i].xRate );
+				m_inputDataModel.setData(index, m_inputVec[i].xRate);
 				break;
 			case 8:
-				m_inputDataModel.setData( index, m_inputVec[i].yRate );
+				m_inputDataModel.setData(index, m_inputVec[i].yRate);
 				break;
 			case 9:
-				m_inputDataModel.setData( index, m_inputVec[i].x2 );
+				m_inputDataModel.setData(index, m_inputVec[i].x2);
 				break;
 			case 10:
-				m_inputDataModel.setData( index, m_inputVec[i].y2 );
+				m_inputDataModel.setData(index, m_inputVec[i].y2);
 				break;
 			case 11:
-				m_inputDataModel.setData( index, m_inputVec[i].xRate2 );
+				m_inputDataModel.setData(index, m_inputVec[i].xRate2);
 				break;
 			case 12:
-				m_inputDataModel.setData( index, m_inputVec[i].yRate2 );
+				m_inputDataModel.setData(index, m_inputVec[i].yRate2);
 				break;
 			case 13:
-				m_inputDataModel.setData( index, (UINT)m_inputVec[i].startTime );
+				m_inputDataModel.setData(index, (UINT)m_inputVec[i].startTime);
 				break;
 			case 14:
-				m_inputDataModel.setData( index, m_inputVec[i].bFinishFlag );
+				m_inputDataModel.setData(index, m_inputVec[i].bFinishFlag);
 				break;
 			case 15:
-				m_inputDataModel.setData( index, m_inputVec[i].bInitStartTimeFlag );
+				m_inputDataModel.setData(index, m_inputVec[i].bInitStartTimeFlag);
 				break;
 			case 16:
-				m_inputDataModel.setData( index, m_inputVec[i].bFindPicFlag );
+				m_inputDataModel.setData(index, m_inputVec[i].bFindPicFlag);
 				break;
 			case 17:
-				m_inputDataModel.setData( index, m_inputVec[i].cmpPicRate );
+				m_inputDataModel.setData(index, m_inputVec[i].cmpPicRate);
 				break;
 			case 18:
-				m_inputDataModel.setData( index, m_inputVec[i].picPath );
+				m_inputDataModel.setData(index, Q8(m_inputVec[i].picPath));
 				break;
 			case 19:
-				m_inputDataModel.setData( index, m_inputVec[i].findPicOvertime );
+				m_inputDataModel.setData(index, m_inputVec[i].findPicOvertime);
 				break;
 			case 20:
-				m_inputDataModel.setData( index, m_inputVec[i].bFindPicOvertimeFlag );
+				m_inputDataModel.setData(index, m_inputVec[i].bFindPicOvertimeFlag);
 				break;
 			case 21:
-				m_inputDataModel.setData( index, m_inputVec[i].findPicSucceedJumpIndex );
+				m_inputDataModel.setData(index, m_inputVec[i].findPicSucceedJumpIndex);
 				break;
 			case 22:
-				m_inputDataModel.setData( index, m_inputVec[i].findPicOvertimeJumpIndex );
+				m_inputDataModel.setData(index, m_inputVec[i].findPicOvertimeJumpIndex);
 				break;
 			case 23:
-				m_inputDataModel.setData( index, m_inputVec[i].findPicSucceedJumpModule );
+				m_inputDataModel.setData(index, Q8(m_inputVec[i].findPicSucceedJumpModule));
 				break;
 			case 24:
-				m_inputDataModel.setData( index, m_inputVec[i].findPicOvertimeJumpModule );
+				m_inputDataModel.setData(index, Q8(m_inputVec[i].findPicOvertimeJumpModule));
 				break;
 			case 25:
-				m_inputDataModel.setData( index, m_inputVec[i].bCmpPicCheckFlag );
+				m_inputDataModel.setData(index, m_inputVec[i].bCmpPicCheckFlag);
 				break;
 			case 26:
 				m_inputDataModel.setData(index, m_inputVec[i].repeatCount);
@@ -1794,7 +1809,7 @@ void MainWindow::SetInputDataModel()
 			{
 				m_inputDataModel.setData(index, "default data");
 			}
-				break;
+			break;
 			}
 		}
 	}
@@ -1936,7 +1951,7 @@ void MainWindow::JumpInput(int index, std::vector<InputData> &inputVec)
 			inputVec[i].bFindPicFlag = false;
 			inputVec[i].bInitStartTimeFlag = false;
 			inputVec[i].bFindPicOvertimeFlag = false;
-// 			inputVec[i].alreadyRepeatCount = 0;
+			// 			inputVec[i].alreadyRepeatCount = 0;
 		}
 	}
 }
@@ -1948,7 +1963,7 @@ void MainWindow::HandleMouseInput(InputData &input)
 	case Click:
 	{
 		PostMessage(m_hGameWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
-		PostMessage( m_hGameWnd, WM_LBUTTONUP, 0, MAKELONG( m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate ) );
+		PostMessage(m_hGameWnd, WM_LBUTTONUP, 0, MAKELONG(m_gameWndSize.x * input.xRate, m_gameWndSize.y * input.yRate));
 	}
 	break;
 	case Press:
@@ -1972,8 +1987,8 @@ void MainWindow::HandleMouseInput(InputData &input)
 		//move的时候默认鼠标左键按下
 // 		::SetFocus( m_hGameWnd );
 		POINT pt{ (long)(m_gameWndSize.x * input.xRate), (long)(m_gameWndSize.y * input.yRate) };
-		::ClientToScreen( m_hGameWnd, &pt );
-		PostMessage( m_hGameWnd, WM_MOUSEWHEEL, MAKELONG( MK_CONTROL, -1200 ), MAKELONG( pt.x, pt.y ) );
+		::ClientToScreen(m_hGameWnd, &pt);
+		PostMessage(m_hGameWnd, WM_MOUSEWHEEL, MAKELONG(MK_CONTROL, -1200), MAKELONG(pt.x, pt.y));
 	}
 	break;
 	default:
@@ -2013,7 +2028,7 @@ void MainWindow::InitGameWindow()
 
 	if (None == m_simWndType)
 	{
-// 		m_simWndType = Thunder;
+		// 		m_simWndType = Thunder;
 		m_simWndType = MuMu;
 	}
 
@@ -2056,14 +2071,14 @@ void MainWindow::InitGameWindow()
 	//找到指定类型
 	else
 	{
-// 		RECT rt;
-// 		GetWindowRect(m_hWnd, &rt);
-// 
-// 		//这里的大小设置不要再改动了，如果只是鼠标点击倒是没有关系，主要涉及到图片对比，虽然比例一样，但是图片太小了拉伸以后始终会失真，因为原对比图片的大小是从890 588的分辨率上截取的
-// 		if ((rt.right - rt.left) != m_wndHeight || (rt.bottom - rt.top) != m_wndHeight)
-// 		{
-// 			::SetWindowPos(m_hWnd, HWND_BOTTOM, rt.left, rt.top, m_wndWidth, m_wndHeight, SWP_NOMOVE | SWP_NOACTIVATE);
-// 		}
+		// 		RECT rt;
+		// 		GetWindowRect(m_hWnd, &rt);
+		// 
+		// 		//这里的大小设置不要再改动了，如果只是鼠标点击倒是没有关系，主要涉及到图片对比，虽然比例一样，但是图片太小了拉伸以后始终会失真，因为原对比图片的大小是从890 588的分辨率上截取的
+		// 		if ((rt.right - rt.left) != m_wndHeight || (rt.bottom - rt.top) != m_wndHeight)
+		// 		{
+		// 			::SetWindowPos(m_hWnd, HWND_BOTTOM, rt.left, rt.top, m_wndWidth, m_wndHeight, SWP_NOMOVE | SWP_NOACTIVATE);
+		// 		}
 
 		EnumChildWindows(it->second.layerWnd[it->second.curLayer], &MainWindow::EnumChildProc, (LPARAM)(&it->second));
 
@@ -2083,7 +2098,7 @@ void MainWindow::InitGameWindow()
 	if (nullptr != m_hGameWnd)
 	{
 		UpdateGameWindowSize();
-		::SetWindowPos( m_curSimWndInfo.parentWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+		::SetWindowPos(m_curSimWndInfo.parentWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
 		//检测游戏本体窗口是否已经设置到了指定大小
 		//暂时放弃自动调整窗口大小了，问题太多，一时半会儿改不好，让玩家自己保证游戏窗口的分辨率为960，540，以后都统一用这个了
@@ -2094,7 +2109,7 @@ void MainWindow::InitGameWindow()
 
 void MainWindow::UpdateGameWindowSize()
 {
-	if ( nullptr == m_hGameWnd )
+	if (nullptr == m_hGameWnd)
 	{
 		return;
 	}
@@ -2171,7 +2186,7 @@ void SimWndInfo::SetGameWndSize(int width, int height)
 	}
 
 	UpdateRect();
-	
+
 	//n层窗口可以算出n-1层的比例，以主窗口为参考（比例1），算出其他相应的比例，就可以设置大小了
 	double rateW[MAX_LAYER] = { 0 };
 	double rateH[MAX_LAYER] = { 0 };

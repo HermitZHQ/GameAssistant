@@ -1214,6 +1214,22 @@
      <string/>
     </property>
    </widget>
+   <widget class="QCheckBox" name="chk_enableDebugPic">
+    <property name="geometry">
+     <rect>
+      <x>493</x>
+      <y>725</y>
+      <width>101</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>开启调试图片</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+   </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
@@ -1523,6 +1539,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>chk_enableDebugPic</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnChkEnableDebugPic(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>576</x>
+     <y>734</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>618</x>
+     <y>733</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>OnBtnStartClick()</slot>
@@ -1564,5 +1596,6 @@
   <slot>OnBtnGetBattleTemplate2()</slot>
   <slot>OnBtnOpenMapTemplate()</slot>
   <slot>OnSearchEnterPressed()</slot>
+  <slot>OnChkEnableDebugPic(bool)</slot>
  </slots>
 </ui>

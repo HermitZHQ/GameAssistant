@@ -111,6 +111,7 @@ public:
     QPushButton *btn_openMapTemplate;
     QLabel *label_28;
     QLineEdit *edt_search;
+    QCheckBox *chk_enableDebugPic;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -397,6 +398,10 @@ public:
         edt_search = new QLineEdit(centralWidget);
         edt_search->setObjectName(QString::fromUtf8("edt_search"));
         edt_search->setGeometry(QRect(350, 280, 71, 21));
+        chk_enableDebugPic = new QCheckBox(centralWidget);
+        chk_enableDebugPic->setObjectName(QString::fromUtf8("chk_enableDebugPic"));
+        chk_enableDebugPic->setGeometry(QRect(493, 725, 101, 19));
+        chk_enableDebugPic->setChecked(false);
         MainWindow->setCentralWidget(centralWidget);
 
         retranslateUi(MainWindow);
@@ -419,6 +424,7 @@ public:
         QObject::connect(btn_getBattleTemplate_2, SIGNAL(clicked()), MainWindow, SLOT(OnBtnGetBattleTemplate2()));
         QObject::connect(btn_openMapTemplate, SIGNAL(clicked()), MainWindow, SLOT(OnBtnOpenMapTemplate()));
         QObject::connect(edt_search, SIGNAL(returnPressed()), MainWindow, SLOT(OnSearchEnterPressed()));
+        QObject::connect(chk_enableDebugPic, SIGNAL(toggled(bool)), MainWindow, SLOT(OnChkEnableDebugPic(bool)));
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -527,6 +533,7 @@ public:
         btn_openMapTemplate->setText(QApplication::translate("MainWindow", "\346\211\223\345\274\200\345\234\260\345\233\276\346\250\241\347\211\210", nullptr));
         label_28->setText(QApplication::translate("MainWindow", "\346\237\245\350\257\242\345\220\215\347\247\260", nullptr));
         edt_search->setText(QString());
+        chk_enableDebugPic->setText(QApplication::translate("MainWindow", "\345\274\200\345\220\257\350\260\203\350\257\225\345\233\276\347\211\207", nullptr));
     } // retranslateUi
 
 };
