@@ -197,6 +197,10 @@ double ZZPicCompareStrategy::HandlePicCompare(InputData &input, HWND gameWnd, co
 			m_mainWnd->AddTipInfo(std::string("key point too low[").append(std::to_string(kpts1.size())).append("|").append( std::to_string( kpts2.size() ) ).append("]-").append( strPicName ).c_str());
 #endif // _DEBUG
 
+			if (r == r2 && g == g2 && b == b2 && r != 0 && g != 0) {
+				return 1.0;
+			}
+
 			return 0.0;
 		}
 
