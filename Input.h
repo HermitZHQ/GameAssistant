@@ -60,8 +60,16 @@ struct InputData
 	int					cmpParam;
 	int					outputParam;
 	int					waitTime;//秒
-	//------总26列数据
-	char				reserve[PATH_LEN * 2 - (1 + sizeof(short) * 2 + sizeof(int) * 3)];//.....预留数据扩展，免得每次加入新数据，之前的保存文件都要报废
+
+	bool				bEnableThresholdCmpFlag;
+	BYTE				thresholdCmpLowColor[3];
+	BYTE				thresholdCmpHighColor[3];
+	BYTE				thresholdCmpReplaceColor[3];
+
+	//------预留数据
+	//.....预留数据扩展，免得每次加入新数据，之前的保存文件都要报废（扩展原大小应该是PATH_LEN * 3，目前已经减去了所有扩展进来的大小，只要不加大块数据，这个预留应该是足够了）
+	char				reserve[PATH_LEN * 2 
+		- (1 + sizeof(short) * 2 + sizeof(int) * 3 + sizeof(bool) + sizeof(BYTE) * 9)];
 
 	InputData()
 		:type(Mouse), opType(Click), vk(0), x(0), y(0)
@@ -72,11 +80,15 @@ struct InputData
 		, bCmpPicCheckFlag(true)
 		, findPicSucceedJumpIndex(-1), findPicOvertimeJumpIndex(-1), repeatCount(1)
 		, alreadyRepeatCount(0)
+		, bEnableThresholdCmpFlag(false)
 	{
 		ZeroMemory(picPath, PATH_LEN);
 		ZeroMemory(findPicSucceedJumpModule, PATH_LEN);
 		ZeroMemory(findPicOvertimeJumpModule, PATH_LEN);
 		ZeroMemory(comment, PATH_LEN);
 		ZeroMemory(reserve, sizeof(reserve));
+		ZeroMemory(thresholdCmpLowColor, sizeof(thresholdCmpLowColor));
+		ZeroMemory(thresholdCmpHighColor, sizeof(thresholdCmpHighColor));
+		ZeroMemory(thresholdCmpReplaceColor, sizeof(thresholdCmpReplaceColor));
 	}
 };

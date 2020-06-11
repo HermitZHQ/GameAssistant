@@ -534,7 +534,7 @@ void MainWindow::GetInputData(InputData &input)
 	input.yRate = (float)input.y / (float)m_gameWndSize.y;
 	// 	}
 
-		//----pic
+	//----pic
 	// 	if (InputType::Pic == input.type)
 	// 	{
 	input.bCmpPicCheckFlag = m_ui->chk_cmpPicClick->isChecked();
@@ -551,6 +551,20 @@ void MainWindow::GetInputData(InputData &input)
 	input.yRate2 = (float)input.y2 / (float)m_gameWndSize.y;
 	strcpy_s(input.picPath, PATH_LEN, m_ui->edt_picPath->text().toLocal8Bit().toStdString().c_str());
 	// 	}
+
+	//----pic threshold compare
+	input.bEnableThresholdCmpFlag = m_ui->chk_enableThresholdCmp->isChecked();
+	input.thresholdCmpLowColor[0] = m_ui->edt_cmpLowR->text().toUShort();
+	input.thresholdCmpLowColor[1] = m_ui->edt_cmpLowG->text().toUShort();
+	input.thresholdCmpLowColor[2] = m_ui->edt_cmpLowB->text().toUShort();
+
+	input.thresholdCmpHighColor[0] = m_ui->edt_cmpHighR->text().toUShort();
+	input.thresholdCmpHighColor[1] = m_ui->edt_cmpHighG->text().toUShort();
+	input.thresholdCmpHighColor[2] = m_ui->edt_cmpHighB->text().toUShort();
+
+	input.thresholdCmpReplaceColor[0] = m_ui->edt_cmpReplaceR->text().toUShort();
+	input.thresholdCmpReplaceColor[1] = m_ui->edt_cmpReplaceG->text().toUShort();
+	input.thresholdCmpReplaceColor[2] = m_ui->edt_cmpReplaceB->text().toUShort();
 }
 
 void MainWindow::UpdateInputData(InputData &input)
@@ -629,6 +643,20 @@ void MainWindow::UpdateInputDataUI(int index)
 		m_ui->edt_overtimeJumpModule->setText(Q8(it->findPicOvertimeJumpModule));
 		m_ui->edt_succeedJumpModule->setText(Q8(it->findPicSucceedJumpModule));
 		m_ui->chk_cmpPicClick->setChecked(it->bCmpPicCheckFlag);
+
+		//----threshold compare
+		m_ui->chk_enableThresholdCmp->setChecked(it->bEnableThresholdCmpFlag);
+		m_ui->edt_cmpLowR->setText(QString::number(it->thresholdCmpLowColor[0]));
+		m_ui->edt_cmpLowG->setText(QString::number(it->thresholdCmpLowColor[1]));
+		m_ui->edt_cmpLowB->setText(QString::number(it->thresholdCmpLowColor[2]));
+
+		m_ui->edt_cmpHighR->setText(QString::number(it->thresholdCmpHighColor[0]));
+		m_ui->edt_cmpHighG->setText(QString::number(it->thresholdCmpHighColor[1]));
+		m_ui->edt_cmpHighB->setText(QString::number(it->thresholdCmpHighColor[2]));
+
+		m_ui->edt_cmpReplaceR->setText(QString::number(it->thresholdCmpReplaceColor[0]));
+		m_ui->edt_cmpReplaceG->setText(QString::number(it->thresholdCmpReplaceColor[1]));
+		m_ui->edt_cmpReplaceB->setText(QString::number(it->thresholdCmpReplaceColor[2]));
 
 		break;
 	}
