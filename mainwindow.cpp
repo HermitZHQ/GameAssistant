@@ -2066,8 +2066,15 @@ void MainWindow::InitGameWindow()
 		return;
 	}
 
+	//先使用保存的窗口名字，如果为空我们再使用内置的窗口名查找（这样更加灵活，而且随时可以修改名字，比如mumu的win7和win7的窗口就不一样）
+	QString savedWndName = m_ui->edt_wndName->text();
+	std::string queryWndName = (savedWndName.compare("") == 0) ?
+		it->second.layerWndName[it->second.curLayer].toLocal8Bit().toStdString() :
+		savedWndName.toLocal8Bit().toStdString();
+
 	//首先查找指定类型
-	it->second.layerWnd[it->second.curLayer] = FindWindowA(nullptr, it->second.layerWndName[it->second.curLayer].toLocal8Bit().toStdString().c_str());
+	it->second.layerWnd[it->second.curLayer] = FindWindowA(nullptr, queryWndName.c_str());
+// 	auto wh = FindWindowA(nullptr, "MuMu模拟器");
 	//没有找到指定类型
 	if (nullptr == it->second.layerWnd[it->second.curLayer])
 	{
@@ -2092,6 +2099,9 @@ void MainWindow::InitGameWindow()
 
 					AddTipInfo(std::string("找到模拟器[").append(simWndInfo.second.layerWndName[0].toLocal8Bit().toStdString()).append("]").c_str());
 					break;
+				}
+				else {
+					AddTipInfo(std::string("没有找到最终游戏窗口...").c_str());
 				}
 			}
 		}
@@ -2120,6 +2130,9 @@ void MainWindow::InitGameWindow()
 			it->second.SetGameWndSize(m_wndWidth, m_wndHeight);
 
 			AddTipInfo(std::string("找到模拟器[").append(it->second.layerWndName[0].toLocal8Bit().toStdString()).append("]").c_str());
+		}
+		else {
+			AddTipInfo(std::string("没有找到最终游戏窗口...").c_str());
 		}
 	}
 
